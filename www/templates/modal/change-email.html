@@ -1,0 +1,34 @@
+<style>
+    .bar.bar-footer {
+        border: 0px !important;
+        border-bottom-color: transparent !important;
+        background-image: none;
+        border-bottom: none;
+    }
+</style>
+
+<ion-modal-view hide-nav-bar="true">
+    <ion-content class="padding text-center">
+        <div style="height: 25px"></div>
+        <img id="logo" src="img/logo.svg" style="width: 62px; height: auto">
+
+        <h2>Is this the email people can use to reach you?</h2>
+
+        <div style="height: 25px"></div>
+        <ion-list class="border-none">
+            <ion-item class="item-input border-bottom">
+                <input type="email" placeholder="Email">
+            </ion-item>
+        </ion-list>
+
+        <div class="padding">
+            <a class="button button-clear button-positive" ng-click="closeChangeEmail();">
+                OK
+            </a>
+        </div>
+    </ion-content>
+
+    <ion-footer-bar class="row">
+        <a class="col button button-clear button-small" ng-click="closeChangeEmail();">Not Now</a>
+    </ion-footer-bar>
+</ion-modal-view>

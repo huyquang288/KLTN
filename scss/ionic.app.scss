@@ -1,0 +1,532 @@
+//@import url(http://fonts.googleapis.com/css?family=Lato:300,400,700);
+$ionicons-font-path: "../fonts" !default;
+
+// Colors
+// -------------------------------
+$light: #fff !default;
+$stable: #D9D9D9 !default;
+$positive: #009FE8 !default;
+$calm: #6FC1E6 !default;
+$balanced: #3FC299 !default;
+$energized: #F8DF64 !default;
+$assertive: #FF3E3E !default;
+$royal: #6a0bc1 !default;
+$dark: #171616 !default;
+
+
+// Base
+// -------------------------------
+$font-family-sans-serif: Lato, "Helvetica Neue", "Roboto", "Segoe UI", sans-serif !default;
+$font-family-serif: Georgia, Cambria, 'Times New Roman', Times, serif !default;
+
+$headings-font-weight: 700;
+// Lato Bold
+$headings-line-height: 1.2 !default;
+
+$base-color: $dark !default;
+$link-color: $positive !default;
+
+// Buttons
+// -------------------------------
+$button-border-radius: 100px !default;
+$button-padding: 36px !default;
+$button-small-padding: 12px !default;
+$button-large-padding: 48px !default;
+
+$button-light-border: $light !default;
+$button-stable-border: $stable !default;
+$button-positive-border: $positive !default;
+$button-calm-border: $calm !default;
+$button-balanced-border: $balanced !default;
+$button-energized-border: $energized !default;
+$button-assertive-border: $assertive !default;
+$button-royal-border: $royal !default;
+$button-dark-border: $dark !default;
+
+$button-light-active-bg: $dark !default;
+$button-light-active-border: $dark !default;
+
+$button-stable-active-bg: $link-color !default;
+$button-stable-active-border: $link-color !default;
+
+$button-dark-active-bg: $link-color !default;
+$button-dark-active-border: $link-color !default;
+
+$button-positive-active-bg: $dark !default;
+$button-positive-active-border: $dark !default;
+
+$button-calm-active-bg: $dark !default;
+$button-calm-active-border: $dark !default;
+
+$button-balanced-active-bg: $dark !default;
+$button-balanced-active-border: $dark !default;
+
+$button-energized-active-bg: $dark !default;
+$button-energized-active-border: $dark !default;
+
+$button-assertive-active-bg: $dark !default;
+$button-assertive-active-border: $dark !default;
+
+$button-royal-active-bg: $dark !default;
+$button-royal-active-border: $dark !default;
+
+// Bar
+// -------------------------------
+$bar-light-border: $stable !default;
+$bar-stable-border: #BABABA !default;
+
+// Items
+// -------------------------------
+$item-default-border: #eeeeee !default;
+$item-default-active-bg: $stable !default;
+$item-default-active-border: $item-default-active-bg !default;
+
+$item-padding: 15px !default;
+$item-thumbnail-margin: 15px !default;
+
+$item-thumbnail-width: 90px !default;
+$item-thumbnail-height: 90px !default;
+$item-thumbnail-width-l: 100px !default;
+$item-thumbnail-height-l: 100px !default;
+$item-thumbnail-width-xl: 110px !default;
+$item-thumbnail-height-xl: 110px !default;
+$item-thumbnail-width-s: 72px !default;
+$item-thumbnail-height-s: 72px !default;
+$item-thumbnail-width-xs: 52px !default;
+$item-thumbnail-height-xs: 52px !default;
+
+$item-avatar-width: 45px !default;
+$item-avatar-height: 45px !default;
+$item-avatar-width-s: 30px !default;
+$item-avatar-height-s: 30px !default;
+$item-avatar-width-xs: 22px !default;
+$item-avatar-height-xs: 22px !default;
+
+// Card
+// -------------------------------
+$card-border-radius: 0 !default;
+$card-box-shadow: none !default;
+
+// Toggle
+// -------------------------------
+$toggle-off-bg-color: #9B9B9B !default;
+$toggle-off-border-color: #9B9B9B !default;
+
+// Checkbox
+// -------------------------------
+$checkbox-width: 25px !default;
+$checkbox-height: 25px !default;
+$checkbox-off-border-default: #eeeeee !default;
+
+// Tabs
+// -------------------------------
+$tabs-light-text: #D9D9D9 !default;
+$tabs-light-border: #BABABA !default;
+
+$tabs-stable-text: #BABABA !default;
+$tabs-stable-border: #BABABA !default;
+
+$loading-bg-color: transparent !default;
+
+$sheet-options-text-color: $link-color !default;
+$sheet-destructive-text-color: $assertive !default;
+
+$popup-border-radius: 5px !default;
+
+$modal-inset-mode-break-point: 9999px !default;
+// @media min-width
+
+// Include all of Ionic
+@import // Ionicons
+"scss/ionicons.scss",
+  // Variables
+ "scss/mixins",
+"www/lib/ionic/scss/variables",
+  // Base
+  "www/lib/ionic/scss/reset",
+"www/lib/ionic/scss/scaffolding",
+"scss/type",
+  // Components
+  "scss/action-sheet",
+"www/lib/ionic/scss/backdrop",
+"scss/bar",
+"scss/tabs",
+"www/lib/ionic/scss/menu",
+"www/lib/ionic/scss/modal",
+"www/lib/ionic/scss/popover",
+"scss/popup",
+"www/lib/ionic/scss/loading",
+"scss/items",
+"www/lib/ionic/scss/list",
+"www/lib/ionic/scss/badge",
+"www/lib/ionic/scss/slide-box",
+"www/lib/ionic/scss/refresher",
+"www/lib/ionic/scss/spinner",
+  // Forms
+ "www/lib/ionic/scss/form",
+"www/lib/ionic/scss/checkbox",
+"scss/toggle",
+"scss/radio",
+"www/lib/ionic/scss/range",
+"www/lib/ionic/scss/select",
+"www/lib/ionic/scss/progress",
+  // Buttons
+"scss/button",
+"www/lib/ionic/scss/button-bar",
+  // Util
+"www/lib/ionic/scss/grid",
+"www/lib/ionic/scss/util",
+"www/lib/ionic/scss/platform",
+  // Animations
+"www/lib/ionic/scss/animations",
+"www/lib/ionic/scss/transitions",
+  // Custom Component
+"scss/message";
+
+// Base
+// -------------------------------
+
+.grey {
+  color: #777;
+}
+
+.grey-bg {
+  background-color: #777;
+}
+
+.grey-border {
+  border-color: #777;
+}
+
+/* Button Items */
+.item-divider, .item-divider + .item {
+  border: transparent;
+}
+
+.item.active + .item,
+.item.activated + .item,
+.item-complex.active .item-content + .item,
+.item-complex.activated .item-content + .item,
+.item .item-content.active + .item,
+.item .item-content.activated + .item {
+  border-color: transparent;
+}
+
+/* item option button */
+.item-options .button {
+  min-width: 75px;
+  padding: 0 10px;
+}
+
+// Forms
+// -------------------------------
+input[type="text"],
+input[type="password"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="date"],
+input[type="month"],
+input[type="time"],
+input[type="week"],
+input[type="number"],
+input[type="email"],
+input[type="url"],
+input[type="search"],
+input[type="tel"],
+input[type="color"] {
+  font-size: 16px;
+  font-weight: $headings-font-weight;
+}
+
+.dark::-webkit-input-placeholder {
+  color: $dark;
+}
+
+// Card
+// -------------------------------
+.card {
+  border: 1px solid #eeeeee;
+}
+
+.row .col .card {
+  margin: 0;
+  border-radius: 5px;
+}
+
+.row .col .card .item-divider {
+  padding: 15px 10px;
+}
+
+// Tabs
+// -------------------------------
+.tabs-icon-only .tab-item.tab-item-active,
+.tabs-icon-only .tab-item.active,
+.tabs-icon-only .tab-item.activated {
+  color: $positive;
+}
+
+.tabs-striped .tab-item.tab-item-active,
+.tabs-striped .tab-item.active,
+.tabs-striped .tab-item.activated {
+  border-color: $positive;
+}
+
+/* borders between icons */
+.tab-item-separated {
+  border-right: 1px solid #D9D9D9;
+}
+
+.tabs .tab-item-separated:last-child {
+  border-right: none;
+}
+
+.tabs-positive .tab-item,
+.tabs-calm .tab-item,
+.tabs-assertive .tab-item,
+.tabs-balanced .tab-item,
+.tabs-energized .tab-item,
+.tabs-royal .tab-item,
+.tabs-dark .tab-item {
+  border-right: 1px solid #ffffff;
+}
+
+/* Tabs Striped */
+.tabs-striped .no-flex .tab-item {
+  -webkit-box-flex: none;
+  -webkit-flex: none;
+  -moz-box-flex: none;
+  -moz-flex: none;
+  -ms-flex: none;
+  flex: none;
+  margin-left: 16px;
+  margin-right: 16px;
+}
+
+// Template
+// -------------------------------
+.ionic.ionic-example .bar {
+  position: relative;
+}
+
+// remove item border
+//.border-none .item{
+//  border-top: none;
+//  border-left: none;
+//  border-right: none;
+//}
+
+//.border-none .item:not(.border-bottom){
+//  border-bottom: none;
+//}
+
+.border-none .item {
+  border: none;
+  margin: 0;
+}
+
+.border-bottom.item {
+  border-bottom: 1px solid #eeeeee;
+}
+
+// story page typo
+.main-text p {
+  font-family: $font-family-serif;
+  font-size: 18px;
+  line-height: 1.555;
+  color: $dark;
+}
+
+.main-text blockquote {
+  font-size: 21px;
+  line-height: 1.555;
+  color: $dark;
+  quotes: "\201C""\201D""\2018""\2019";
+  padding-left: 40px;
+  border: none;
+}
+
+.main-text blockquote:before {
+  font-family: $font-family-serif;
+  color: $dark;
+  content: open-quote;
+  font-size: 4em;
+  line-height: 0.1em;
+  margin-left: -.4em;
+  vertical-align: -0.4em;
+}
+
+// gray background response list
+.response-block {
+  background-color: #fafafa;
+}
+
+.response-block .list-inset {
+  background-color: transparent;
+}
+
+.response-block .item {
+  background-color: transparent;
+}
+
+// Massenger
+// -------------------------------
+
+/* remove the top border of footer */
+.bar.bar-footer {
+  border: 0px !important;
+  border-bottom-color: transparent !important;
+  background-image: none;
+  border-bottom: none;
+}
+
+/* tab-activities */
+.item-note {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+}
+
+/* use when avatar is at the center of an item */
+.item-avatar-center.item-avatar > img:first-child {
+  position: initial;
+}
+
+.item-avatar.item-avatar-l,
+.item-avatar.item-avatar-xl {
+  padding-left: 16px;
+}
+
+.item-avatar.item-avatar-l img:first-child {
+  max-width: 60px;
+  max-height: 60px;
+}
+
+.item-avatar.item-avatar-xl img:first-child {
+  max-width: 80px;
+  max-height: 80px;
+}
+
+/* use when avatar is with toggle in an item */
+.item-toggle.item-avatar img {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  max-width: 40px;
+  max-height: 40px;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.item-toggle .toggle {
+  top: 50%;
+  margin-top: -20px;
+}
+
+/* badge */
+.item .badge,
+.item-icon-left .badge.avatar-badge .icon,
+.item-icon-right .badge.avatar-badge .icon {
+  display: inline !important;
+}
+
+.avatar-badge {
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+}
+
+.item .badge.avatar-badge-xs {
+  top: 20px;
+  left: 26px;
+
+  font-size: 10px;
+  width: 12px;
+  height: 12px;
+  line-height: 8px;
+  padding: 0;
+  border-width: 1px;
+}
+
+.item .badge.avatar-badge-s {
+  top: 46px;
+  left: 46px;
+
+  font-size: 10px;
+  width: 15px;
+  height: 15px;
+  line-height: 10px;
+  padding: 0;
+}
+
+.item .badge.avatar-badge-l {
+  top: 65%;
+  left: 55%;
+
+  width: 23px;
+  height: 23px;
+  padding: 2px;
+}
+
+/* set the size of icon in badge in item-icon-right/left  */
+.item-icon-right .avatar-badge-s .icon,
+.item-icon-left .avatar-badge-s .icon {
+  font-size: 10px;
+  left: -10px;
+}
+
+/* checkbox style which used in new-group and add-people  */
+.modal-page .item-checkbox.item-avatar img {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  max-width: 40px;
+  max-height: 40px;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.modal-page .item-checkbox {
+  padding-left: 72px;
+}
+
+.checkbox input:checked:before,
+.checkbox input:checked + .checkbox-icon:before {
+  background: transparent;
+  border-color: transparent;
+}
+
+.checkbox input:before, .checkbox-icon:before,
+.checkbox input:after, .checkbox-icon:after {
+  border-color: transparent;
+}
+
+.checkbox input:after, .checkbox-icon:after {
+  border-color: #387ef5;
+}
+
+/* popup */
+.popup-head {
+  padding: 15px 10px 0 10px;
+}
+
+.popup-title {
+  font-weight: $headings-font-weight;
+}
+
+.popup-body {
+  text-align: center;
+}
+
+.popup-body input {
+  margin-top: 10px;
+  padding-left: 10px;
+}
+
+.popup-buttons button:first-child {
+  color: $positive;
+}
+
+.popup-container .popup {
+  width: 280px;
+}

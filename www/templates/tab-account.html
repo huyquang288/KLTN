@@ -1,0 +1,73 @@
+<ion-view view-title="Setting">
+    <ion-nav-buttons side="left">
+        <button class="button button-clear button-positive" ng-click="showEdit()">Edit</button>
+    </ion-nav-buttons>
+
+    <ion-content id="tab-account">
+        <ion-list>
+            <ion-item class="item-avatar item-avatar-center item-avatar-xl text-center" ng-if="userId!==213">
+                <img ng-src="{{user.face}}">
+                <h3><small>{{user.name}}</small></h3>
+                <button class="button button-clear button-small button-positive" ng-click="showEdit()">{{user.email}}</button>
+            </ion-item>
+
+            <ion-item class="item-icon-right" ng-click="showNotification();">
+                <h3><small>Notifications</small></h3>
+                <p>On</p>
+                <i class="icon ion-ios-arrow-right"></i>
+            </ion-item>
+
+            <ion-toggle ng-model="setting_preview">
+                <h3><small>Notification Previews</small></h3>
+                <p ng-if="!setting_preview">Show name only</p>
+                <p ng-if="setting_preview">Show name and massage</p>
+            </ion-toggle>
+
+            <ion-toggle ng-model="setting_sound">
+                <h3><small>In-App Sound</small></h3>
+                <p ng-if="!setting_sound">Off</p>
+                <p ng-if="setting_sound">On</p>
+            </ion-toggle>
+
+            <ion-toggle ng-model="setting_vibration">
+                <h3><small>In-App Vibrate</small></h3>
+                <p ng-if="!setting_vibration">Off</p>
+                <p ng-if="setting_vibration">On</p>
+            </ion-toggle>
+            <ion-item class="item-icon-right" ng-click="showSync();">
+                <h3><small>Synced Contacts</small></h3>
+                <p>On</p>
+                <i class="icon ion-ios-arrow-right"></i>
+            </ion-item>
+            <ion-item class="item-icon-right" ng-click="show();">
+                <h3><small>Invite Friends</small></h3>
+                <i class="icon ion-ios-arrow-right"></i>
+            </ion-item>
+            <ion-toggle ng-modal="setting_camera">
+                <h3><small>Save Photos to the Camera Roll</small></h3>
+                <p ng-if="!setting_camera">Off</p>
+                <p ng-if="setting_camera">On</p>
+            </ion-toggle>
+            <ion-item class="item-icon-right" href="#">
+                <h3><small>Help</small></h3>
+                <i class="icon ion-ios-arrow-right"></i>
+            </ion-item>
+            <ion-item class="item-icon-right" href="#">
+                <h3><small>Third Party Notice</small></h3>
+                <i class="icon ion-ios-arrow-right"></i>
+            </ion-item>
+            <ion-item class="item-icon-right" href="#">
+                <h3><small>Privacy Policy</small></h3>
+                <i class="icon ion-ios-arrow-right"></i>
+            </ion-item>
+            <ion-item class="item-icon-right" href="#">
+                <h3><small>Terms of Service</small></h3>
+                <i class="icon ion-ios-arrow-right"></i>
+            </ion-item>
+            <ion-item class="item-icon-right" ng-click="show();">
+                <h3><small>Report a Problem</small></h3>
+                <i class="icon ion-ios-arrow-right"></i>
+            </ion-item>
+        </ion-list>
+    </ion-content>
+</ion-view>

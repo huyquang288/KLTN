@@ -1,0 +1,71 @@
+<ion-view view-title="Recent">
+    <ion-nav-buttons side="right">
+        <button class="button button-clear button-icon button-positive icon ion-ios-compose-outline"
+                ng-click="openNewChat()"></button>
+    </ion-nav-buttons>
+
+    <ion-content>
+        <ion-list ng-if="fullData[0].group_room">
+            <ion-item>
+                <button class="button button-small button-block icon-left ion-ios-search" ng-click="openSearch()"
+                        style="margin: 0">
+                    Search for people and groups
+                </button>
+            </ion-item>
+
+            <span ng-repeat="room in fullData[0].group_room">
+                <ion-item class="item-remove-animate item-avatar" 
+                          nav-direction="forward" href="#/room/{{room.rooms.id}}"
+                          type="item-text-wrap">
+                    <img ng-src="{{room.rooms.thumbnail}}">
+
+                    <span class="badge avatar-badge avatar-badge-s"
+                          ng-class="{'badge-positive':room.roomType=='ms_friend', 'badge-stable':room.rooms.roomType=='fb_friend'}"
+                          ng-if="room.rooms.roomType!='group'">
+                        <i class="icon ion-ios-bolt" ng-if="room.rooms.roomType=='ms_friend'"></i>
+                        <i class="icon ion-social-facebook light" ng-if="room.rooms.roomType=='fb_friend'"></i>
+                    </span>
+
+                    <h3>
+                        <small>{{room.rooms.title}}</small>
+                    </h3>
+
+                    <p>{{room.rooms.latest_chat}}</p>
+
+                    <span class="item-note">{{room.rooms.activeTime}}</span>
+
+                    <ion-option-button class="button-dark" ng-click="">
+                        Leave group
+                    </ion-option-button>
+
+                    <ion-option-button class="button-assertive" ng-click="remove(room)">
+                        Delete
+                    </ion-option-button>
+                    
+
+                </ion-item>
+            </span>
+        </ion-list>
+
+        <div ng-if=false>
+            Log
+            <p>{{fullData[0].group_room}}</p>
+        </div>
+
+        <!--show when there is no activity-->
+        <div ng-if="!fullData[0].group_room">
+            <div style="height: 60px"></div>
+            <div class="text-center" style="padding: 45px">
+                <h2 class="grey">
+                    Recent
+                </h2>
+
+                <div style="height: 10px"></div>
+                <h4 class="grey">Once you start chatting, all your messages will be here.</h4>
+
+                <div style="height: 20px"></div>
+                <button class="button button-outline" ng-click="openNewChat()">New Message</button>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>

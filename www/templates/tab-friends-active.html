@@ -1,0 +1,58 @@
+<ion-view hide-nav-bar="true">
+    <!--<ion-header-bar class="bar-stable">-->
+        <!--<div class="buttons">-->
+            <!--<button class="button button-clear button-icon button-positive icon ion-ios-search"-->
+                    <!--ng-click="openSearch()"></button>-->
+        <!--</div>-->
+        <!--<div class="title" style="padding: 5px 0;">-->
+            <!--<div class="button-bar bar-lignt">-->
+                <!--<a class="button button-outline button-positive" href="#/tab/messenger">Messenger</a>-->
+                <!--<a class="button button-positive" href="#/tab/active" style="color: #ffffff!important;">Active</a>-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--<div class="buttons">-->
+            <!--<button class="button button-clear button-icon button-positive icon ion-ios-plus-empty"-->
+                    <!--ng-click="showPromptAdd()" style="position: absolute; right: 5px;"></button>-->
+        <!--</div>-->
+    <!--</ion-header-bar>-->
+
+    <ion-content id="online">
+        <ion-list>
+            <ion-toggle class="item-avatar" type="item-text-wrap" ng-model="online_on">
+                <img ng-src="{{user.face}}">
+                <span class="badge avatar-badge avatar-badge-s badge-positive"><i class="icon ion-ios-bolt"></i></span>
+
+                <h3>
+                    <small>{{user.name}}</small>
+                </h3>
+            </ion-toggle>
+
+            <div ng-if="online_on">
+                <ion-item class="item-divider">
+                    <p>Active friends</p>
+                </ion-item>
+                <span ng-repeat="friend in friends">
+                    <ion-item class="item-avatar" type="item-text-wrap" href="#/room/{{friend.room.id}}" nav-direction="forward">
+
+                    <img ng-src="{{friend.face}}">
+
+                    <span class="badge avatar-badge avatar-badge-s"
+                          ng-class="{'badge-positive':friend.friendType=='Messenger', 'badge-stable':friend.friendType=='facebook'}">
+                      <i class="icon ion-ios-bolt" ng-if="friend.friendType=='Messenger'"></i>
+                      <i class="icon ion-social-facebook light" ng-if="friend.friendType=='facebook'"></i>
+                    </span>
+
+                    <h3>
+                      <small>{{friend.name}}</small>
+                    </h3>
+                    </ion-item>
+                </span>
+            </div>
+            <div ng-if="!online_on" class="text-center stable" style="padding: 100px 40px;">
+                <p>You'll still get your message if chat is off, but you can turn it on to see who's
+                    active.</p>
+            </div>
+        </ion-list>
+        <div style="height: 60px"></div>
+    </ion-content>
+</ion-view>

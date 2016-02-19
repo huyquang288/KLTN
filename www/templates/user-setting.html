@@ -1,0 +1,33 @@
+<ion-view view-title="Contact">
+    <ion-nav-buttons side="primary">
+        <button nav-direction="back" class="button button-clear button-icon button-positive icon ion-ios-arrow-back" ng-click="historyBack()">
+        </button>
+    </ion-nav-buttons>
+
+    <ion-content id="group-setting">
+        <ion-list>
+            <ion-item class="item-avatar item-avatar-center item-avatar-xl text-center">
+                <img ng-src="{{user.face}}">
+
+                <h2>
+                    <small>{{user.name}}</small>
+                </h2>
+
+                <p>{{user.friendType}}</p>
+            </ion-item>
+
+            <ion-item class="item-icon-left" ng-click="setNotification();">
+                <i class="icon ion-ios-chatbubble-outline positive"></i>
+                Message
+            </ion-item>
+
+            <div style="height: 35px"></div>
+
+            <ion-item class="assertive" ng-click="showConfirmRemove();">
+                Remove from Group
+            </ion-item>
+
+            <div style="height: 35px"></div>
+        </ion-list>
+    </ion-content>
+</ion-view>

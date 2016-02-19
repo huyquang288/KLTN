@@ -1,0 +1,21 @@
+<ion-view hide-nav-bar="true">
+    <ion-header-bar class="bar-stable">
+        <div class="buttons">
+            <button class="button button-clear button-icon button-positive icon ion-ios-search"
+                    ng-click="openSearch()"></button>
+        </div>
+        <div class="title" style="padding: 5px 0;">
+            <div class="button-bar bar-light">
+                <a class="button button-outline button-positive"
+                   ng-class="{active: $state.includes('tab.friends.messenger')}" href="#/tab/friends/messenger">Messenger</a>
+                <a class="button button-outline button-positive"
+                   ng-class="{active: $state.includes('tab.friends.active')}" href="#/tab/friends/active">Active</a>
+            </div>
+        </div>
+        <div class="buttons">
+            <button class="button button-clear button-icon button-positive icon ion-ios-plus-empty"
+                    ng-click="showPromptAdd()" style="position: absolute; right: 5px;"></button>
+        </div>
+    </ion-header-bar>
+    <div ui-view></div>
+</ion-view>
