@@ -35,7 +35,7 @@ app.use(function (req, res, next) {
 });
 
 app.get('/', function(req, res){
-
+	
     var sql = "SELECT * FROM groups INNER JOIN group_room ON groups.id=group_room.groupId INNER JOIN rooms ON rooms.id=group_room.roomId INNER JOIN group_user ON groups.id= group_user.groupId INNER JOIN users ON group_user.userId= users.id INNER JOIN chats ON rooms.id= chats.roomId";
     var nestingOptions = [
         { tableName: 'groups', pkey: 'id'},        
@@ -56,7 +56,10 @@ app.get('/', function(req, res){
             var nestedRows = func.convertToNested(rows, nestingOptions);
             // res.send(JSON.stringify(nestedRows));
             res.send(nestedRows);
+			//console.log(rows);
         }
+		
+		
 
     });
 
@@ -65,7 +68,7 @@ app.get('/', function(req, res){
 
 
 // Routing
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/'));
 
 // Chatroom
 
@@ -78,8 +81,7 @@ io.on('connection', function (socket) {
 
   // when the client emits 'new message', this listens and executes
   socket.on('new message', function (data) {
-    // we tell the client to execute 'new message'
-	console.log(roomId);
+    // we tell the client to execute 'new message'	
     socket.broadcast.to(roomId).emit('new message', {
       username: socket.username,
       message: data
@@ -87,8 +89,8 @@ io.on('connection', function (socket) {
   });
 
   // when the client emits 'add user', this listens and executes
-  socket.on('add user', function (username, id) {
-	  roomId= id;
+  socket.on('add user', function (username, id) {	  
+	  roomId= id;	  
 	  //console.log(roomId);
     if (addedUser) return;
      socket.join(roomId);

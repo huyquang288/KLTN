@@ -1,4 +1,4 @@
-angular.module('starter.controllers', [])
+angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btford.socket-io'])
     
     .service('sharedProperties', function() {
         var objectValue = {
@@ -20,25 +20,17 @@ angular.module('starter.controllers', [])
         $scope.historyBack = function () {
             window.history.back();
         };
-        //window.alert("hihi");
 
         Data.getAll().then( function(data) {
             $scope.fullData= data;
             sharedProperties.setObject(data);
         });
-        //window.alert($scope.fullData);
-        
-        //window.alert(data);
 
         $scope.friends = User.myFriends("213");
-        //window.alert($scope.friends);
-
-        //window.alert($scope.friends);
         $scope.activities = Room.userActivities("213");
 
         // for tab-account and sign-up-success
         $scope.user = User.get("213");
-
 
         // for new-group
         $rootScope.newGroupName = '';
@@ -196,10 +188,14 @@ angular.module('starter.controllers', [])
             Room.remove(item);
         };
 
+        $scope.click= function () {
+            console.log("connect to server in here");
+        };
+
         $scope.friends = User;
     })
 
-    .controller('RoomCtrl', function ($scope, $stateParams, sharedProperties,Room, Chat) {
+    .controller('RoomCtrl', function ($scope, $stateParams, sharedProperties, Socket, Room, Chat) {
         $scope.fullData= sharedProperties.getObject();
         //$scope.room.settingURL= "";
         //var id= $stateParams.roomId;
@@ -234,25 +230,50 @@ angular.module('starter.controllers', [])
 
         //$scope.chatList = Chat.getByRoom($scope.room.id);
         $scope.chatList= $scope.room.chats;
+        // chuyển toàn bộ dữ liệu của phần chat lấy được trên server sang cho chats bên services.js
+        Chat.set($scope.chatList);
 
+        //  KẾT NỐI ĐẾN SERVER ĐỂ VÀO ĐƯỢC PHÒNG CHAT.
+        var self=this;
+        var typing = false;
+        var lastTypingTime;
+        var TYPING_TIMER_LENGTH = 400;    
+
+        Socket.on('connect',function(){
+            connected = true
+         
+            //Add user
+            Socket.emit('add user', "huy", $stateParams.roomId);
+
+            // On login display welcome message
+            Socket.on('login', function (data) {
+            //Set the value of connected flag
+            self.connected = true
+            //self.number_message= message_string(data.numUsers)
+          })
+        })
+
+        Socket.on('new message', function (data) {
+            if(data.message&&data.username)
+            {
+                var userId= 1;
+                var chatText= data.message;
+                Chat.add(chatText, $stateParams.roomId, userId);
+                $scope.chatList = Chat.getByRoom($stateParams.roomId);
+            }
+        });
 
         $scope.sendChat = function (chatText) {
+            Socket.emit('new message', chatText)
             Chat.add(chatText, $stateParams.roomId, "213");
             $scope.chatList = Chat.getByRoom($stateParams.roomId);
-            reply();
-
         };
 
         var reply = function () {
-            var userId;
-            for (var i = 0; i < $scope.room.userList.length; i++) {
-                if ($scope.room.userList[i] != "213") {
-                    userId = $scope.room.userList[i];
-                }
-            }
-            var chatText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+            var userId= 1;
+            var chatText = "";
             Chat.add(chatText, $stateParams.roomId, userId);
-            $scope.chatList = Chat.getByRoom($stateParams.roomId);
+            //$scope.chatList = Chat.getByRoom($stateParams.roomId);
         };
 
     })
@@ -455,4 +476,12 @@ angular.module('starter.controllers', [])
         $scope.b2 = function() {
             console.log("B2");
         };
+    })
+
+    .controller("LoginCtrl", function($scope, $location) {
+        $scope.login= function(email) {
+            console.log(email);
+            $location.path("/tab/activities");            
+        };
+
     });

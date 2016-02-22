@@ -16,11 +16,13 @@
         <div style="height: 10px"></div>
         <div class="list border-none" ng-repeat="chat in chatList" ng-class="[{'me':chat.userId==213}]"
              ng-if="chatList.length">
+
+            <!-- đoạn chat không phải của chủ tài khoản -->
             <div class="item item-avatar-s chat-friend" ng-if="chat.userId!=213">
                 <img ng-src="{{chat.user.face}}">
 
                 <span class="badge avatar-badge avatar-badge-xs"
-                       ng-class="{'badge-positive':chat.user.friendType=='Messenger', 'badge-stable':chat.user.friendType=='facebook'}">
+                      ng-class="{'badge-positive':chat.user.friendType=='Messenger', 'badge-stable':chat.user.friendType=='facebook'}">
                     <i class="icon ion-ios-bolt" ng-if="chat.user.friendType=='Messenger'"></i>
                     <i class="icon ion-social-facebook light" ng-if="chat.user.friendType=='facebook'"></i>
                 </span>
@@ -28,6 +30,7 @@
                 <p class="chat-text stable-bg"> {{chat.chatText}}</p>
             </div>
 
+            <!-- đoạn chat của chủ tài khoản -->
             <div class="item item-avatar-right-s chat-me text-right" ng-if="chat.userId==213">
                 <img ng-src="{{chat.user.face}}">
 

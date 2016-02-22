@@ -1,12 +1,13 @@
-//var data;
+var DOMAIN="http://127.0.0.1:8028/";
 
 // Users
-angular.module('starter.services', [])
+angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
     .factory('Data', function ($http) {
         var data;
         return {
             getAll: function () {  
-                return $http.get("http://localhost:8028/").then(function (response) {
+                console.log(DOMAIN)
+                return $http.get(DOMAIN).then(function (response) {
                     //console.log(response.data);
                     data = response.data;
                     //users= data[0].group_user[0].users;
@@ -18,7 +19,19 @@ angular.module('starter.services', [])
             }
         }
     })
-                
+
+    .factory('Socket',function(socketFactory){
+    //Create socket and connect to localhost
+        console.log(DOMAIN)
+        var myIoSocket = io.connect(DOMAIN);
+
+        mySocket = socketFactory({
+            ioSocket: myIoSocket
+        });
+
+        return mySocket;
+    })
+
 
     .factory('User', function () {
         var users = [
@@ -31,36 +44,12 @@ angular.module('starter.services', [])
                 activeTime: "Active today"
             },
             {
-                id: "2",
-                friendType: "facebook",
-                name: "Eric",
-                face: 'img/user02.jpg',
-                email: 'hi@weburner.com',
-                activeTime: "Active 1h ago"
-            },
-            {
-                id: "3",
-                name: "Apple",
-                friendType: "Messenger",
-                face: 'img/user03.jpg',
-                email: 'hi@weburner.com',
-                activeTime: "Active today"
-            },
-            {
                 id: "213",
                 name: "Diamond",
                 friendType: "Messenger",
                 face: 'img/user04.jpg',
                 email: 'hi@weburner.com',
                 activeTime: "Active 3m ago"
-            },
-            {
-                id: "5",
-                name: "Mike",
-                friendType: "facebook",
-                face: 'img/user05.jpg',
-                email: 'hi@weburner.com',
-                activeTime: "Active today"
             }
         ];
 
@@ -100,33 +89,6 @@ angular.module('starter.services', [])
                 members: "Felix, Eric, Diamond",
                 activeTime: "Active today",
                 userList: ["213", "1", "2"]
-            },
-            {
-                id: "room_b",
-                roomType: "group",
-                thumbnail: "img/thumbnail02.jpg",
-                title: "Go shopping",
-                members: "Eric, Apple, Diamond",
-                activeTime: "Active today",
-                userList: ["2", "3", "213"]
-            },
-            {
-                id: "room_e",
-                roomType: "group",
-                thumbnail: "img/thumbnail03.jpg",
-                title: "Ionic",
-                members: "Eric, Apple, Mike, Diamond",
-                activeTime: "11:00 am",
-                userList: ["2", "3", "5", "213"]
-            },
-            {
-                id: "room_f",
-                roomType: "group",
-                thumbnail: "img/thumbnail04.jpg",
-                title: "Rockers",
-                members: "felix, Eric, Diamond, Mike",
-                activeTime: "12:15 am",
-                userList: ["1", "2", "213", "5"]
             }
         ];
         return {
@@ -258,114 +220,24 @@ angular.module('starter.services', [])
 
 // Chats
     .factory('Chat', ['User', function (User) {
-        var chats = [
-            {
-                id: "0",
-                userId: "1",
-                chatText: 'I found a great coffee shop.',
-                roomId: "room_a"
-            },
-            {
-                id: "1",
-                userId: "2",
-                chatText: 'Where is it?',
-                roomId: "room_a"
-            },
-            {
-                id: "2",
-                userId: "1",
-                chatText: 'Not far from the office building.',
-                roomId: "room_a"
-            },
-            {
-                id: "3",
-                userId: "213",
-                chatText: 'Shall we go there today?',
-                roomId: "room_a"
-            },
-            {
-                id: "4",
-                userId: "3",
-                chatText: 'What\'up!',
-                roomId: "room_b"
-            },
-            {
-                id: "5",
-                userId: "5",
-                chatText: 'I\'m going to do some shopping.',
-                roomId: "room_b"
-            },
-            {
-                id: "6",
-                userId: "3",
-                chatText: 'Let\' s go together.',
-                roomId: "room_b"
-            },
-            {
-                id: "7",
-                userId: "213",
-                chatText: 'I\'ll go with you boys.',
-                roomId: "room_b"
-            },
-            {
-                id: "8",
-                userId: "213",
-                chatText: 'Hey.',
-                roomId: "room_c"
-            },
-            {
-                id: "9",
-                userId: "1",
-                chatText: 'Hey.',
-                roomId: "room_c"
-            },
-            {
-                id: "10",
-                userId: "1",
-                chatText: 'Hey hey.',
-                roomId: "room_c"
-            },
-            {
-                id: "11",
-                userId: "213",
-                chatText: 'Ionic.',
-                roomId: "room_d"
-            },
-            {
-                id: "12",
-                userId: "2",
-                chatText: 'Angular.',
-                roomId: "room_d"
-            },
-            {
-                id: "13",
-                userId: "2",
-                chatText: 'Welcome!.',
-                roomId: "room_e"
-            },
-            {
-                id: "14",
-                userId: "3",
-                chatText: 'Ionic is a powerful HTML5 SDK that helps you build native-feeling mobile apps using web technologies like HTML, CSS, and Javascript.',
-                roomId: "room_e"
-            },
-            {
-                id: "15",
-                userId: "213",
-                chatText: 'Ionic is focused mainly on the look and feel, and UI interaction of your app.',
-                roomId: "room_e"
-            },
-            {
-                id: "16",
-                userId: "5",
-                chatText: 'Ionic currently requires AngularJS.',
-                roomId: "room_e"
-            }
-        ];
+        var chats = [];
 
         return {
-            all: function () {
-                //window.alert("?");
+            set: function (allMess) {
+                for (var i in allMess) {
+                    //chats= allMess;
+                    var chat = {
+                        id: allMess[i].id,
+                        userId: allMess[i].userId.toString(),
+                        chatText: allMess[i].chatText,
+                        roomId: allMess[i].roomId.toString(),
+                        dateTime: "0000-00-00 00:00:00"
+                    };
+                    chats.push(chat);
+                }
+                
+            },
+            all: function () {                
                 return chats;
             },
             add: function (chatText, roomId, userId) {
@@ -373,9 +245,11 @@ angular.module('starter.services', [])
                     id: chats.length + 1,
                     userId: userId,
                     chatText: chatText,
-                    roomId: roomId
+                    roomId: roomId,
+                    dateTime: "0000-00-00 00:00:00"
                 };
                 chats.push(chat);
+                console.log(chats);
             },
             get: function (chatId) {
                 ////window.alert("?");
@@ -392,7 +266,7 @@ angular.module('starter.services', [])
                 var chatList = [];
                 for (var i = 0; i < chats.length; i++) {
                     if (chats[i].roomId === roomId) {
-                        chats[i].user = User.get(chats[i].userId);
+                        //chats[i].user = User.get(chats[i].userId);
                         chatList.push(chats[i]);
                     }
                 }
