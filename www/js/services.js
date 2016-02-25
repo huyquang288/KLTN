@@ -7,7 +7,12 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
     .factory('Data', function ($http) {
         return {
             getAll: function () {  
-                return $http.get(DOMAIN+"tab").then(function (response) {
+                return $http.get(DOMAIN+"all").then(function (response) {
+                    return response.data;
+                });
+            },
+            getRecent: function () {  
+                return $http.get(DOMAIN+"recent").then(function (response) {
                     return response.data;
                 });
             }

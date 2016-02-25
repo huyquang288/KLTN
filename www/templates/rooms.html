@@ -22,7 +22,7 @@
 
 <ion-view>
 
-    <ion-nav-buttons side="right">
+    <ion-nav-buttons side="left">
         <button nav-direction="back" class="button button-clear button-icon button-positive icon ion-ios-arrow-back"
                 ng-click="historyBack()">
         </button>
@@ -30,33 +30,70 @@
 
     <ion-nav-title>
         <a>
-            Rooms in {{groupName}}
+            Rooms in {{group.name}}
         </a>
     </ion-nav-title>
 
     <ion-content>
 
-        <div class="row" ng-repeat="room in fullData[0].group_room">
-            <!-- <div class="col col-50" ng-repeat="room in groups"> -->
-                <div class="col-50 list card">
-                    <a nav-direction="forward" 
-                       class="item item-avatar item-avatar-center item-avatar-l text-center"
-                       href="#/room/{{room.rooms.id}}">
-                        <img ng-src="{{room.rooms.thumbnail}}">
+        <ion-list ng-if="group.group_room.length>0">
 
-                        <h3>
-                            <small>{{room.rooms.title}}</small>
-                        </h3>
+            <div ng-if="false" class="row" ng-repeat="room in fullData[0].group_room">
+                <!-- <div class="col col-50" ng-repeat="room in groups"> -->
+                    <div class="col-50 list card">
+                        <a nav-direction="forward" 
+                           class="item item-avatar item-avatar-center item-avatar-l text-center"
+                           href="#/room/{{room.rooms.id}}">
+                            <img ng-src="{{room.rooms.thumbnail}}">
 
-                        <p>{{room.rooms.activeTime}}</p>
-                    </a>
+                            <h3>
+                                <small>{{room.rooms.title}}</small>
+                            </h3>
 
-                    <a nav-direction="forward" class="item item-divider text-center" href="#/room/{{room.rooms.id}}">
-                        <p>{{room.rooms.members}}</p>
-                    </a>
-                </div>
-            <!-- </div> -->
-        </div>
+                            <p>{{room.rooms.activeTime}}</p>
+                        </a>
+
+                        <a nav-direction="forward" class="item item-divider text-center" href="#/room/{{room.rooms.id}}">
+                            <p>{{room.rooms.members}}</p>
+                        </a>
+                    </div>
+                <!-- </div> -->
+            </div>
+
+            <span ng-repeat="room in group.group_room">
+                <ion-item class="item-remove-animate item-avatar" 
+                          nav-direction="forward" href="#/room/{{room.rooms.id}}"
+                          type="item-text-wrap">
+                    <img ng-src="{{room.rooms.thumbnail}}">
+
+                    <span class="badge avatar-badge avatar-badge-s"
+                          ng-class="{'badge-positive':room.roomType=='ms_friend', 'badge-stable':room.rooms.roomType=='fb_friend'}"
+                          ng-if="room.rooms.roomType!='group'">
+                        <i class="icon ion-ios-bolt" ng-if="room.rooms.roomType=='ms_friend'"></i>
+                        <i class="icon ion-social-facebook light" 
+                           ng-if="room.rooms.roomType=='fb_friend'">
+                        </i>
+                    </span>
+
+                    <h3>
+                        <small>{{room.rooms.title}}</small>
+                    </h3>
+
+                    <p>{{room.rooms.latest_chat}}</p>
+
+                    <span class="item-note">{{room.rooms.activeTime}}</span>
+
+                    <ion-option-button class="button-dark" ng-click="">
+                        Leave group
+                    </ion-option-button>
+
+                    <ion-option-button class="button-assertive" ng-click="remove(room)">
+                        Delete
+                    </ion-option-button>
+
+                </ion-item>
+            </span>
+        </ion-list>
 
         <!--show when there is no group-->
         <!--<div class="row">-->

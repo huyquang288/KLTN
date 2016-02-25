@@ -36,25 +36,21 @@ app.use(function (req, res, next) {
 });
 
 app.post('/', function (req, res){
-	var data= req.body;
-	userJustLoginId= data.email
+  var data= req.body;
+  userJustLoginId= data.email
 	//console.log(userJustLoginId);
 	//console.log(data.pass);
 	//res.send("Alo alo");
 });
 
-app.get('/tab', function(req, res){
-  //console.log(userJustLoginId);
-	
+app.get('/all', function(req, res){
   var sql = "SELECT * FROM groups JOIN group_room ON groups.id=group_room.groupId JOIN rooms ON rooms.id= group_room.roomId JOIN chats ON chats.roomId= rooms.id WHERE groups.id IN (SELECT DISTINCT groupId FROM group_user WHERE userId= " +userJustLoginId +") ";
   var nestingOptions = [
     { tableName: 'groups', pkey: 'id'},        
     { tableName: 'group_room', pkey: 'id', fkeys: [{table: 'groups', col: 'groupId'}, {table:'rooms', col: 'roomId'}]},
     { tableName: 'rooms', pkey: 'id', },
     { tableName: 'chats', pkey: 'id', fkeys: [{table: 'users', col: 'userId'}, {table: 'rooms', col: 'roomId'}]}
-    //{ tableName: 'group_user', pkey: 'id', fkeys: [{table: 'groups', col: 'groupId'}, {table: 'users', col: 'userId'}]},
-    //{ tableName: 'users', pkey: 'id'}
-  ]; 
+  ];
   mysqlConnection.query({sql: sql, nestTables: true}, function (err, rows) {
     // error handling
     if (err){
@@ -63,6 +59,26 @@ app.get('/tab', function(req, res){
     }
     else {
       var nestedRows = func.convertToNested(rows, nestingOptions);
+	  console.log(nestedRows);
+      res.send(nestedRows);
+    }
+  });
+});
+
+app.get('/recent', function(req, res){
+  var sql= "SELECT distinct roomId FROM chats where roomId in (select distinct roomId from group_room where groupId in (select distinct groupId from group_user where userId=" +userJustLoginId +")) order by dateTime desc limit 5"
+  var nestingOptions = [
+    { tableName: 'chats', pkey: 'roomId'}
+  ];
+  mysqlConnection.query({sql: sql, nestTables: true}, function (err, rows) {
+    // error handling
+    if (err){
+      console.log('Internal error: ', err);
+      res.send("Mysql query execution error!");
+    }
+    else {
+      var nestedRows = func.convertToNested(rows, nestingOptions);
+	  console.log(nestedRows);
       res.send(nestedRows);
     }
   });

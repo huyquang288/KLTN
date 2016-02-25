@@ -5,7 +5,12 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             window.history.back();
         };
 
-        Data.getAll().then( function(data) {
+        Data.getRecent().then(function(data){
+            $rootScope.recent= data;
+            $scope.recent= $rootScope.recent;
+        });
+
+        Data.getAll().then(function(data) {
             $rootScope.fullData= data;
             $scope.fullData= $rootScope.fullData;            
         });
@@ -166,6 +171,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
     .controller('ActivitiesCtrl', function ($rootScope, $scope, Room, User) {
         //console.log("activities");
         $scope.fullData= $rootScope.fullData;
+        $scope.recent= $rootScope.recent;
         $scope.activities = Room.userActivities("213");
 
         $scope.remove = function (item) {
@@ -264,7 +270,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         $scope.fullData= $rootScope.fullData;
         for (var i=0; i<$scope.fullData.length; i++) {
             if ($stateParams.groupId== $scope.fullData[i].id) {
-                $scope.groupName= $scope.fullData[i].name;
+                $scope.group= $scope.fullData[i];
                 //$scope.room.settingURL = "#/room-setting/" + $stateParams.roomId;
                 break;
             }
