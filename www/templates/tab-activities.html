@@ -13,9 +13,9 @@
                 </button>
             </ion-item>
 
-            <span ng-repeat="room in recent">
+            <span ng-repeat="room in recentRooms">
                 <ion-item class="item-remove-animate item-avatar" 
-                          nav-direction="forward" href="#/room/{{room.roomId}}"
+                          nav-direction="forward" href="#/room/{{room.id}}"
                           type="item-text-wrap">
                     <img ng-src="{{room.rooms.thumbnail}}">
 
@@ -28,16 +28,19 @@
                         </i>
                     </span>
 
+                    <!-- tên phòng -->                    
                     <h3>
-                        <small>{{room.roomId}}</small>
+                        <small>{{room.title}}</small>
                     </h3>
 
                     <!-- đoạn chat gần đây nhất -->
-                    <p>{{room.roomId}}</p>
+                    <p>{{room.chats[room.chats.length-1].chatText}}</p>
                     <!-- <p>{{room.rooms.latest_chat}}</p> -->
 
                     <!-- thời gian của dòng chat cuối cùng -->
-                    <span class="item-note">{{roomId}}</span>
+                    <span class="item-note">
+                        {{reWriteLastMessengerTime(room.chats[room.chats.length-1].dateTime)}}
+                    </span>
                     <!-- <span class="item-note">{{room.rooms.activeTime}}</span> -->
 
                     <ion-option-button class="button-dark" ng-click="">
@@ -53,13 +56,8 @@
             </span>
         </ion-list>
 
-        <div ng-if=false>
-            Log
-            <p>{{fullData[0].group_room}}</p>
-        </div>
-
         <!--show when there is no activity-->
-        <div ng-if="!fullData[0].group_room">
+        <div ng-if="recent.length<=0">
             <div style="height: 60px"></div>
             <div class="text-center" style="padding: 45px">
                 <h2 class="grey">

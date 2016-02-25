@@ -1,0 +1,76 @@
+<style>
+    .plus-circle {
+        display: inline-block;
+
+        width: 60px;
+        height: 60px;
+        border-radius: 30px;
+        border: 2px dashed #D9D9D9;
+        padding: 7px;
+    }
+
+    .plus-circle i {
+        font-size: 40px;
+    }
+
+    /*.item h3 small {*/
+        /*overflow: hidden;*/
+        /*text-overflow: ellipsis;*/
+        /*white-space: nowrap;*/
+    /*}*/
+</style>
+
+<ion-view>
+
+    <ion-nav-buttons side="left">
+        <button nav-direction="back" class="button button-clear button-icon button-positive icon ion-ios-arrow-back"
+                ng-click="historyBack()">
+        </button>
+    </ion-nav-buttons>
+
+    <ion-nav-title>
+        <a>
+            People in {{group.name}}
+        </a>
+    </ion-nav-title>
+
+    <ion-content>
+
+        <ion-list ng-if="membersInGroup.length>0">
+            <span ng-repeat="member in membersInGroup">
+                <ion-item class="item-remove-animate item-avatar" 
+                          nav-direction="forward" href="#/room/{{room.rooms.id}}"
+                          type="item-text-wrap">
+                    <img ng-src="{{member.face}}">
+
+                    <span class="badge avatar-badge avatar-badge-s"
+                          ng-class="{'badge-positive':room.roomType=='ms_friend', 'badge-stable':room.rooms.roomType=='fb_friend'}"
+                          ng-if="room.rooms.roomType!='group'">
+                        <i class="icon ion-ios-bolt" ng-if="room.rooms.roomType=='ms_friend'"></i>
+                        <i class="icon ion-social-facebook light" 
+                           ng-if="room.rooms.roomType=='fb_friend'">
+                        </i>
+                    </span>
+
+                    <h3>
+                        <small>{{member.name}}</small>
+                    </h3>
+
+                    <p><i>Last activity: {{member.activeTime}}</i></p>
+
+                    <span class="item-note">{{room.rooms.activeTime}}</span>
+
+                    <!-- đoạn này sau này sẽ phát triển thành chức năng ban người dùng trong nhóm dành cho admin -->
+                    <!-- <ion-option-button class="button-dark" ng-click="">
+                        Leave group
+                    </ion-option-button>
+
+                    <ion-option-button class="button-assertive" ng-click="remove(room)">
+                        Delete
+                    </ion-option-button> -->
+
+                </ion-item>
+            </span>
+        </ion-list>
+    </ion-content>
+</ion-view>

@@ -15,6 +15,11 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 return $http.get(DOMAIN+"recent").then(function (response) {
                     return response.data;
                 });
+            },
+            getPeopleInGroup: function () {  
+                return $http.get(DOMAIN+"peopleInGroup").then(function (response) {
+                    return response.data;
+                });
             }
         }
     })
@@ -31,19 +36,16 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
             }
         }
     })
-//, {headers: {'Content-Type': 'application/x-www-form-urlencoded'} }
 
     .factory('Socket',function(socketFactory){
-    //Create socket and connect to localhost        
+        //Create socket and connect to localhost        
         var myIoSocket = io.connect(DOMAIN);
-
         mySocket = socketFactory({
             ioSocket: myIoSocket
         });
 
         return mySocket;
     })
-
 
     .factory('User', function () {
         var users = [
@@ -89,7 +91,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
         };
     })
 
-// Rooms
+    // Rooms
     .factory('Room', ['User', 'Chat', function (User, Chat) {
         var rooms = [
             {
@@ -225,7 +227,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
         };
     }])
 
-// Chats
+    // Chats
     .factory('Chat', ['User', function (User) {
         var chats = [];
 

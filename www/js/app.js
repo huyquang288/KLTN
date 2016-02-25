@@ -39,9 +39,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                 abstract: true,
                 templateUrl: 'templates/tabs.html'
             })
-
             // Each tab has its own nav history stack:
-
             .state('tab.activities', {
                 url: '/activities',
                 views: {
@@ -55,6 +53,11 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                 url: '/rooms/:groupId',
                 templateUrl: 'templates/rooms.html',
                 controller: 'RoomsCtrl'
+            })
+            .state('members-in-group', {
+                url: '/group-members/:groupId',
+                templateUrl: 'templates/members-in-group.html',
+                controller: 'GroupsCtrl'
             })
             .state('room', {
                 url: '/room/:roomId',

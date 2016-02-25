@@ -35,7 +35,7 @@
         </ion-item> 
         <div class="row" ng-repeat="group in fullData">
             <!-- <div class="col col-50" ng-repeat="room in groups"> -->
-                <div class="col-50 list card">
+                <div class="col-50 col-offset-25 list card">
                     <a nav-direction="forward" 
                        class="item item-avatar item-avatar-center item-avatar-l text-center"
                        href="#/rooms/{{group.id}}">
@@ -48,8 +48,12 @@
                         <p>{{group.description}}</p>
                     </a>
 
-                    <a nav-direction="forward" class="item item-divider text-center" href="#/room/{{group.id}}">
-                        <p>{{room.rooms.members}}</p>
+                    <a nav-direction="forward" class="item item-divider text-center" href="#/group-members/{{group.id}}">
+                        <p>
+                            <span ng-if="member.groupId==group.id" ng-repeat="member in members">
+                                {{member.name}}{{(member.groupId==members[$index+1].groupId) ?',' :''}}
+                            </span>
+                        </p>
                     </a>
                 </div>
             <!-- </div> -->

@@ -59,7 +59,7 @@ app.get('/all', function(req, res){
     }
     else {
       var nestedRows = func.convertToNested(rows, nestingOptions);
-	  console.log(nestedRows);
+	  //console.log(nestedRows);
       res.send(nestedRows);
     }
   });
@@ -78,11 +78,31 @@ app.get('/recent', function(req, res){
     }
     else {
       var nestedRows = func.convertToNested(rows, nestingOptions);
-	  console.log(nestedRows);
+	  //console.log(nestedRows);
       res.send(nestedRows);
     }
   });
 });
+
+
+
+app.get('/peopleInGroup', function(req, res){
+  var sql = "select * from users join (select group_user.groupId, group_user.userId from group_user join (select distinct groupId from group_user where userId=" +userJustLoginId +") as t1 on t1.groupId=group_user.groupId) as t2 on t2.userId=users.id";  
+  mysqlConnection.query({sql: sql, nestTables: false}, function (err, rows) {
+    // error handling
+    if (err){
+      console.log('Internal error: ', err);
+      res.send("Mysql query execution error!");
+    }
+    else {
+      var nestedRows = func.convertToNested(rows);
+	  //console.log(nestedRows);
+      res.send(nestedRows);
+    }
+  });
+});
+
+
 
 
 // Routing

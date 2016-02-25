@@ -15,6 +15,10 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             $scope.fullData= $rootScope.fullData;            
         });
 
+        Data.getPeopleInGroup().then(function(data) {
+            $rootScope.peopleInGroup= data;
+        });
+
         $scope.friends = User.myFriends("213");
         $scope.activities = Room.userActivities("213");
 
@@ -169,25 +173,58 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
     })
 
     .controller('ActivitiesCtrl', function ($rootScope, $scope, Room, User) {
-        //console.log("activities");
         $scope.fullData= $rootScope.fullData;
         $scope.recent= $rootScope.recent;
-        $scope.activities = Room.userActivities("213");
+        $scope.recentRooms=[];
+        $scope.recentRoomsTemp=[];
+        // lấy hết các room trong json thành 1 file temp để chuẩn bị sắp xếp theo chiều thời gian
+        for (var i=0; i<$scope.fullData.length; i++) {
+            for (var j=0; j<$scope.fullData[i].group_room.length;j++) {
+                $scope.recentRoomsTemp.push($scope.fullData[i].group_room[j].rooms);
+            }
+        }
+        // sắp xếp theo trình tự thời gian.
+        for (var i=0; i<$scope.recent.length; i++) {
+            for (var j=0; j<$scope.recentRoomsTemp.length; j++) {
+                if ($scope.recent[i].roomId== $scope.recentRoomsTemp[j].id) {
+                    //console.log($scope.recentRoomsTemp[j].id);
+                    $scope.recentRooms.push($scope.recentRoomsTemp[j]);
+                    break;
+                }
+            }
+        }
+
+        $rootScope.allRooms= $scope.recentRoomsTemp;
+
+        //$scope.activities = Room.userActivities("213");
+        $scope.reWriteLastMessengerTime= function (dateTime) {
+            var returnTime= "";
+            var rewriteTime="";
+            var now= new Date();
+            rewriteTime= now.getFullYear() +"-" +((now.getMonth()+1<10) ?("0" +(now.getMonth()+1)) :(now.getMonth()+1)) +"-" +now.getDate();
+            if (dateTime.substring(0, dateTime.indexOf("T"))==rewriteTime) {
+                returnTime= dateTime.substring(dateTime.indexOf("T")+1, dateTime.indexOf("T")+6);
+            }
+            else {
+                returnTime= dateTime.substring(dateTime.indexOf("T")+1, dateTime.indexOf("T")+6);
+                returnTime+= "  " +now.getDate() +"/" +(now.getMonth()+1);
+            }
+            
+            return returnTime;
+        }
 
         $scope.remove = function (item) {
             Room.remove(item);
-        };
-
-        $scope.click= function () {
-            console.log("connect to server in here");
+            console.log("removed");
         };
 
         $scope.friends = User;
     })
 
     .controller('RoomCtrl', function ($rootScope, $scope, $stateParams, Socket, Room, Chat) {
-        $scope.fullData= $rootScope.fullData;
+        $scope.allRooms= $rootScope.allRooms;
         //$scope.room.settingURL= "";
+        //console.log($stateParams.roomId);
         
         if ($stateParams.roomId == "new") {
             if ($stateParams.userList) {
@@ -199,11 +236,11 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             }
         }
         else {
-            for (var i=0; i<$scope.fullData[0].group_room.length; i++) {
-                if ($stateParams.roomId== $scope.fullData[0].group_room[i].rooms.id) {
-                    $scope.room= $scope.fullData[0].group_room[i].rooms;
+            for (var i=0; i< $scope.allRooms.length; i++) {
+                if ($stateParams.roomId== $scope.allRooms[i].id) {
+                    $scope.room= $scope.allRooms[i];
+                    //console.log($scope.room);
                     $scope.room.settingURL = "#/room-setting/" + $stateParams.roomId;
-                    
                     break;
                 }
             }
@@ -233,7 +270,6 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             Socket.on('login', function (data) {
             //Set the value of connected flag
             self.connected = true
-            //self.number_message= message_string(data.numUsers)
           })
         })
 
@@ -253,17 +289,17 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             $scope.chatList = Chat.getByRoom($stateParams.roomId);
         };
 
-        var reply = function () {
-            var userId= 1;
-            var chatText = "";
-            Chat.add(chatText, $stateParams.roomId, userId);
-            //$scope.chatList = Chat.getByRoom($stateParams.roomId);
-        };
-
     })
 
-    .controller('GroupsCtrl', function ($rootScope, $scope, Room) {
+    .controller('GroupsCtrl', function ($rootScope, $scope, $stateParams, Room) {
         $scope.fullData= $rootScope.fullData;
+        $scope.members= $rootScope.peopleInGroup;
+        $scope.membersInGroup= [];
+        for (var i= 0; i< $scope.members.length; i++) {
+            if ($scope.members[i].groupId==$stateParams.groupId) {
+                $scope.membersInGroup.push($scope.members[i]);
+            }
+        }
     })
 
     .controller('RoomsCtrl', function ($rootScope, $scope, $stateParams) {
