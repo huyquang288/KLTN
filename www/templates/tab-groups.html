@@ -33,22 +33,22 @@
                 Search for existed groups
             </button>
         </ion-item> 
-        <div class="row" ng-repeat="room in fullData[0].group_room">
+        <div class="row" ng-repeat="group in fullData">
             <!-- <div class="col col-50" ng-repeat="room in groups"> -->
                 <div class="col-50 list card">
                     <a nav-direction="forward" 
                        class="item item-avatar item-avatar-center item-avatar-l text-center"
-                       href="#/room/{{room.rooms.id}}">
+                       href="#/rooms/{{group.id}}">
                         <img ng-src="{{room.rooms.thumbnail}}">
 
                         <h3>
-                            <small>{{room.rooms.title}}</small>
+                            <small>{{group.name}}</small>
                         </h3>
 
-                        <p>{{room.rooms.activeTime}}</p>
+                        <p>{{group.description}}</p>
                     </a>
 
-                    <a nav-direction="forward" class="item item-divider text-center" href="#/room/{{room.rooms.id}}">
+                    <a nav-direction="forward" class="item item-divider text-center" href="#/room/{{group.id}}">
                         <p>{{room.rooms.members}}</p>
                     </a>
                 </div>

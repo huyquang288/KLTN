@@ -1,28 +1,35 @@
-var DOMAIN="http://127.0.0.1:8028/";
+//var DOMAIN="http://192.168.0.103:8028/";
+var DOMAIN="http://localhost:8028/";
+//var DOMAIN="http://:8028/";
 
 // Users
 angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
     .factory('Data', function ($http) {
-        var data;
         return {
             getAll: function () {  
-                console.log(DOMAIN)
-                return $http.get(DOMAIN).then(function (response) {
-                    //console.log(response.data);
-                    data = response.data;
-                    //users= data[0].group_user[0].users;
-
-                    //window.alert(data[0].name);
+                return $http.get(DOMAIN+"tab").then(function (response) {
                     return response.data;
-                });                      
-                
+                });
             }
         }
     })
 
+    .factory('Login', function ($http) {
+        return {
+            sendData: function (ema, pas) {  
+                //console.log(pas);
+                var data= {'email':ema, 'pass':pas};
+                return $http.post(DOMAIN, data).then(function (response) {
+                    //console.log("haha");
+                    return response.data;
+                });
+            }
+        }
+    })
+//, {headers: {'Content-Type': 'application/x-www-form-urlencoded'} }
+
     .factory('Socket',function(socketFactory){
-    //Create socket and connect to localhost
-        console.log(DOMAIN)
+    //Create socket and connect to localhost        
         var myIoSocket = io.connect(DOMAIN);
 
         mySocket = socketFactory({
@@ -67,7 +74,6 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 return friends;
             },
             get: function (userId) {
-                ////window.alert("?234234??");
                 for (var i = 0; i < users.length; i++) {
                     if (users[i].id === userId) {
                         return users[i];
@@ -93,13 +99,11 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
         ];
         return {
             all: function () {
-                //window.alert("?????");
                 return rooms;
             },
 
             // for tab-groups
             allGroups: function (userId, rowItemNum) {
-                //window.alert("123");
                 var groupList = [];
                 var rowList = [];
                 for (var i = 0; i < rooms.length; i++) {
@@ -148,7 +152,6 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
             },
 
             get: function (roomId) {
-                //window.alert("22");
                 for (var i = 0; i < rooms.length; i++) {
                     if (rooms[i].id === roomId) {
                         rooms[i].user = [];
@@ -193,7 +196,6 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
 
             // for tab-friends
             getByUserId: function (userId) {
-                ////window.alert("22");
                 var hasRoom = false;
                 for (var i = 0; i < rooms.length; i++) {
                     if(rooms[i].roomType != "group" && !hasRoom){
@@ -252,7 +254,6 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 console.log(chats);
             },
             get: function (chatId) {
-                ////window.alert("?");
                 for (var i = 0; i < chats.length; i++) {
                     if (chats[i].id === chatId) {
                         chats[i].user = User.get(chats[i].userId);
@@ -262,7 +263,6 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 return null;
             },
             getByRoom: function (roomId) {
-                ////window.alert("?");
                 var chatList = [];
                 for (var i = 0; i < chats.length; i++) {
                     if (chats[i].roomId === roomId) {

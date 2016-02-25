@@ -1,29 +1,13 @@
 angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btford.socket-io'])
-    
-    .service('sharedProperties', function() {
-        var objectValue = {
-            data: 'object value'
-        };
-    
-        return {
-            setObject: function(value) {
-                objectValue = value;
-                //window.alert(objectValue[0].name);
-            },
-            getObject: function() {
-                return objectValue;
-            }
-        }
-    })
 
-    .controller('MainCtrl', function ($scope, $stateParams, Data, sharedProperties, Room, User, $ionicModal, $location, $rootScope, $ionicPopup) {
+    .controller('MainCtrl', function ($scope, $stateParams, Data, Room, User, $ionicModal, $location, $rootScope, $ionicPopup) {
         $scope.historyBack = function () {
             window.history.back();
         };
 
         Data.getAll().then( function(data) {
-            $scope.fullData= data;
-            sharedProperties.setObject(data);
+            $rootScope.fullData= data;
+            $scope.fullData= $rootScope.fullData;            
         });
 
         $scope.friends = User.myFriends("213");
@@ -179,9 +163,9 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         });
     })
 
-    .controller('ActivitiesCtrl', function ($scope, sharedProperties, Room, User) {
+    .controller('ActivitiesCtrl', function ($rootScope, $scope, Room, User) {
         //console.log("activities");
-        $scope.fullData= sharedProperties.getObject();
+        $scope.fullData= $rootScope.fullData;
         $scope.activities = Room.userActivities("213");
 
         $scope.remove = function (item) {
@@ -195,10 +179,9 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         $scope.friends = User;
     })
 
-    .controller('RoomCtrl', function ($scope, $stateParams, sharedProperties, Socket, Room, Chat) {
-        $scope.fullData= sharedProperties.getObject();
+    .controller('RoomCtrl', function ($rootScope, $scope, $stateParams, Socket, Room, Chat) {
+        $scope.fullData= $rootScope.fullData;
         //$scope.room.settingURL= "";
-        //var id= $stateParams.roomId;
         
         if ($stateParams.roomId == "new") {
             if ($stateParams.userList) {
@@ -210,13 +193,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             }
         }
         else {
-            //$scope.room = Room.get($stateParams.roomId);
-            //window.alert("???");
-            
             for (var i=0; i<$scope.fullData[0].group_room.length; i++) {
-                // window.alert("for is running with i=" +$scope.fullData[0].group_room[i].rooms.id +" and compare with: " +$stateParams.roomId);
                 if ($stateParams.roomId== $scope.fullData[0].group_room[i].rooms.id) {
-                    // window.alert("true");
                     $scope.room= $scope.fullData[0].group_room[i].rooms;
                     $scope.room.settingURL = "#/room-setting/" + $stateParams.roomId;
                     
@@ -278,16 +256,22 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
     })
 
-    .controller('GroupsCtrl', function ($scope, sharedProperties, Room) {
-        $scope.fullData= sharedProperties.getObject();
-        //$scope.groupRow = Room.allGroups("213", 2);
+    .controller('GroupsCtrl', function ($rootScope, $scope, Room) {
+        $scope.fullData= $rootScope.fullData;
     })
 
-    .controller('RoomsCtrl', function ($scope, sharedProperties) {
-        $scope.fullData= sharedProperties.getObject();        
+    .controller('RoomsCtrl', function ($rootScope, $scope, $stateParams) {
+        $scope.fullData= $rootScope.fullData;
+        for (var i=0; i<$scope.fullData.length; i++) {
+            if ($stateParams.groupId== $scope.fullData[i].id) {
+                $scope.groupName= $scope.fullData[i].name;
+                //$scope.room.settingURL = "#/room-setting/" + $stateParams.roomId;
+                break;
+            }
+        }
     })
 
-    .controller('FriendsCtrl', function ($scope, $stateParams, $ionicPopup, sharedProperties, User, Room, $state) {
+    .controller('FriendsCtrl', function ($scope, $stateParams, $ionicPopup, User, Room, $state) {
 
         $scope.fullData= sharedProperties.getObject();
         $scope.$state = $state;
@@ -478,9 +462,13 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         };
     })
 
-    .controller("LoginCtrl", function($scope, $location) {
-        $scope.login= function(email) {
-            console.log(email);
+    
+    .controller("LoginCtrl", function($scope, $location, Login) {
+        $scope.loginData={};        
+        $scope.login= function() {
+            var ema= $scope.loginData.email;
+            var pas= $scope.loginData.password;
+            Login.sendData(ema, pas);
             $location.path("/tab/activities");            
         };
 

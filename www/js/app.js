@@ -51,6 +51,11 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                     }
                 }
             })
+            .state('rooms', {
+                url: '/rooms/:groupId',
+                templateUrl: 'templates/rooms.html',
+                controller: 'RoomsCtrl'
+            })
             .state('room', {
                 url: '/room/:roomId',
                 templateUrl: 'templates/room.html',
@@ -95,16 +100,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                     'tab-groups': {
                         templateUrl: 'templates/tab-groups.html',
                         controller: 'GroupsCtrl'
-                    }
-                }
-            })
-
-            .state('tab.rooms', {
-                url: '/rooms',
-                views: {
-                    'tab-rooms': {
-                        templateUrl: 'templates/tab-rooms.html',
-                        controller: 'RoomsCtrl'
                     }
                 }
             })

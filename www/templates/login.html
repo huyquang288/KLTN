@@ -11,10 +11,10 @@
         <form name="loginForm">
             <ion-list class="border-none">
                 <ion-item class="item-input border-bottom">
-                    <input type="email" placeholder="Email" ng-model="emaill" ng-required="true">
+                    <input type="text" placeholder="Email" ng-model="loginData.email" ng-required="true">
                 </ion-item>
                 <ion-item class="item-input border-bottom">
-                    <input type="password" placeholder="Password" ng-model="password">
+                    <input type="password" placeholder="Password" ng-model="loginData.password">
                 </ion-item>
             </ion-list>
             <div class="padding">
@@ -22,7 +22,7 @@
                     Continue
                 </a> -->
                 <button class="button button-medium" ng-disable="loginForm.$invalid"
-                        ng-click="login(emaill)">
+                        ng-click="login()">
                     Login
                 </button>
             </div>

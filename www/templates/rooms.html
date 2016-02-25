@@ -20,13 +20,22 @@
     /*}*/
 </style>
 
-<ion-view view-title="Rooms" id="tab-rooms">
+<ion-view>
+
     <ion-nav-buttons side="right">
-        <button class="button button-clear button-positive" ng-click="openNewGroup()">Create</button>
+        <button nav-direction="back" class="button button-clear button-icon button-positive icon ion-ios-arrow-back"
+                ng-click="historyBack()">
+        </button>
     </ion-nav-buttons>
 
+    <ion-nav-title>
+        <a>
+            Rooms in {{groupName}}
+        </a>
+    </ion-nav-title>
+
     <ion-content>
-        
+
         <div class="row" ng-repeat="room in fullData[0].group_room">
             <!-- <div class="col col-50" ng-repeat="room in groups"> -->
                 <div class="col-50 list card">

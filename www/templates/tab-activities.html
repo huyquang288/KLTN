@@ -13,18 +13,19 @@
                 </button>
             </ion-item>
 
-            <span ng-repeat="room in fullData[0].group_room">
+            <span ng-repeat="room in fullData[1].group_room">
                 <ion-item class="item-remove-animate item-avatar" 
                           nav-direction="forward" href="#/room/{{room.rooms.id}}"
-                          type="item-text-wrap"
-                          >
+                          type="item-text-wrap">
                     <img ng-src="{{room.rooms.thumbnail}}">
 
                     <span class="badge avatar-badge avatar-badge-s"
                           ng-class="{'badge-positive':room.roomType=='ms_friend', 'badge-stable':room.rooms.roomType=='fb_friend'}"
                           ng-if="room.rooms.roomType!='group'">
                         <i class="icon ion-ios-bolt" ng-if="room.rooms.roomType=='ms_friend'"></i>
-                        <i class="icon ion-social-facebook light" ng-if="room.rooms.roomType=='fb_friend'"></i>
+                        <i class="icon ion-social-facebook light" 
+                           ng-if="room.rooms.roomType=='fb_friend'">
+                        </i>
                     </span>
 
                     <h3>
