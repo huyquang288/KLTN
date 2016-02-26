@@ -27,10 +27,10 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
     .factory('Login', function ($http) {
         return {
             sendData: function (ema, pas) {  
-                //console.log(pas);
+                
                 var data= {'email':ema, 'pass':pas};
+                console.log(data);
                 return $http.post(DOMAIN, data).then(function (response) {
-                    //console.log("haha");
                     return response.data;
                 });
             }

@@ -14,11 +14,11 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
-var userJustLoginId= 1;
-
 server.listen(port, function () {
   console.log('Server listening at port %d', port);
 });
+
+var userJustLoginId=1;
 
 // Add headers
 app.use(function (req, res, next) {
@@ -36,11 +36,29 @@ app.use(function (req, res, next) {
 });
 
 app.post('/', function (req, res){
-  var data= req.body;
-  userJustLoginId= data.email
-	//console.log(userJustLoginId);
-	//console.log(data.pass);
-	//res.send("Alo alo");
+  var data= req.body;  
+  var sql= "select userId from account_user where accountId in (select id from accounts where email='" +data.email +"' and password='" +data.pass +"')";
+  var nestingOptions = [
+    { tableName: 'account_user', pkey: 'userId'}
+  ];
+  
+  mysqlConnection.query({sql: sql, nestTables: true}, function (err, rows) {
+	// error handling
+    if (err){
+      console.log('Internal error: ', err);
+      res.send("404 Not Found");
+    }
+    else {
+      var nestedRows = func.convertToNested(rows, nestingOptions);
+	  if (nestedRows[0]!="" && nestedRows[0]!=undefined) {
+		res.send(nestedRows);
+	  }
+	  else {
+		res.send("Wrong");
+	  }
+    }
+  });
+	
 });
 
 app.get('/all', function(req, res){
@@ -84,8 +102,6 @@ app.get('/recent', function(req, res){
   });
 });
 
-
-
 app.get('/peopleInGroup', function(req, res){
   var sql = "select * from users join (select group_user.groupId, group_user.userId from group_user join (select distinct groupId from group_user where userId=" +userJustLoginId +") as t1 on t1.groupId=group_user.groupId) as t2 on t2.userId=users.id";  
   mysqlConnection.query({sql: sql, nestTables: false}, function (err, rows) {
@@ -104,10 +120,8 @@ app.get('/peopleInGroup', function(req, res){
 
 
 
-
 // Routing
 app.use(express.static(__dirname + '/'));
-
 // Chatroom
 io.on('connection', function (socket) {
   var addedUser = false;

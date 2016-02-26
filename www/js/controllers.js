@@ -1,4 +1,4 @@
-angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btford.socket-io'])
+angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btford.socket-io', 'angular-md5'])
 
     .controller('MainCtrl', function ($scope, $stateParams, Data, Room, User, $ionicModal, $location, $rootScope, $ionicPopup) {
         $scope.historyBack = function () {
@@ -198,18 +198,17 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
         //$scope.activities = Room.userActivities("213");
         $scope.reWriteLastMessengerTime= function (dateTime) {
-            var returnTime= "";
-            var rewriteTime="";
+            var rewriteNow="";
             var now= new Date();
-            rewriteTime= now.getFullYear() +"-" +((now.getMonth()+1<10) ?("0" +(now.getMonth()+1)) :(now.getMonth()+1)) +"-" +now.getDate();
-            if (dateTime.substring(0, dateTime.indexOf("T"))==rewriteTime) {
-                returnTime= dateTime.substring(dateTime.indexOf("T")+1, dateTime.indexOf("T")+6);
+            // chuyển giá trị dateTime trả về từ server thành GMT+7(local timezone) từ giá trị GMT+0
+            var messTime= new Date(dateTime);
+            var returnTime= messTime.getHours() +":" 
+                    +((messTime.getMinutes()<10) ?('0'+messTime.getMinutes()) :(messTime.getMinutes()));
+            if (messTime.getDate()!= now.getDate() ||
+                messTime.getMonth()!= now.getMonth() ||
+                messTime.getFullYear()!= now.getFullYear()) {
+                returnTime+= "  " +messTime.getDate() +"/" +(messTime.getMonth()+1);
             }
-            else {
-                returnTime= dateTime.substring(dateTime.indexOf("T")+1, dateTime.indexOf("T")+6);
-                returnTime+= "  " +now.getDate() +"/" +(now.getMonth()+1);
-            }
-            
             return returnTime;
         }
 
@@ -505,13 +504,25 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
     })
 
     
-    .controller("LoginCtrl", function($scope, $location, Login) {
-        $scope.loginData={};        
+    .controller("LoginCtrl", function($rootScope, $scope, $location, Login, md5) {
+        $scope.loginData={};
         $scope.login= function() {
             var ema= $scope.loginData.email;
-            var pas= $scope.loginData.password;
-            Login.sendData(ema, pas);
-            $location.path("/tab/activities");            
-        };
+            var pas= md5.createHash($scope.loginData.password);
+            Login.sendData(ema, pas).then(function(data){
+                console.log(data);
+                if (data== "404 Not Found") {
+                    alert("Can't connect to database, please reconnect later...");
+                }
+                else {
+                    if (data== "Wrong") {
 
+                    }
+                    else {
+                        $rootScope.userId= data;
+                        $location.path("/tab/activities");
+                    }
+                }
+            });
+        };
     });
