@@ -173,6 +173,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
             Data.getRecent(userId).then(function(data){
                 $rootScope.recent= data;
+                //console.log($rootScope.recent);
                 $scope.recent= $rootScope.recent;
             });
 
@@ -184,30 +185,39 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
             Data.getAll(userId).then(function(data) {
                 $rootScope.fullData= data;
-                $scope.fullData= $rootScope.fullData; 
-                $scope.recentRooms=[];
-                $scope.recentRoomsTemp=[];
-                // lấy hết các room trong json thành 1 file temp để chuẩn bị sắp xếp theo chiều thời gian
-                for (var i=0; i<$scope.fullData.length; i++) {
-                    for (var j=0; j<$scope.fullData[i].group_room.length;j++) {
-                        $scope.recentRoomsTemp.push($scope.fullData[i].group_room[j].rooms);
-                    }
-                }
-                // sắp xếp theo trình tự thời gian.
-                for (var i=0; i<$scope.recent.length; i++) {
-                    for (var j=0; j<$scope.recentRoomsTemp.length; j++) {
-                        if ($scope.recent[i].roomId== $scope.recentRoomsTemp[j].id) {
-                            //console.log($scope.recentRoomsTemp[j].id);
-                            $scope.recentRooms.push($scope.recentRoomsTemp[j]);
-                            break;
-                        }
-                    }
-                }
-                $rootScope.allRooms= $scope.recentRoomsTemp;
-
+                //$scope.fullData= $rootScope.fullData; 
+                sortRooms();
             });
         }
+
+        $rootScope.$on("CallSortRoomsInActivitiesCtrl", function(){
+            console.log("emit done");
+            sortRooms();
+        });
         
+        function sortRooms () {
+            $rootScope.recentRooms=[];
+            $scope.recentRoomsTemp=[];
+            // lấy hết các room trong json thành 1 file temp để chuẩn bị sắp xếp theo chiều thời gian
+            for (var i=0; i<$rootScope.fullData.length; i++) {
+                for (var j=0; j<$rootScope.fullData[i].group_room.length;j++) {
+                    $scope.recentRoomsTemp.push($rootScope.fullData[i].group_room[j].rooms);
+                }
+            }
+            // sắp xếp theo trình tự thời gian.
+            for (var i=0; i<$rootScope.recent.length; i++) {
+                for (var j=0; j<$scope.recentRoomsTemp.length; j++) {
+                    if ($rootScope.recent[i].roomId== $scope.recentRoomsTemp[j].id) {
+                        //console.log($scope.recentRoomsTemp[j].id);
+                        $rootScope.recentRooms.push($scope.recentRoomsTemp[j]);
+                        break;
+                    }
+                }
+            }
+            $rootScope.allRooms= $scope.recentRoomsTemp;
+            $scope.recentRooms= $rootScope.recentRooms;
+        }
+
         //$scope.activities = Room.userActivities("213");
         $scope.reWriteLastMessengerTime= function (dateTime) {
             var rewriteNow="";
@@ -291,6 +301,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 var chatText= data.message;
                 Chat.add(chatText, $stateParams.roomId, userId);
                 $scope.chatList = Chat.getByRoom($stateParams.roomId);
+                resortRecent($stateParams.roomId);
             }
         });
 
@@ -298,7 +309,17 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             Socket.emit('new message', chatText)
             Chat.add(chatText, $stateParams.roomId, "213");
             $scope.chatList = Chat.getByRoom($stateParams.roomId);
+            resortRecent($stateParams.roomId);
         };
+
+        function resortRecent (roomId) {
+            $rootScope.recent[3].roomId= $rootScope.recent[2].roomId;
+            $rootScope.recent[2].roomId= $rootScope.recent[1].roomId;
+            $rootScope.recent[1].roomId= $rootScope.recent[0].roomId;
+            $rootScope.recent[0].roomId= roomId;
+            console.log("call resort");
+            $rootScope.$emit("CallSortRoomsInActivitiesCtrl");
+        }
 
     })
 
