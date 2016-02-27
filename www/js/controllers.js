@@ -1,23 +1,14 @@
 angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btford.socket-io', 'angular-md5'])
 
-    .controller('MainCtrl', function ($scope, $stateParams, Data, Room, User, $ionicModal, $location, $rootScope, $ionicPopup) {
+    // MainCtrl được gọi đầu tiên khi ng dùng TRUY CẬP VÀO TRANG LOGIN
+    .controller('MainCtrl', function ($scope, $stateParams, Room, User, $ionicModal, $location, $rootScope, $ionicPopup) {
+        //console.log("MainCtrl");
         $scope.historyBack = function () {
             window.history.back();
         };
 
-        Data.getRecent().then(function(data){
-            $rootScope.recent= data;
-            $scope.recent= $rootScope.recent;
-        });
-
-        Data.getAll().then(function(data) {
-            $rootScope.fullData= data;
-            $scope.fullData= $rootScope.fullData;            
-        });
-
-        Data.getPeopleInGroup().then(function(data) {
-            $rootScope.peopleInGroup= data;
-        });
+        $scope.fullData= $rootScope.fullData;
+        $scope.recent= $rootScope.recent;
 
         $scope.friends = User.myFriends("213");
         $scope.activities = Room.userActivities("213");
@@ -172,30 +163,51 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         });
     })
 
-    .controller('ActivitiesCtrl', function ($rootScope, $scope, Room, User) {
-        $scope.fullData= $rootScope.fullData;
-        $scope.recent= $rootScope.recent;
-        $scope.recentRooms=[];
-        $scope.recentRoomsTemp=[];
-        // lấy hết các room trong json thành 1 file temp để chuẩn bị sắp xếp theo chiều thời gian
-        for (var i=0; i<$scope.fullData.length; i++) {
-            for (var j=0; j<$scope.fullData[i].group_room.length;j++) {
-                $scope.recentRoomsTemp.push($scope.fullData[i].group_room[j].rooms);
-            }
-        }
-        // sắp xếp theo trình tự thời gian.
-        for (var i=0; i<$scope.recent.length; i++) {
-            for (var j=0; j<$scope.recentRoomsTemp.length; j++) {
-                if ($scope.recent[i].roomId== $scope.recentRoomsTemp[j].id) {
-                    //console.log($scope.recentRoomsTemp[j].id);
-                    $scope.recentRooms.push($scope.recentRoomsTemp[j]);
-                    break;
+    // ActivitiesCtrl được gọi tiếp theo, sau MainCtrl. ActivitiesCtrl được gọi khi người dùng đăng nhập thành công, truy cập vào trang Recent
+    .controller('ActivitiesCtrl', function ($rootScope, $scope, Room, User, Data) {
+        console.log("ActivitiesCtrl");
+
+        // lấy dữ liệu từ server về sau khi đăng nhập thành công...
+        var userId= $rootScope.userId;
+        if (userId!="" && userId!=undefined) {
+
+            Data.getRecent(userId).then(function(data){
+                $rootScope.recent= data;
+                $scope.recent= $rootScope.recent;
+            });
+
+            Data.getPeopleInGroup(userId).then(function(data) {
+                $rootScope.peopleInGroup= data;
+                //console.log('get people done')
+                //console.log($rootScope.peopleInGroup);
+            });
+
+            Data.getAll(userId).then(function(data) {
+                $rootScope.fullData= data;
+                $scope.fullData= $rootScope.fullData; 
+                $scope.recentRooms=[];
+                $scope.recentRoomsTemp=[];
+                // lấy hết các room trong json thành 1 file temp để chuẩn bị sắp xếp theo chiều thời gian
+                for (var i=0; i<$scope.fullData.length; i++) {
+                    for (var j=0; j<$scope.fullData[i].group_room.length;j++) {
+                        $scope.recentRoomsTemp.push($scope.fullData[i].group_room[j].rooms);
+                    }
                 }
-            }
+                // sắp xếp theo trình tự thời gian.
+                for (var i=0; i<$scope.recent.length; i++) {
+                    for (var j=0; j<$scope.recentRoomsTemp.length; j++) {
+                        if ($scope.recent[i].roomId== $scope.recentRoomsTemp[j].id) {
+                            //console.log($scope.recentRoomsTemp[j].id);
+                            $scope.recentRooms.push($scope.recentRoomsTemp[j]);
+                            break;
+                        }
+                    }
+                }
+                $rootScope.allRooms= $scope.recentRoomsTemp;
+
+            });
         }
-
-        $rootScope.allRooms= $scope.recentRoomsTemp;
-
+        
         //$scope.activities = Room.userActivities("213");
         $scope.reWriteLastMessengerTime= function (dateTime) {
             var rewriteNow="";
@@ -291,8 +303,10 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
     })
 
     .controller('GroupsCtrl', function ($rootScope, $scope, $stateParams, Room) {
+        //console.log("GroupsCtrl");
         $scope.fullData= $rootScope.fullData;
         $scope.members= $rootScope.peopleInGroup;
+        //console.log($scope.members);
         $scope.membersInGroup= [];
         for (var i= 0; i< $scope.members.length; i++) {
             if ($scope.members[i].groupId==$stateParams.groupId) {
@@ -510,7 +524,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             var ema= $scope.loginData.email;
             var pas= md5.createHash($scope.loginData.password);
             Login.sendData(ema, pas).then(function(data){
-                console.log(data);
+                //console.log(data[0].userId);
                 if (data== "404 Not Found") {
                     alert("Can't connect to database, please reconnect later...");
                 }
@@ -519,7 +533,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
                     }
                     else {
-                        $rootScope.userId= data;
+                        //console.log(data);
+                        $rootScope.userId= data[0].userId;
                         $location.path("/tab/activities");
                     }
                 }

@@ -18,7 +18,6 @@ server.listen(port, function () {
   console.log('Server listening at port %d', port);
 });
 
-var userJustLoginId=1;
 
 // Add headers
 app.use(function (req, res, next) {
@@ -35,7 +34,8 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.post('/', function (req, res){
+app.post('/login', function (req, res){
+	//console.log("login request")
   var data= req.body;  
   var sql= "select userId from account_user where accountId in (select id from accounts where email='" +data.email +"' and password='" +data.pass +"')";
   var nestingOptions = [
@@ -61,8 +61,11 @@ app.post('/', function (req, res){
 	
 });
 
-app.get('/all', function(req, res){
-  var sql = "SELECT * FROM groups JOIN group_room ON groups.id=group_room.groupId JOIN rooms ON rooms.id= group_room.roomId JOIN chats ON chats.roomId= rooms.id WHERE groups.id IN (SELECT DISTINCT groupId FROM group_user WHERE userId= " +userJustLoginId +") ";
+app.post('/all', function(req, res){
+	//console.log("login1 request")
+  var userId= req.body.id
+  //console.log(userId)
+  var sql = "SELECT * FROM groups JOIN group_room ON groups.id=group_room.groupId JOIN rooms ON rooms.id= group_room.roomId JOIN chats ON chats.roomId= rooms.id WHERE groups.id IN (SELECT DISTINCT groupId FROM group_user WHERE userId= " +userId +") ";
   var nestingOptions = [
     { tableName: 'groups', pkey: 'id'},        
     { tableName: 'group_room', pkey: 'id', fkeys: [{table: 'groups', col: 'groupId'}, {table:'rooms', col: 'roomId'}]},
@@ -83,27 +86,33 @@ app.get('/all', function(req, res){
   });
 });
 
-app.get('/recent', function(req, res){
-  var sql= "SELECT distinct roomId FROM chats where roomId in (select distinct roomId from group_room where groupId in (select distinct groupId from group_user where userId=" +userJustLoginId +")) order by dateTime desc limit 5"
+app.post('/recent', function(req, res){
+	//console.log("login2 request")
+  var userId= req.body.id
+  //console.log(userId)
+  var sql= "select * from (SELECT id, roomId FROM chats where roomId in (select distinct roomId from group_room where groupId in (select distinct groupId from group_user where userId=" +userId +")) order by id desc) as t1 group by roomId order by id desc limit 5"
   var nestingOptions = [
     { tableName: 'chats', pkey: 'roomId'}
   ];
-  mysqlConnection.query({sql: sql, nestTables: true}, function (err, rows) {
+  mysqlConnection.query({sql: sql, nestTables: false}, function (err, rows) {
     // error handling
     if (err){
       console.log('Internal error: ', err);
       res.send("Mysql query execution error!");
     }
     else {
-      var nestedRows = func.convertToNested(rows, nestingOptions);
+      var nestedRows = func.convertToNested(rows);
 	  //console.log(nestedRows);
       res.send(nestedRows);
     }
   });
 });
 
-app.get('/peopleInGroup', function(req, res){
-  var sql = "select * from users join (select group_user.groupId, group_user.userId from group_user join (select distinct groupId from group_user where userId=" +userJustLoginId +") as t1 on t1.groupId=group_user.groupId) as t2 on t2.userId=users.id";  
+app.post('/peopleInGroup', function(req, res){
+	//console.log("login3 request")
+  var userId= req.body.id
+  //console.log(userId)
+  var sql = "select * from users join (select group_user.groupId, group_user.userId from group_user join (select distinct groupId from group_user where userId=" +userId +") as t1 on t1.groupId=group_user.groupId) as t2 on t2.userId=users.id";  
   mysqlConnection.query({sql: sql, nestTables: false}, function (err, rows) {
     // error handling
     if (err){

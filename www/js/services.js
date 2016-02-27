@@ -6,18 +6,21 @@ var DOMAIN="http://localhost:8028/";
 angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
     .factory('Data', function ($http) {
         return {
-            getAll: function () {  
-                return $http.get(DOMAIN+"all").then(function (response) {
+            getAll: function (userId) {
+                var data= {'id': userId}
+                return $http.post(DOMAIN+"all", data).then(function (response) {
                     return response.data;
                 });
             },
-            getRecent: function () {  
-                return $http.get(DOMAIN+"recent").then(function (response) {
+            getRecent: function (userId) {
+                var data= {'id': userId}
+                return $http.post(DOMAIN+"recent", data).then(function (response) {
                     return response.data;
                 });
             },
-            getPeopleInGroup: function () {  
-                return $http.get(DOMAIN+"peopleInGroup").then(function (response) {
+            getPeopleInGroup: function (userId) {  
+                var data= {'id': userId}
+                return $http.post(DOMAIN+"peopleInGroup", data).then(function (response) {
                     return response.data;
                 });
             }
@@ -27,10 +30,9 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
     .factory('Login', function ($http) {
         return {
             sendData: function (ema, pas) {  
-                
                 var data= {'email':ema, 'pass':pas};
-                console.log(data);
-                return $http.post(DOMAIN, data).then(function (response) {
+                //console.log(data);
+                return $http.post(DOMAIN+"login", data).then(function (response) {
                     return response.data;
                 });
             }
