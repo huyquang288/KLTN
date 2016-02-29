@@ -36,53 +36,29 @@
 
     <ion-content>
 
-        <ion-list ng-if="group.group_room.length>0">
-
-            <div ng-if="false" class="row" ng-repeat="room in fullData[0].group_room">
-                <!-- <div class="col col-50" ng-repeat="room in groups"> -->
-                    <div class="col-50 list card">
-                        <a nav-direction="forward" 
-                           class="item item-avatar item-avatar-center item-avatar-l text-center"
-                           href="#/room/{{room.rooms.id}}">
-                            <img ng-src="{{room.rooms.thumbnail}}">
-
-                            <h3>
-                                <small>{{room.rooms.title}}</small>
-                            </h3>
-
-                            <p>{{room.rooms.activeTime}}</p>
-                        </a>
-
-                        <a nav-direction="forward" class="item item-divider text-center" href="#/room/{{room.rooms.id}}">
-                            
-                            <p>{{room.rooms.members}}</p>
-                        </a>
-                    </div>
-                <!-- </div> -->
-            </div>
-
-            <span ng-repeat="room in group.group_room">
+        <ion-list ng-if="rooms.length>0">
+            <span ng-repeat="room in rooms">
                 <ion-item class="item-remove-animate item-avatar" 
-                          nav-direction="forward" href="#/room/{{room.rooms.id}}"
+                          nav-direction="forward" href="#/room/{{room.roomId}}"
                           type="item-text-wrap">
-                    <img ng-src="{{room.rooms.thumbnail}}">
+                    <img ng-src="{{room.thumbnail}}">
 
                     <span class="badge avatar-badge avatar-badge-s"
-                          ng-class="{'badge-positive':room.roomType=='ms_friend', 'badge-stable':room.rooms.roomType=='fb_friend'}"
-                          ng-if="room.rooms.roomType!='group'">
-                        <i class="icon ion-ios-bolt" ng-if="room.rooms.roomType=='ms_friend'"></i>
+                          ng-class="{'badge-positive':room.roomType=='ms_friend', 'badge-stable':room.roomType=='fb_friend'}"
+                          ng-if="room.roomType!='group'">
+                        <i class="icon ion-ios-bolt" ng-if="room.roomType=='ms_friend'"></i>
                         <i class="icon ion-social-facebook light" 
-                           ng-if="room.rooms.roomType=='fb_friend'">
+                           ng-if="room.roomType=='fb_friend'">
                         </i>
                     </span>
 
                     <h3>
-                        <small>{{room.rooms.title}}</small>
+                        <small>{{room.title}}</small>
                     </h3>
 
-                    <p>{{room.rooms.latest_chat}}</p>
+                    <p>{{getLastMessageText(room.roomId)}}</p>
 
-                    <span class="item-note">{{room.rooms.activeTime}}</span>
+                    <span class="item-note">{{getLastMessageTime(room.roomId)}}</span>
 
                     <ion-option-button class="button-dark" ng-click="">
                         Leave group

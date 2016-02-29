@@ -33,13 +33,13 @@
                 Search for existed groups
             </button>
         </ion-item> 
-        <div class="row" ng-repeat="group in fullData">
+        <div class="row" ng-repeat="group in allGroups">
             <!-- <div class="col col-50" ng-repeat="room in groups"> -->
                 <div class="col-50 col-offset-25 list card">
                     <a nav-direction="forward" 
                        class="item item-avatar item-avatar-center item-avatar-l text-center"
-                       href="#/rooms/{{group.id}}">
-                        <img ng-src="{{room.rooms.thumbnail}}">
+                       href="#/rooms/{{group.groupId}}">
+                        <!-- <img ng-src="{{room.rooms.thumbnail}}"> -->
 
                         <h3>
                             <small>{{group.name}}</small>
@@ -48,9 +48,9 @@
                         <p>{{group.description}}</p>
                     </a>
 
-                    <a nav-direction="forward" class="item item-divider text-center" href="#/group-members/{{group.id}}">
+                    <a nav-direction="forward" class="item item-divider text-center" href="#/group-members/{{group.groupId}}">
                         <p>
-                            <span ng-if="member.groupId==group.id" ng-repeat="member in members">
+                            <span ng-if="group.groupId==member.groupId" ng-repeat="member in members">
                                 {{member.firstName}}{{(member.groupId==members[$index+1].groupId) ?',' :''}}
                             </span>
                         </p>

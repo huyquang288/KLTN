@@ -1,14 +1,99 @@
 angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btford.socket-io', 'angular-md5'])
+    .service('SharedProperties', function () {
+        var userId;
+        var recent;
+        var peopleInGroups;
+        var recentRooms;
+        var allGroups;
+        var allRooms;
+        var allChats;
+
+        return {
+            getUserId: function () {
+                return userId;
+            },
+            setUserId: function(value) {
+                userId = value;
+            },
+            getRecent: function () {
+                return recent;
+            },
+            setRecent: function(value) {
+                recent = value;
+            },
+            getPeopleInAllGroups: function () {
+                return peopleInGroups;
+            },
+            setPeopleInAllGroups: function(value) {
+                peopleInGroups = value;
+            },
+            getRecentRooms: function () {
+                return recentRooms;
+            },
+            setRecentRooms: function(value) {
+                recentRooms = value;
+            },
+            getAllGroups: function() {
+                return allGroups;
+            },
+            setAllGroups: function(value) {
+                allGroups = value;
+            },
+            getAllRooms: function () {
+                return allRooms;
+            },
+            setAllRooms: function(value) {
+                allRooms = value;
+            },
+            getAllChats: function () {
+                return allChats;
+            },
+            setAllChats: function(value) {
+                allChats = value;
+            },
+            add: function(chatId, text, roomId, userId, time) {
+                var id
+                if (allChats.length< 1) {
+                    id= 1;
+                }
+                else {
+                    //0 là giá trị tương ứng với tin nhắn được gửi từ máy, lưu trực tiếp vào các dòng chat hiện tại
+                    id= ((chatId<1) ?((allChats[allChats.length-1].chatId)+1) :chatId)
+                }
+                var ele= {
+                    chatId: id,
+                    roomId: roomId,
+                    userId: userId,
+                    chatText: text,
+                    dateTime: (time=="now" ?new Date() :time)
+                }
+                allChats.push(ele);
+            },
+            resortRecent: function (rId) {
+                var newRecent= [];
+                var ele= {roomId: rId}
+                newRecent.push(ele);
+                for (var i in recent) {
+                    if (newRecent.length<5 && rId!= recent[i].roomId) {
+                        newRecent.push(recent[i]);
+                    }
+                }
+                recent= newRecent;
+            },
+        };
+    })
 
     // MainCtrl được gọi đầu tiên khi ng dùng TRUY CẬP VÀO TRANG LOGIN
-    .controller('MainCtrl', function ($scope, $stateParams, Room, User, $ionicModal, $location, $rootScope, $ionicPopup) {
-        //console.log("MainCtrl");
+    .controller('MainCtrl', function ($scope, $stateParams, SharedProperties, Socket, Room, User, $ionicModal, $location, $rootScope, $ionicPopup) {
         $scope.historyBack = function () {
             window.history.back();
         };
 
-        $scope.fullData= $rootScope.fullData;
-        $scope.recent= $rootScope.recent;
+        Socket.on('server new all message', function (data) {
+            SharedProperties.add(data.chatId, data.chatText, data.roomId, data.userId, data.dateTime);
+            SharedProperties.resortRecent(data.roomId);
+            $rootScope.$broadcast("CallSortRoomsInActivitiesCtrl");
+        });
 
         $scope.friends = User.myFriends("213");
         $scope.activities = Room.userActivities("213");
@@ -164,62 +249,146 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
     })
 
     // ActivitiesCtrl được gọi tiếp theo, sau MainCtrl. ActivitiesCtrl được gọi khi người dùng đăng nhập thành công, truy cập vào trang Recent
-    .controller('ActivitiesCtrl', function ($rootScope, $scope, Room, User, Data) {
-        console.log("ActivitiesCtrl");
-
+    .controller('ActivitiesCtrl', function ($rootScope, $scope, SharedProperties, Socket, Room, User, Data) {
         // lấy dữ liệu từ server về sau khi đăng nhập thành công...
-        var userId= $rootScope.userId;
+        var userId= SharedProperties.getUserId();
         if (userId!="" && userId!=undefined) {
-
             Data.getRecent(userId).then(function(data){
-                $rootScope.recent= data;
-                //console.log($rootScope.recent);
-                $scope.recent= $rootScope.recent;
+                var recent= [];
+                var ele;
+                for (var i in data) {
+                    ele = {
+                        roomId: data[i].roomId
+                    }
+                    recent.push(ele);
+                }
+                //console.log(recent);
+                SharedProperties.setRecent(recent);
+                $scope.recent= recent;
             });
 
-            Data.getPeopleInGroup(userId).then(function(data) {
-                $rootScope.peopleInGroup= data;
-                //console.log('get people done')
-                //console.log($rootScope.peopleInGroup);
+            Data.getPeopleInAllGroups(userId).then(function(data) {
+                var peopleInAllGroups= [];
+                var ele;
+                for (var i in data) {
+                    ele = {
+                        userId: data[i].id,
+                        groupId: data[i].groupId,
+                        firstName: data[i].firstName,
+                        lastName: data[i].lastName,
+                        face: data[i].face,
+                        friendType: data[i].friendType,
+                        activeTime: data[i].activeTime
+                    }
+                    peopleInAllGroups.push(ele);
+                }
+                SharedProperties.setPeopleInAllGroups(peopleInAllGroups);
             });
 
             Data.getAll(userId).then(function(data) {
-                $rootScope.fullData= data;
-                //$scope.fullData= $rootScope.fullData; 
+                //console.log(data);
+                var allGroups= [];
+                var allRooms= [];
+                
+                var ele;
+                for (var i in data) {
+                    // sắp xếp vào allGroups
+                    ele= {
+                        groupId: data[i].id,
+                        name: data[i].name,
+                        description: data[i].description
+                    }
+                    allGroups.push(ele);
+                    for (var j in data[i].group_room) {
+                        // sắp xếp vào allRooms
+                        ele= {
+                            roomId: data[i].group_room[j].rooms.id,
+                            title: data[i].group_room[j].rooms.title,
+                            groupId: data[i].group_room[j].groupId,
+                            thumbnail: data[i].group_room[j].rooms.thumbnail,
+                            activeTime: data[i].group_room[j].rooms.activeTime
+                        }
+                        allRooms.push(ele);
+                    }
+                }
+                SharedProperties.setAllGroups(allGroups);
+                SharedProperties.setAllRooms(allRooms);
                 sortRooms();
+            });
+
+            Data.getAllChats(userId).then(function(data) {
+                SharedProperties.setAllChats(data);
             });
         }
 
-        $rootScope.$on("CallSortRoomsInActivitiesCtrl", function(){
-            console.log("emit done");
+        // add user sau khi đăng nhập thành công để có thể thêm được những đoạn chat mới vào
+        Socket.on('connect',function(){
+            //Add user
+            Socket.emit('user join to room', 1, userId);
+        })
+
+        $rootScope.$on("CallSortRoomsInActivitiesCtrl", function(event, args){
             sortRooms();
         });
         
         function sortRooms () {
-            $rootScope.recentRooms=[];
-            $scope.recentRoomsTemp=[];
-            // lấy hết các room trong json thành 1 file temp để chuẩn bị sắp xếp theo chiều thời gian
-            for (var i=0; i<$rootScope.fullData.length; i++) {
-                for (var j=0; j<$rootScope.fullData[i].group_room.length;j++) {
-                    $scope.recentRoomsTemp.push($rootScope.fullData[i].group_room[j].rooms);
-                }
-            }
+            var allRooms= SharedProperties.getAllRooms();
+            var recent= SharedProperties.getRecent();
+            var recentRooms= [];
             // sắp xếp theo trình tự thời gian.
-            for (var i=0; i<$rootScope.recent.length; i++) {
-                for (var j=0; j<$scope.recentRoomsTemp.length; j++) {
-                    if ($rootScope.recent[i].roomId== $scope.recentRoomsTemp[j].id) {
-                        //console.log($scope.recentRoomsTemp[j].id);
-                        $rootScope.recentRooms.push($scope.recentRoomsTemp[j]);
+            for (var i in recent) {
+                for (var j in allRooms) {
+                    if (recent[i].roomId== allRooms[j].roomId) {
+                        recentRooms.push(allRooms[j]);
                         break;
                     }
                 }
             }
-            $rootScope.allRooms= $scope.recentRoomsTemp;
-            $scope.recentRooms= $rootScope.recentRooms;
+            SharedProperties.setRecentRooms(recentRooms);
+            $scope.recentRooms= recentRooms;   
+            console.log("resort done");
+            console.log(recentRooms[0].title);
         }
 
+        
         //$scope.activities = Room.userActivities("213");
-        $scope.reWriteLastMessengerTime= function (dateTime) {
+        var lastMess;
+        $scope.getLastMessageText= function (roomId) {
+            //console.log(roomId);
+            var returnMess= "";
+            var allChats= SharedProperties.getAllChats();
+            if (allChats== null) {
+                return "No recent chat.";
+            }
+            for (var i=(allChats.length-1); i>=0; i--) {
+                if (allChats[i].roomId== roomId) {
+                    lastMess= allChats[i];
+                    break;
+                }
+            }
+            // trong trường hợp không tìm được tin nhắn (room vừa mới tạo chưa có nội dung chat) trả về giá trị rỗng
+            if (lastMess== null) {
+                return "No recent chat.";
+            }
+            var peopleInAllGroups= SharedProperties.getPeopleInAllGroups();
+            for (var i in peopleInAllGroups) {
+                if (peopleInAllGroups[i].userId== lastMess.userId) {
+                    returnMess+= (peopleInAllGroups[i].firstName +" " +peopleInAllGroups[i].lastName 
+                                    +": " +lastMess.chatText);
+                    //console.log(returnMess);
+                    break;
+                }
+            }
+            //console.log(lastMess.chatText)
+            return returnMess;
+        }
+
+        $scope.getLastMessageTime= function (roomId) {
+            // trong trường hợp không tìm được tin nhắn (room vừa mới tạo chưa có nội dung chat) trả về giá trị rỗng
+            if (lastMess== null) {
+                return "";
+            }
+            var dateTime= lastMess.dateTime;
             var rewriteNow="";
             var now= new Date();
             // chuyển giá trị dateTime trả về từ server thành GMT+7(local timezone) từ giá trị GMT+0
@@ -242,10 +411,10 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         $scope.friends = User;
     })
 
-    .controller('RoomCtrl', function ($rootScope, $scope, $stateParams, Socket, Room, Chat) {
-        $scope.allRooms= $rootScope.allRooms;
-        //$scope.room.settingURL= "";
-        //console.log($stateParams.roomId);
+    .controller('RoomCtrl', function ($rootScope, $scope, $stateParams, SharedProperties, Socket, Room, Chat) {
+        var allChats= SharedProperties.getAllChats();
+        var allRooms= SharedProperties.getAllRooms();
+        var userId= SharedProperties.getUserId();
         
         if ($stateParams.roomId == "new") {
             if ($stateParams.userList) {
@@ -257,99 +426,139 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             }
         }
         else {
-            for (var i=0; i< $scope.allRooms.length; i++) {
-                if ($stateParams.roomId== $scope.allRooms[i].id) {
-                    $scope.room= $scope.allRooms[i];
-                    //console.log($scope.room);
+            for (var i=0; i< allRooms.length; i++) {
+                if ($stateParams.roomId== allRooms[i].roomId) {
+                    $scope.room= allRooms[i];
                     $scope.room.settingURL = "#/room-setting/" + $stateParams.roomId;
+                    //console.log('join to room')
+                    Socket.emit('user join to room', $stateParams.roomId, userId);
+                    $scope.userId= userId;
                     break;
                 }
             }
-
-            // $scope.room= $scope.fullData[0].group_room[0].rooms;
-            // $scope.room.settingURL = "#/room-setting/" + $stateParams.roomId;
         }
 
-        //$scope.chatList = Chat.getByRoom($scope.room.id);
-        $scope.chatList= $scope.room.chats;
-        // chuyển toàn bộ dữ liệu của phần chat lấy được trên server sang cho chats bên services.js
-        Chat.set($scope.chatList);
+        var chatList= [];
+        for (var i in allChats) {
+            if (allChats[i].roomId== $stateParams.roomId) {
+                chatList.push(allChats[i]);
+            }
+        }
+        $scope.chatList= chatList
 
         //  KẾT NỐI ĐẾN SERVER ĐỂ VÀO ĐƯỢC PHÒNG CHAT.
-        var self=this;
         var typing = false;
         var lastTypingTime;
-        var TYPING_TIMER_LENGTH = 400;    
+        var TYPING_TIMER_LENGTH = 400;
 
-        Socket.on('connect',function(){
-            connected = true
-         
-            //Add user
-            Socket.emit('add user', "huy", $stateParams.roomId);
-
-            // On login display welcome message
-            Socket.on('login', function (data) {
-            //Set the value of connected flag
-            self.connected = true
-          })
-        })
-
-        Socket.on('new message', function (data) {
-            if(data.message&&data.username)
-            {
-                var userId= 1;
-                var chatText= data.message;
-                Chat.add(chatText, $stateParams.roomId, userId);
-                $scope.chatList = Chat.getByRoom($stateParams.roomId);
-                resortRecent($stateParams.roomId);
-            }
+        Socket.on('server new room message', function (data) {
+            //console.log("has new mess");
+            add(data.chatId, data.chatText, $stateParams.roomId, data.userId, data.dateTime);
+            SharedProperties.resortRecent(data.roomId);
+            $rootScope.$broadcast("CallSortRoomsInActivitiesCtrl");
         });
 
         $scope.sendChat = function (chatText) {
-            Socket.emit('new message', chatText)
-            Chat.add(chatText, $stateParams.roomId, "213");
-            $scope.chatList = Chat.getByRoom($stateParams.roomId);
-            resortRecent($stateParams.roomId);
+            Socket.emit('client new message', chatText, $stateParams.roomId, userId)
+            add(0, chatText, $stateParams.roomId, userId, "now");
+            SharedProperties.add(0, chatText, $stateParams.roomId, userId, "now");
+            SharedProperties.resortRecent($stateParams.roomId);
+            $rootScope.$broadcast("CallSortRoomsInActivitiesCtrl");
         };
 
-        function resortRecent (roomId) {
-            $rootScope.recent[3].roomId= $rootScope.recent[2].roomId;
-            $rootScope.recent[2].roomId= $rootScope.recent[1].roomId;
-            $rootScope.recent[1].roomId= $rootScope.recent[0].roomId;
-            $rootScope.recent[0].roomId= roomId;
-            console.log("call resort");
-            $rootScope.$emit("CallSortRoomsInActivitiesCtrl");
-        }
-
-    })
-
-    .controller('GroupsCtrl', function ($rootScope, $scope, $stateParams, Room) {
-        //console.log("GroupsCtrl");
-        $scope.fullData= $rootScope.fullData;
-        $scope.members= $rootScope.peopleInGroup;
-        //console.log($scope.members);
-        $scope.membersInGroup= [];
-        for (var i= 0; i< $scope.members.length; i++) {
-            if ($scope.members[i].groupId==$stateParams.groupId) {
-                $scope.membersInGroup.push($scope.members[i]);
+        function add (chatId, text, roomId, userId, time) {
+            var id
+            if (allChats.length< 1) {
+                id= 1;
             }
+            else {
+                //0 là giá trị tương ứng với tin nhắn được gửi từ máy, lưu trực tiếp vào các dòng chat hiện tại
+                id= ((chatId<1) ?((allChats[allChats.length-1].chatId)+1) :chatId)
+            }
+            var ele= {
+                chatId: id,
+                roomId: roomId,
+                userId: userId,
+                chatText: text,
+                dateTime: (time=="now" ?new Date() :time)
+            }
+            $scope.chatList.push(ele);
         }
+
     })
 
-    .controller('RoomsCtrl', function ($rootScope, $scope, $stateParams) {
-        $scope.fullData= $rootScope.fullData;
-        for (var i=0; i<$scope.fullData.length; i++) {
-            if ($stateParams.groupId== $scope.fullData[i].id) {
-                $scope.group= $scope.fullData[i];
+    .controller('GroupsCtrl', function ($rootScope, $scope, $stateParams, SharedProperties, Room) {
+        $scope.allGroups= SharedProperties.getAllGroups();
+        $scope.members= SharedProperties.getPeopleInAllGroups();
+    })
+
+    .controller('RoomsCtrl', function ($rootScope, $scope, $stateParams, SharedProperties) {
+        allGroups= SharedProperties.getAllGroups();
+        allRooms= SharedProperties.getAllRooms();
+        $scope.rooms= [];
+        for (var i in allGroups) {
+            if ($stateParams.groupId== allGroups[i].groupId) {
+                $scope.group= allGroups[i];
                 //$scope.room.settingURL = "#/room-setting/" + $stateParams.roomId;
                 break;
             }
         }
+        for (var i in allRooms) {
+            if (allRooms[i].groupId== $stateParams.groupId) {
+                $scope.rooms.push(allRooms[i]);
+            }
+        }
+
+        var lastMess;
+        $scope.getLastMessageText= function (roomId) {
+            lastMess= null;
+            var returnMess= "";
+            var allChats= SharedProperties.getAllChats();
+            if (allChats== null) {
+                return "No recent chat.";
+            }
+            for (var i=(allChats.length-1); i>=0; i--) {
+                if (allChats[i].roomId== roomId) {
+                    lastMess= allChats[i];
+                    break;
+                }
+            }
+            // trong trường hợp không tìm được tin nhắn (room vừa mới tạo chưa có nội dung chat) trả về giá trị rỗng
+            if (lastMess== null) {
+                return "No recent chat.";
+            }
+            var peopleInAllGroups= SharedProperties.getPeopleInAllGroups();
+            for (var i in peopleInAllGroups) {
+                if (peopleInAllGroups[i].userId== lastMess.userId) {
+                    returnMess+= (peopleInAllGroups[i].firstName +" " +peopleInAllGroups[i]. lastName);
+                    return (returnMess+ ": " +lastMess.chatText);
+                }
+            }
+            return returnMess;
+        }
+        $scope.getLastMessageTime= function (roomId) {
+            if (lastMess== null) {
+                return "";
+            }
+            var dateTime= lastMess.dateTime;
+            var rewriteNow="";
+            var now= new Date();
+            // chuyển giá trị dateTime trả về từ server thành GMT+7(local timezone) từ giá trị GMT+0
+            var messTime= new Date(dateTime);
+            var returnTime= messTime.getHours() +":" 
+                    +((messTime.getMinutes()<10) ?('0'+messTime.getMinutes()) :(messTime.getMinutes()));
+            if (messTime.getDate()!= now.getDate() ||
+                messTime.getMonth()!= now.getMonth() ||
+                messTime.getFullYear()!= now.getFullYear()) {
+                returnTime+= "  " +messTime.getDate() +"/" +(messTime.getMonth()+1);
+            }
+            return returnTime;
+        }
     })
 
-    .controller('FriendsCtrl', function ($scope, $stateParams, $ionicPopup, User, Room, $state) {
+    .controller('FriendsCtrl', function ($rootScope, $scope, $stateParams, $ionicPopup, SharedProperties, User, Room, $state) {
 
-        $scope.fullData= sharedProperties.getObject();
+        $scope.fullData= $rootScope.fullData;
         $scope.$state = $state;
         $scope.friends = User.myFriends("213");
 
@@ -528,7 +737,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         };
     })
 
-    .controller("DisableCtrl", function($scope) {
+    .controller('DisableCtrl', function($scope) {
         $scope.thetext = "";
         $scope.b1 = function() {
             console.log("B1");
@@ -537,9 +746,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             console.log("B2");
         };
     })
-
-    
-    .controller("LoginCtrl", function($rootScope, $scope, $location, Login, md5) {
+   
+    .controller('LoginCtrl', function($rootScope, $scope, $location, SharedProperties, Login, md5) {
         $scope.loginData={};
         $scope.login= function() {
             var ema= $scope.loginData.email;
@@ -554,8 +762,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
                     }
                     else {
-                        //console.log(data);
-                        $rootScope.userId= data[0].userId;
+                        SharedProperties.setUserId(data[0].userId);
                         $location.path("/tab/activities");
                     }
                 }

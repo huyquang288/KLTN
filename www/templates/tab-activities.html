@@ -5,26 +5,27 @@
     </ion-nav-buttons>
 
     <ion-content>
-        <ion-list ng-if="recent.length>0">
+        <ion-list ng-if="recentRooms.length>0">
             <ion-item>
-                <button class="button button-small button-block icon-left ion-ios-search" ng-click="openSearch()"
+                <button class="button button-small button-block icon-left ion-ios-search" 
+                        ng-click="openSearch()"
                         style="margin: 0">
                     Search for people and groups
                 </button>
             </ion-item>
 
-            <span ng-repeat="room in recentRooms">
+            <span ng-repeat="room in recentRooms track by $index">
                 <ion-item class="item-remove-animate item-avatar" 
-                          nav-direction="forward" href="#/room/{{room.id}}"
+                          nav-direction="forward" href="#/room/{{room.roomId}}"
                           type="item-text-wrap">
-                    <img ng-src="{{room.rooms.thumbnail}}">
+                    <img ng-src="{{room.thumbnail}}">
 
                     <span class="badge avatar-badge avatar-badge-s"
                           ng-class="{'badge-positive':room.roomType=='ms_friend', 'badge-stable':room.rooms.roomType=='fb_friend'}"
-                          ng-if="room.rooms.roomType!='group'">
-                        <i class="icon ion-ios-bolt" ng-if="room.rooms.roomType=='ms_friend'"></i>
+                          ng-if="room.roomType!='group'">
+                        <i class="icon ion-ios-bolt" ng-if="room.roomType=='ms_friend'"></i>
                         <i class="icon ion-social-facebook light" 
-                           ng-if="room.rooms.roomType=='fb_friend'">
+                           ng-if="room.roomType=='fb_friend'">
                         </i>
                     </span>
 
@@ -34,14 +35,12 @@
                     </h3>
 
                     <!-- đoạn chat gần đây nhất -->
-                    <p>{{room.chats[room.chats.length-1].chatText}}</p>
-                    <!-- <p>{{room.rooms.latest_chat}}</p> -->
+                    <p>{{getLastMessageText(room.roomId)}}</p>
 
                     <!-- thời gian của dòng chat cuối cùng -->
                     <span class="item-note">
-                        {{reWriteLastMessengerTime(room.chats[room.chats.length-1].dateTime)}}
+                        {{getLastMessageTime(room.roomId)}}
                     </span>
-                    <!-- <span class="item-note">{{room.rooms.activeTime}}</span> -->
 
                     <ion-option-button class="button-dark" ng-click="">
                         Leave group
@@ -57,7 +56,7 @@
         </ion-list>
 
         <!--show when there is no activity-->
-        <div ng-if="recent.length<=0">
+        <div ng-if="recentRooms.length<=0">
             <div style="height: 60px"></div>
             <div class="text-center" style="padding: 45px">
                 <h2 class="grey">

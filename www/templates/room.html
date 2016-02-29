@@ -15,10 +15,10 @@
     <ion-content class="padding">
         <div style="height: 10px"></div>
         <div ng-if="chatList.length" class="list border-none" ng-repeat="chat in chatList" 
-             ng-class="[{'me':chat.userId==213}]">
+             ng-class="[{'me':chat.userId==userId}]">
 
             <!-- đoạn chat không phải của chủ tài khoản -->
-            <div class="item item-avatar-s chat-friend" ng-if="chat.userId!=213">
+            <div class="item item-avatar-s chat-friend" ng-if="chat.userId!=userId">
                 <img ng-src="{{chat.user.face}}">
 
                 <span class="badge avatar-badge avatar-badge-xs"
@@ -31,7 +31,7 @@
             </div>
 
             <!-- đoạn chat của chủ tài khoản -->
-            <div class="item item-avatar-right-s chat-me text-right" ng-if="chat.userId==213">
+            <div class="item item-avatar-right-s chat-me text-right" ng-if="chat.userId==userId">
                 <img ng-src="{{chat.user.face}}">
 
                 <p class="chat-text positive-bg text-left"> {{chat.chatText}}</p>

@@ -12,15 +12,21 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                     return response.data;
                 });
             },
+            getAllChats: function (userId) {
+                var data= {'id': userId}
+                return $http.post(DOMAIN+"chats", data).then(function (response) {
+                    return response.data;
+                });
+            },
             getRecent: function (userId) {
                 var data= {'id': userId}
                 return $http.post(DOMAIN+"recent", data).then(function (response) {
                     return response.data;
                 });
             },
-            getPeopleInGroup: function (userId) {  
+            getPeopleInAllGroups: function (userId) {  
                 var data= {'id': userId}
-                return $http.post(DOMAIN+"peopleInGroup", data).then(function (response) {
+                return $http.post(DOMAIN+"peopleInAllGroups", data).then(function (response) {
                     return response.data;
                 });
             }
@@ -234,20 +240,6 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
         var chats = [];
 
         return {
-            set: function (allMess) {
-                for (var i in allMess) {
-                    //chats= allMess;
-                    var chat = {
-                        id: allMess[i].id,
-                        userId: allMess[i].userId.toString(),
-                        chatText: allMess[i].chatText,
-                        roomId: allMess[i].roomId.toString(),
-                        dateTime: "0000-00-00 00:00:00"
-                    };
-                    chats.push(chat);
-                }
-                
-            },
             all: function () {                
                 return chats;
             },
@@ -260,7 +252,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                     dateTime: "0000-00-00 00:00:00"
                 };
                 chats.push(chat);
-                console.log(chats);
+                //console.log(chats);
             },
             get: function (chatId) {
                 for (var i = 0; i < chats.length; i++) {
