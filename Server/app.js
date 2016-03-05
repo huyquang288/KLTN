@@ -155,22 +155,21 @@ io.on('connection', function (socket) {
   
 	// when the client emits 'new message', this listens and executes
 	// we tell the client to execute 'new message'  
-	socket.on('client new message', function (text, roomId, userId) {
+	socket.on('client new message', function (data) {
 		// query to save mess into db
-		var que= "INSERT INTO chats (userId, chatText, roomId) VALUES (" +userId +", '" +text +"', " +roomId +")";
-		socket.text= text;
-		socket.userId= userId;
-		socket.roomId= roomId;
+		//var que= "INSERT INTO chats SET ?", data;
+		socket.text= data.chatText;
+		socket.userId= data.userId;
+		socket.roomId= data.roomId;
+		socket.userAvata= data.userAvata;
 		// write to db
-		mysqlConnection.query(que, function(err, rows){
+		console.log(data.userAvata);
+		mysqlConnection.query("INSERT INTO chats SET ?", data, function(err, rows){
 			if (err) {
 				console.log('Internal error: ', err);
 			}
 			else {
 				var que= "select * from chats where id in (select max(id) from chats)";
-				socket.text= text;
-				socket.userId= userId;
-				socket.roomId= roomId;
 				// write to db
 				mysqlConnection.query({sql: que, nestTables: false}, function(err, rows){
 					if (err) {
@@ -186,14 +185,16 @@ io.on('connection', function (socket) {
 							userId: socket.userId,
 							chatText: socket.text,
 							chatId: socket.chatId,
-							dateTime: socket.dateTime
+							dateTime: socket.dateTime,
+							userAvata: socket.userAvata
 						});
 						socket.broadcast.emit('server new all message', {
 							userId: socket.userId,
 							chatText: socket.text,
 							chatId: socket.chatId,
 							roomId: socket.roomId,
-							dateTime: socket.dateTime
+							dateTime: socket.dateTime,
+							userAvata: socket.userAvata
 						});
 						//console.log("sent");
 					}

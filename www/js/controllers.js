@@ -1,6 +1,5 @@
 angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btford.socket-io', 'angular-md5'])
     .service('SharedProperties', function () {
-        var userId;
         var recent;
         var peopleInGroups;
         var recentRooms;
@@ -9,12 +8,6 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         var allChats;
 
         return {
-            getUserId: function () {
-                return userId;
-            },
-            setUserId: function(value) {
-                userId = value;
-            },
             getRecent: function () {
                 return recent;
             },
@@ -51,7 +44,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             setAllChats: function(value) {
                 allChats = value;
             },
-            add: function(chatId, text, roomId, userId, time) {
+            addChat: function(chatId, text, roomId, userId, time, userAva) {
                 var id
                 if (allChats.length< 1) {
                     id= 1;
@@ -65,7 +58,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                     roomId: roomId,
                     userId: userId,
                     chatText: text,
-                    dateTime: (time=="now" ?new Date() :time)
+                    dateTime: (time=="now" ?new Date() :time),
+                    userAvata: userAva
                 }
                 allChats.push(ele);
             },
@@ -85,15 +79,39 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
     // MainCtrl được gọi đầu tiên khi ng dùng TRUY CẬP VÀO TRANG LOGIN
     .controller('MainCtrl', function ($scope, $stateParams, SharedProperties, Socket, Room, User, $ionicModal, $location, $rootScope, $ionicPopup) {
+        var self= this;
         $scope.historyBack = function () {
             window.history.back();
         };
 
         Socket.on('server new all message', function (data) {
-            SharedProperties.add(data.chatId, data.chatText, data.roomId, data.userId, data.dateTime);
+            SharedProperties.addChat(data.chatId, data.chatText, data.roomId, data.userId, data.dateTime, data.userAvata);
+
+            // hiển thị thông báo
+            if (!Notification) {
+                alert('Desktop notifications not available in your browser. Try Chromium.'); 
+                return;
+            }
+            if (Notification.permission !== "granted")
+                Notification.requestPermission();
+            else {
+                var notification = new Notification('Notification title', {
+                    icon: 'https://s3.amazonaws.com/ionic-marketplace/ionic-starter-messenger/icon.png',
+                    body: data.chatText,
+                });
+                notification.onclick = function () {
+                    redirectLink(data.roomId);
+                } 
+            }
+
             SharedProperties.resortRecent(data.roomId);
             $rootScope.$broadcast("CallSortRoomsInActivitiesCtrl");
         });
+
+        function redirectLink (roomId) {
+            var req= "/room/" +roomId;
+            $location.path(req);
+        }
 
         $scope.friends = User.myFriends("213");
         $scope.activities = Room.userActivities("213");
@@ -251,7 +269,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
     // ActivitiesCtrl được gọi tiếp theo, sau MainCtrl. ActivitiesCtrl được gọi khi người dùng đăng nhập thành công, truy cập vào trang Recent
     .controller('ActivitiesCtrl', function ($rootScope, $scope, SharedProperties, Socket, Room, User, Data) {
         // lấy dữ liệu từ server về sau khi đăng nhập thành công...
-        var userId= SharedProperties.getUserId();
+        var userId= $rootScope.userId;
         if (userId!="" && userId!=undefined) {
             Data.getRecent(userId).then(function(data){
                 var recent= [];
@@ -281,6 +299,10 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                         activeTime: data[i].activeTime
                     }
                     peopleInAllGroups.push(ele);
+                    if (data[i].id== userId) {
+                        $rootScope.userAvata= data[i].face;
+                        //console.log($rootScope.userAvata);
+                    }
                 }
                 SharedProperties.setPeopleInAllGroups(peopleInAllGroups);
             });
@@ -346,8 +368,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             }
             SharedProperties.setRecentRooms(recentRooms);
             $scope.recentRooms= recentRooms;   
-            console.log("resort done");
-            console.log(recentRooms[0].title);
+            //console.log("resort done");
+            //console.log(recentRooms[0].title);
         }
 
         
@@ -414,7 +436,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
     .controller('RoomCtrl', function ($rootScope, $scope, $stateParams, SharedProperties, Socket, Room, Chat) {
         var allChats= SharedProperties.getAllChats();
         var allRooms= SharedProperties.getAllRooms();
-        var userId= SharedProperties.getUserId();
+        var userId= $rootScope.userId;
+        var userAvata= $rootScope.userAvata;
         
         if ($stateParams.roomId == "new") {
             if ($stateParams.userList) {
@@ -453,20 +476,21 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
         Socket.on('server new room message', function (data) {
             //console.log("has new mess");
-            add(data.chatId, data.chatText, $stateParams.roomId, data.userId, data.dateTime);
+            addChat(data.chatId, data.chatText, $stateParams.roomId, data.userId, data.dateTime, data.userAvata);
             SharedProperties.resortRecent(data.roomId);
             $rootScope.$broadcast("CallSortRoomsInActivitiesCtrl");
         });
 
         $scope.sendChat = function (chatText) {
-            Socket.emit('client new message', chatText, $stateParams.roomId, userId)
-            add(0, chatText, $stateParams.roomId, userId, "now");
-            SharedProperties.add(0, chatText, $stateParams.roomId, userId, "now");
+            //console.log(userAvata);
+            Socket.emit('client new message', {chatText: chatText, roomId: $stateParams.roomId, userId: userId, userAvata: userAvata})
+            addChat(0, chatText, $stateParams.roomId, userId, "now", userAvata);
+            SharedProperties.addChat(0, chatText, $stateParams.roomId, userId, "now", userAvata);
             SharedProperties.resortRecent($stateParams.roomId);
             $rootScope.$broadcast("CallSortRoomsInActivitiesCtrl");
         };
 
-        function add (chatId, text, roomId, userId, time) {
+        function addChat (chatId, text, roomId, userId, time, userAva) {
             var id
             if (allChats.length< 1) {
                 id= 1;
@@ -480,7 +504,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 roomId: roomId,
                 userId: userId,
                 chatText: text,
-                dateTime: (time=="now" ?new Date() :time)
+                dateTime: (time=="now" ?new Date() :time),
+                userAvata: userAva
             }
             $scope.chatList.push(ele);
         }
@@ -762,10 +787,16 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
                     }
                     else {
-                        SharedProperties.setUserId(data[0].userId);
+                        $rootScope.userId= data[0].userId;
                         $location.path("/tab/activities");
                     }
                 }
             });
         };
     });
+
+// đoạn code này để hiển thị thông báo xem người dùng có chấp nhận nhận thông báo của hệ thống ko
+document.addEventListener('DOMContentLoaded', function () {
+    if (Notification.permission !== "granted")
+        Notification.requestPermission();
+});
