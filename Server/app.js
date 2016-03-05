@@ -137,12 +137,9 @@ app.post('/peopleInAllGroups', function(req, res){
 app.use(express.static(__dirname + '/'));
 // Chatroom
 io.on('connection', function (socket) {
-	//var addedUser = false;
-	//var roomId;
   
 	// when the client emits 'add user', this listens and executes
 	socket.on('user join to room', function (roomId, userId) {
-		//if (addedUser) return;
 		socket.join(roomId);
 		//console.log('added to room');
 		// we store the username in the socket session for this client
@@ -157,7 +154,6 @@ io.on('connection', function (socket) {
 	// we tell the client to execute 'new message'  
 	socket.on('client new message', function (data) {
 		// query to save mess into db
-		//var que= "INSERT INTO chats SET ?", data;
 		socket.text= data.chatText;
 		socket.userId= data.userId;
 		socket.roomId= data.roomId;
@@ -176,11 +172,9 @@ io.on('connection', function (socket) {
 						console.log('Internal error: ', err);
 					}
 					else {
-						//console.log(socket.text);
 						var nestedRows = func.convertToNested(rows);
 						socket.chatId= nestedRows[0].id;
 						socket.dateTime= nestedRows[0].dateTime
-						//console.log(nestedRows[0].id);
 						socket.broadcast.to(socket.roomId).emit('server new room message', {
 							userId: socket.userId,
 							chatText: socket.text,
@@ -196,7 +190,6 @@ io.on('connection', function (socket) {
 							dateTime: socket.dateTime,
 							userAvata: socket.userAvata
 						});
-						//console.log("sent");
 					}
 				})
 			}
