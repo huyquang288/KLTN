@@ -61,7 +61,7 @@ app.post('/login', function (req, res){
 	
 });
 
-app.post('/all', function(req, res){
+app.post('/groupsAndRooms', function(req, res){
 	var userId= req.body.id
 	var sql = "SELECT * FROM groups JOIN group_room ON groups.id=group_room.groupId JOIN rooms ON rooms.id= group_room.roomId WHERE groups.id IN (SELECT DISTINCT groupId FROM group_user WHERE userId= " +userId +") ";
 	var nestingOptions = [
@@ -159,7 +159,7 @@ io.on('connection', function (socket) {
 		socket.roomId= data.roomId;
 		socket.userAvata= data.userAvata;
 		// write to db
-		console.log(data.userAvata);
+		//console.log(data.userAvata);
 		mysqlConnection.query("INSERT INTO chats SET ?", data, function(err, rows){
 			if (err) {
 				console.log('Internal error: ', err);

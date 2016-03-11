@@ -1,8 +1,12 @@
 <ion-modal-view>
     <ion-header-bar class="bar-stable">
-        <button class="button button-clear button-positive" ng-click="closeNewChat()">Cancel</button>
+        <button class="button button-clear button-positive" ng-click="closeNewChat()">
+            Cancel
+        </button>
         <h1 class="title">New Message</h1>
-        <button class="button button-clear button-positive" ng-click="closeNewChat(); openNewGroup()">Group</button>
+        <button class="button button-clear button-positive" ng-click="closeNewChat(); openNewGroup()">
+            Group
+        </button>
     </ion-header-bar>
 
     <ion-content>
@@ -17,7 +21,7 @@
                 </span>
 
                 <h3>
-                    <small>{{friend.name}}</small>
+                    <small>{{friend.firstName}} {{friend.lastName}}</small>
                 </h3>
             </ion-item>
         </ion-list>

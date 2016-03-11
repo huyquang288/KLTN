@@ -118,14 +118,12 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             })
             .state('tab.friends.messenger', {
                 url: '/messenger',
-
-                        templateUrl: 'templates/tab-friends-messenger.html'
+                templateUrl: 'templates/tab-friends-messenger.html'
 
             })
             .state('tab.friends.active', {
                 url: '/active',
-
-                        templateUrl: 'templates/tab-friends-active.html'
+                templateUrl: 'templates/tab-friends-active.html'
 
             })
 

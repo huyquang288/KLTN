@@ -72,71 +72,81 @@
             </span>
         </ion-list>
 
-        <!--show when there is no group-->
-        <!--<div class="row">-->
-            <!--<div class="col text-center">-->
-                <!--<div class="list card">-->
-                    <!--<div class="item" style="padding: 30px 15px">-->
-                        <!--<a class="plus-circle" ng-click="openNewGroup()">-->
-                            <!--<i class="icon ion-ios-plus-empty stable"></i>-->
-                        <!--</a>-->
+        <!--show when there is no room and you are admin of this group-->
+        <div ng-if="rooms.length<1">
+            <div class="text-center" style="padding: 50px">
+                <h2 class="grey">
+                    Topic
+                </h2>
+                <div style="height: 10px"></div>
+                <h4 class="grey">All your group's topics will be here.</h4>
+            </div>
+            <!-- nếu là admin đoạn phía dưới sẽ được hiển thị. -->
+            <div class="row">
+                <div class="col text-center">
+                    <div class="list card">
+                        <div class="item" style="padding: 30px 15px">
+                            <a class="plus-circle" ng-click="openNewGroup()">
+                                <i class="icon ion-ios-plus-empty stable"></i>
+                            </a>
 
-                        <!--<div style="height: 10px"></div>-->
-                        <!--<h2 class="positive">-->
-                            <!--<small>New Group</small>-->
-                        <!--</h2>-->
-                        <!--<p class="stable">for family?</p>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
-            <!--<div class="col text-center">-->
-                <!--<div class="list card">-->
-                    <!--<div class="item" style="padding: 30px 15px">-->
-                        <!--<a class="plus-circle" ng-click="openNewGroup()">-->
-                            <!--<i class="icon ion-ios-plus-empty stable"></i>-->
-                        <!--</a>-->
+                            <div style="height: 10px"></div>
+                            <h2 class="positive">
+                                <small>New Topic</small>
+                            </h2>
+                            <p class="stable">public?</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col text-center">
+                    <div class="list card">
+                        <div class="item" style="padding: 30px 15px">
+                            <a class="plus-circle" ng-click="openNewGroup()">
+                                <i class="icon ion-ios-plus-empty stable"></i>
+                            </a>
 
-                        <!--<div style="height: 10px"></div>-->
-                        <!--<h2 class="positive">-->
-                            <!--<small>New Group</small>-->
-                        <!--</h2>-->
-                        <!--<p class="stable">for dinner plans?</p>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
-        <!--</div>-->
+                            <div style="height: 10px"></div>
+                            <h2 class="positive">
+                                <small>New Topic</small>
+                            </h2>
+                            <p class="stable">private?</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <!--<div class="row">-->
-            <!--<div class="col text-center">-->
-                <!--<div class="list card">-->
-                    <!--<div class="item" style="padding: 30px 15px">-->
-                        <!--<a class="plus-circle" ng-click="openNewGroup()">-->
-                            <!--<i class="icon ion-ios-plus-empty stable"></i>-->
-                        <!--</a>-->
+            <!-- <div class="row">
+                <div class="col text-center">
+                    <div class="list card">
+                        <div class="item" style="padding: 30px 15px">
+                            <a class="plus-circle" ng-click="openNewGroup()">
+                                <i class="icon ion-ios-plus-empty stable"></i>
+                            </a>
 
-                        <!--<div style="height: 10px"></div>-->
-                        <!--<h2 class="positive">-->
-                            <!--<small>New Group</small>-->
-                        <!--</h2>-->
-                        <!--<p class="stable">for photos?</p>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
-            <!--<div class="col text-center">-->
-                <!--<div class="list card">-->
-                    <!--<div class="item" style="padding: 30px 15px">-->
-                        <!--<a class="plus-circle" ng-click="openNewGroup()">-->
-                            <!--<i class="icon ion-ios-plus-empty stable"></i>-->
-                        <!--</a>-->
+                            <div style="height: 10px"></div>
+                            <h2 class="positive">
+                                <small>New Group</small>
+                            </h2>
+                            <p class="stable">for photos?</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col text-center">
+                    <div class="list card">
+                        <div class="item" style="padding: 30px 15px">
+                            <a class="plus-circle" ng-click="openNewGroup()">
+                                <i class="icon ion-ios-plus-empty stable"></i>
+                            </a>
 
-                        <!--<div style="height: 10px"></div>-->
-                        <!--<h2 class="positive">-->
-                            <!--<small>New Group</small>-->
-                        <!--</h2>-->
-                        <!--<p class="stable">for team?</p>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
-        <!--</div>-->
+                            <div style="height: 10px"></div>
+                            <h2 class="positive">
+                                <small>New Group</small>
+                            </h2>
+                            <p class="stable">for team?</p>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+        </div>
     </ion-content>
 </ion-view>
