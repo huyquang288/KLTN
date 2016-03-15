@@ -83,7 +83,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
         };
     })
 
-    .factory('GetData', function ($http) {
+    .factory('ConnectServer', function ($http) {
         return {
             getAll: function (userId) {
                 var data= {'id': userId}
@@ -106,6 +106,12 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
             getPeopleInAllGroups: function (userId) {  
                 var data= {'id': userId}
                 return $http.post(DOMAIN+"peopleInAllGroups", data).then(function (response) {
+                    return response.data;
+                });
+            },
+            newGroup: function (data) {
+                return $http.post(DOMAIN+"newGroup", data).then(function (response) {
+                    console.log(response.data);
                     return response.data;
                 });
             }

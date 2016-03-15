@@ -131,6 +131,52 @@ app.post('/peopleInAllGroups', function(req, res){
 	});
 });
 
+app.post('/newGroup', function(req, res){
+	//console.log("BB");
+	var groupName= req.body.name
+	var groupId;
+	var userList= req.body.userList.split("+");
+	var userString= "";
+	var sql = "INSERT INTO groups (name) values ('" +groupName +"')";
+	mysqlConnection.query(sql, function (err, rows) {
+    // error handling
+		if (err){
+			console.log('Internal error: ', err);
+			res.send("Mysql query execution error!");
+		}
+		else {
+			var nestedRows = func.convertToNested(rows);
+			//console.log(req.body)
+			groupId= nestedRows.insertId;
+			var isAd= 0;
+			var end= ", "
+			for (var i in userList) {
+				//console.log(i);
+				//userList[i]= parseInt(userList[i]);
+				//userList[i]= {'groupId': groupId, 'userId': userList[i]};
+				if (i== (userList.length-1)) {
+					isAd= 1;
+					end= ";";
+				}
+				userString+= "(" +groupId +", " +userList[i] +", " +isAd +")" +end;
+			}
+			//console.log(userList);
+			var sql= "INSERT INTO group_user (groupId, userId, isAdmin) VALUES " +userString;
+			//console.log(sql);
+			mysqlConnection.query(sql, function (err, rows) {
+			// error handling
+				if (err){
+					console.log('Internal error: ', err);
+					res.send("Mysql query execution error!");
+				}
+				else {
+					res.send(groupId.toString());
+				}
+			});
+		}
+	});
+});
+
 
 
 // Routing
@@ -165,33 +211,26 @@ io.on('connection', function (socket) {
 				console.log('Internal error: ', err);
 			}
 			else {
-				var que= "select * from chats where id in (select max(id) from chats)";
-				// write to db
-				mysqlConnection.query({sql: que, nestTables: false}, function(err, rows){
-					if (err) {
-						console.log('Internal error: ', err);
-					}
-					else {
-						var nestedRows = func.convertToNested(rows);
-						socket.chatId= nestedRows[0].id;
-						socket.dateTime= nestedRows[0].dateTime
-						socket.broadcast.to(socket.roomId).emit('server new room message', {
-							userId: socket.userId,
-							chatText: socket.text,
-							chatId: socket.chatId,
-							dateTime: socket.dateTime,
-							userAvata: socket.userAvata
-						});
-						socket.broadcast.emit('server new all message', {
-							userId: socket.userId,
-							chatText: socket.text,
-							chatId: socket.chatId,
-							roomId: socket.roomId,
-							dateTime: socket.dateTime,
-							userAvata: socket.userAvata
-						});
-					}
-				})
+				var nestedRows = func.convertToNested(rows);
+				//console.log(nestedRows.insertId);
+				socket.chatId= nestedRows.insertId;
+				socket.dateTime= new Date();
+				//console.log(socket.dateTime);
+				socket.broadcast.to(socket.roomId).emit('server new room message', {
+					userId: socket.userId,
+					chatText: socket.text,
+					chatId: socket.chatId,
+					dateTime: socket.dateTime,
+					userAvata: socket.userAvata
+				});
+				socket.broadcast.emit('server new all message', {
+					userId: socket.userId,
+					chatText: socket.text,
+					chatId: socket.chatId,
+					roomId: socket.roomId,
+					dateTime: socket.dateTime,
+					userAvata: socket.userAvata
+				});
 			}
 		})
 	});

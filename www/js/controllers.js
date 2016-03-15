@@ -78,7 +78,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
     // })
 
     // MainCtrl được gọi đầu tiên khi ng dùng TRUY CẬP VÀO TRANG LOGIN
-    .controller('MainCtrl', function ($scope, $stateParams, StorageData, Socket, Room, User, $ionicModal, $location, $rootScope, $ionicPopup) {
+    .controller('MainCtrl', function ($scope, $stateParams, StorageData, Socket, ConnectServer, User, $ionicModal, $location, $rootScope, $ionicPopup) {
         var self= this;
         $scope.historyBack = function () {
             window.history.back();
@@ -105,7 +105,6 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                     //redirectLink(data.roomId);
                 }   
             }
-
             StorageData.resortRecent(data.roomId);
             $rootScope.$broadcast("CallSortRoomsInActivitiesCtrl");
         });
@@ -117,7 +116,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
         //$scope.friends = StorageData.getPeopleInAllGroups();
         //console.log($scope.friends);
-        $scope.activities = Room.userActivities("213");
+        //$scope.activities = Room.userActivities("213");
 
 
 
@@ -158,19 +157,23 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 if (!groupName) {
                     var alertPopup = $ionicPopup.alert({
                         title: 'Name This Group',
-                        template: 'To create the group, please name it first. (Anyone in the group can change the name later.)',
+                        template: 'To create the group, please name it first. (Only you can change the name later.)',
                         okType: 'button-clear'
                     });
                     return;
                 }
             }
             else {
-                roomUserList += $rootScope.userId;
-                $location.path("/room/new/" + groupName + "/" + roomUserList);
-                $rootScope.newGroupName = '';
+                roomUserList += "+" + $rootScope.userId;
                 for (var i = 0; i < $scope.friends.length; i++) {
                     $scope.friends[i].checked = '';
                 }
+                $rootScope.newGroupName = '';
+                var roomData= {'name': groupName, 'userList': roomUserList};
+                ConnectServer.newGroup(roomData).then(function (data) {
+                    //console.log(data);
+                    $location.path("/rooms/" + data);
+                })
             }
 
         }
@@ -235,12 +238,10 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         });
         $scope.openSearch = function () {
             $scope.searchModal.show();
-
         };
         $scope.closeSearch = function () {
             $scope.searchModal.hide();
         };
-
         $scope.clearSearch = function () {
             $scope.search = "";
         };
@@ -258,7 +259,6 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         $scope.closeGroupSearch = function () {
             $scope.groupSearchModal.hide();
         };
-
         $scope.clearGroupSearch = function () {
             $scope.search = "";
         };
@@ -281,11 +281,11 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
     })
 
     // ActivitiesCtrl được gọi tiếp theo, sau MainCtrl. ActivitiesCtrl được gọi khi người dùng đăng nhập thành công, truy cập vào trang Recent
-    .controller('ActivitiesCtrl', function ($rootScope, $scope, GetData, StorageData, Socket, Room, User) {
+    .controller('ActivitiesCtrl', function ($rootScope, $scope, ConnectServer, StorageData, Socket, Room, User) {
         // lấy dữ liệu từ server về sau khi đăng nhập thành công...
         var userId= $rootScope.userId;
         if (userId!="" && userId!=undefined) {
-            GetData.getRecent(userId).then(function(data){
+            ConnectServer.getRecent(userId).then(function (data){
                 var recent= [];
                 var ele;
                 for (var i in data) {
@@ -297,7 +297,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 StorageData.setRecent(recent);
                 $scope.recent= StorageData.getRecent();
             });
-            GetData.getPeopleInAllGroups(userId).then(function(data) {
+            ConnectServer.getPeopleInAllGroups(userId).then(function (data) {
                 var peopleInAllGroups= [];
                 var ele;
                 for (var i in data) {
@@ -318,7 +318,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 }
                 StorageData.setPeopleInAllGroups(peopleInAllGroups);
             });
-            GetData.getAll(userId).then(function(data) {
+            ConnectServer.getAll(userId).then(function (data) {
                 var allGroups= [];
                 var allRooms= [];
                 
@@ -348,13 +348,13 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 sortRooms();
             });
 
-            GetData.getAllChats(userId).then(function(data) {
+            ConnectServer.getAllChats(userId).then(function (data) {
                 StorageData.setAllChats(data);
             });
         }
 
         // add user sau khi đăng nhập thành công để có thể thêm được những đoạn chat mới vào
-        Socket.on('connect',function(){
+        Socket.on('connect', function (){
             //Add user
             Socket.emit('user join to room', 1, userId);
         })
@@ -761,7 +761,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         };
     })
 
-    .controller('DisableCtrl', function($scope) {
+    .controller('DisableCtrl', function ($scope) {
         $scope.thetext = "";
         $scope.b1 = function() {
             console.log("B1");
@@ -771,12 +771,12 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         };
     })
    
-    .controller('LoginCtrl', function($rootScope, $scope, $location, StorageData, Login, md5) {
+    .controller('LoginCtrl', function ($rootScope, $scope, $location, StorageData, Login, md5) {
         $scope.loginData={};
         $scope.login= function() {
             var ema= $scope.loginData.email;
             var pas= md5.createHash($scope.loginData.password);
-            Login.sendData(ema, pas).then(function(data){
+            Login.sendData(ema, pas).then(function (data){
                 //console.log(data[0].userId);
                 if (data== "404 Not Found") {
                     alert("Can't connect to database, please reconnect later...");
