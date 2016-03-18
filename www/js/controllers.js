@@ -84,10 +84,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             window.history.back();
         };
 
-        Socket.on('server new all message', function (data) {
-            StorageData.addChat(data.chatId, data.chatText, data.roomId, data.userId, data.dateTime, data.userAvata);
-
-            // hiển thị thông báo
+        // hiển thị thông báo
+        $rootScope.pushNotification= function (notiTitle, notiBody, locationLink) {
             if (!Notification) {
                 alert('Desktop notifications not available in your browser. Try Chromium.'); 
                 return;
@@ -95,18 +93,33 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             if (Notification.permission !== "granted")
                 Notification.requestPermission();
             else {
-                var notification = new Notification('Notification title', {
+                var notification = new Notification(notiTitle, {
                     icon: 'https://s3.amazonaws.com/ionic-marketplace/ionic-starter-messenger/icon.png',
-                    body: data.chatText,
+                    body: notiBody,
                 });
                 notification.onclick = function () {
-                    var req= "/room/" +data.roomId;
-                    $location.path(req);
+                    $location.path(locationLink);
                     //redirectLink(data.roomId);
                 }   
             }
-            StorageData.resortRecent(data.roomId);
-            $rootScope.$broadcast("CallSortRoomsInActivitiesCtrl");
+        }
+            
+
+        Socket.on('server new all message', function (data) {
+            var rooms= StorageData.getAllRooms();
+            var topicName= '';
+            for (var i in rooms) {
+                if (rooms[i].roomId== data.roomId) {
+                    topicName= rooms[i].title;
+                    break;
+                }
+            }
+            if (topicName!='') {
+                StorageData.addChat(data.chatId, data.chatText, data.roomId, data.userId, data.dateTime, data.userAvata);
+                $rootScope.pushNotification(topicName, data.chatText, '/room/'+data.roomId);
+                StorageData.resortRecent(data.roomId);
+                $rootScope.$broadcast("CallSortRoomsInActivitiesCtrl");
+            }
         });
 
         function redirectLink (roomId) {
