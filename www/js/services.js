@@ -50,13 +50,13 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 allChats = value;
             },
             addChat: function(chatId, text, roomId, userId, time, userAva, userNam) {
-                var id
+                var id;
                 if (allChats.length< 1) {
                     id= 1;
                 }
                 else {
                     //0 là giá trị tương ứng với tin nhắn được gửi từ máy, lưu trực tiếp vào các dòng chat hiện tại
-                    id= ((chatId<1) ?((allChats[allChats.length-1].chatId)+1) :chatId)
+                    id= ((chatId<1) ?((allChats[allChats.length-1].chatId)+1) :chatId);
                 }
                 var ele= {
                     chatId: id,
@@ -71,7 +71,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
             },
             resortRecent: function (rId) {
                 var newRecent= [];
-                var ele= {roomId: rId}
+                var ele= {roomId: rId};
                 newRecent.push(ele);
                 for (var i in recent) {
                     if (newRecent.length<5 && rId!= recent[i].roomId) {
@@ -111,7 +111,12 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
             },
             newGroup: function (data) {
                 return $http.post(DOMAIN+"newGroup", data).then(function (response) {
-                    console.log(response.data);
+                    //console.log(response.data);
+                    return response.data;
+                });
+            },
+            newTopic: function (data) {
+                return $http.post(DOMAIN+"newTopic", data).then(function (response) {
                     return response.data;
                 });
             }
@@ -143,7 +148,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
     .factory('User', ['StorageData', function (StorageData) {
         var allPeople= [];
         return {
-            getAllPeople: function () {
+            getAllPeople: function (userId) {
                 if (allPeople.length < 1) {
                     var all= StorageData.getPeopleInAllGroups();
                     var temp;
@@ -160,11 +165,13 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                         temp= all[i];
                         all[i]= all[pos];
                         all[pos]= temp;
-                        if (i==0) {
-                            allPeople.push(all[i]);
-                        }
-                        else if (all[i].userId!= all[i-1].userId) {
-                            allPeople.push(all[i]);
+                        if (all[i].userId!= userId) {
+                            if (i==0) {
+                                allPeople.push(all[i]);
+                            }
+                            else if (all[i].userId!= all[i-1].userId) {
+                                allPeople.push(all[i]);
+                            }
                         }
                     }
                 }

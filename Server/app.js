@@ -37,7 +37,7 @@ app.use(function (req, res, next) {
 app.post('/login', function (req, res){
 	//console.log("login request")
 	var data= req.body;  
-	var sql= "select userId from account_user where accountId in (select id from accounts where email='" +data.email +"' and password='" +data.pass +"')";
+	var sql= "select userId from account_user where accountId in (select id from accounts where email='" +data.email +"')";
 	var nestingOptions = [
 		{ tableName: 'account_user', pkey: 'userId'}
 	];
@@ -63,7 +63,7 @@ app.post('/login', function (req, res){
 
 app.post('/groupsAndRooms', function(req, res){
 	var userId= req.body.id
-	var sql = "SELECT * FROM groups JOIN group_room ON groups.id=group_room.groupId JOIN rooms ON rooms.id= group_room.roomId WHERE groups.id IN (SELECT DISTINCT groupId FROM group_user WHERE userId= " +userId +") ";
+	var sql = "SELECT * FROM groups LEFT JOIN group_room ON groups.id=group_room.groupId LEFT JOIN rooms ON rooms.id= group_room.roomId WHERE groups.id IN (SELECT DISTINCT groupId FROM group_user WHERE userId= " +userId +") ";
 	var nestingOptions = [
 		{ tableName: 'groups', pkey: 'id'},        
 		{ tableName: 'group_room', pkey: 'id', fkeys: [{table: 'groups', col: 'groupId'}, {table:'rooms', col: 'roomId'}]},
@@ -117,8 +117,8 @@ app.post('/recent', function(req, res){
 
 app.post('/peopleInAllGroups', function(req, res){
 	var userId= req.body.id
-	var sql = "select * from users join (select group_user.groupId, group_user.userId from group_user join (select distinct groupId from group_user where userId=" +userId +") as t1 on t1.groupId=group_user.groupId) as t2 on t2.userId=users.id";  
-	mysqlConnection.query({sql: sql, nestTables: false}, function (err, rows) {
+	var sql = "select * from users join (select group_user.isAdmin, group_user.userId, group_user.groupId from group_user join (select distinct groupId from group_user where userId=" +userId +") as t1 on t1.groupId=group_user.groupId) as t2 on t2.userId=users.id";  
+	mysqlConnection.query(sql, function (err, rows) {
     // error handling
 		if (err){
 			console.log('Internal error: ', err);
@@ -177,6 +177,33 @@ app.post('/newGroup', function(req, res){
 	});
 });
 
+app.post('/newTopic', function(req, res){
+	mysqlConnection.query("INSERT INTO rooms SET ?", req.body.newRoomData, function (err, rows) {
+    // error handling
+		if (err){
+			console.log('Insert to rooms error: ', err);
+			res.send("Mysql query execution error!");
+		}
+		else {
+			var nestedRows = func.convertToNested(rows);
+			//console.log(req.body)
+			var topicId= nestedRows.insertId;
+			//console.log(userList);
+			var sql= "INSERT INTO group_room (groupId, roomId, isOwner) VALUES (" +req.body.groupId +", " +topicId +", 1)";
+			//console.log(sql);
+			mysqlConnection.query(sql, function (err, rows) {
+			// error handling
+				if (err){
+					console.log('Insert to group_room error: ', err);
+					res.send("Mysql query execution error!");
+				}
+				else {
+					res.send(topicId.toString());
+				}
+			});
+		}
+	});
+});
 
 
 // Routing
@@ -194,6 +221,14 @@ io.on('connection', function (socket) {
 		socket.broadcast.to(roomId).emit('user joined', {
 			userId: socket.userId,
 		});
+	});
+	
+	socket.on('new group', function (data) {
+		socket.broadcast.emit('added to new group', data);
+	});
+	
+	socket.on('newTopic', function (data) {
+		socket.broadcast.emit('new topic', data);
 	});
   
 	// when the client emits 'new message', this listens and executes

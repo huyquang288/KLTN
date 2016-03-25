@@ -5,10 +5,15 @@
 
     <ion-content id="tab-account">
         <ion-list>
-            <ion-item class="item-avatar item-avatar-center item-avatar-xl text-center" ng-if="userId!==213">
-                <img ng-src="{{user.face}}">
-                <h3><small>{{user.name}}</small></h3>
-                <button class="button button-clear button-small button-positive" ng-click="showEdit()">{{user.email}}</button>
+            <ion-item ng-if="true"
+                      class="item-avatar item-avatar-center item-avatar-xl text-center">
+                <img ng-src="{{userAvata}}">
+                
+                <div>
+                <button class="button button-clear button-positive" ng-click="showEdit()">
+                    <b><h3>{{userName}}</h3></b>
+                </button>
+                </div>
             </ion-item>
 
             <ion-item class="item-icon-right" ng-click="showNotification();">

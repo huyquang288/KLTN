@@ -1,81 +1,4 @@
 angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btford.socket-io', 'angular-md5'])
-    // .service('StorageData', function () {
-    //     var recent;
-    //     var peopleInGroups;
-    //     var recentRooms;
-    //     var allGroups;
-    //     var allRooms;
-    //     var allChats;
-
-    //     return {
-    //         getRecent: function () {
-    //             return recent;
-    //         },
-    //         setRecent: function(value) {
-    //             recent = value;
-    //         },
-    //         getPeopleInAllGroups: function () {
-    //             return peopleInGroups;
-    //         },
-    //         setPeopleInAllGroups: function(value) {
-    //             peopleInGroups = value;
-    //         },
-    //         getRecentRooms: function () {
-    //             return recentRooms;
-    //         },
-    //         setRecentRooms: function(value) {
-    //             recentRooms = value;
-    //         },
-    //         getAllGroups: function() {
-    //             return allGroups;
-    //         },
-    //         setAllGroups: function(value) {
-    //             allGroups = value;
-    //         },
-    //         getAllRooms: function () {
-    //             return allRooms;
-    //         },
-    //         setAllRooms: function(value) {
-    //             allRooms = value;
-    //         },
-    //         getAllChats: function () {
-    //             return allChats;
-    //         },
-    //         setAllChats: function(value) {
-    //             allChats = value;
-    //         },
-    //         addChat: function(chatId, text, roomId, userId, time, userAva) {
-    //             var id
-    //             if (allChats.length< 1) {
-    //                 id= 1;
-    //             }
-    //             else {
-    //                 //0 là giá trị tương ứng với tin nhắn được gửi từ máy, lưu trực tiếp vào các dòng chat hiện tại
-    //                 id= ((chatId<1) ?((allChats[allChats.length-1].chatId)+1) :chatId)
-    //             }
-    //             var ele= {
-    //                 chatId: id,
-    //                 roomId: roomId,
-    //                 userId: userId,
-    //                 chatText: text,
-    //                 dateTime: (time=="now" ?new Date() :time),
-    //                 userAvata: userAva
-    //             }
-    //             allChats.push(ele);
-    //         },
-    //         resortRecent: function (rId) {
-    //             var newRecent= [];
-    //             var ele= {roomId: rId}
-    //             newRecent.push(ele);
-    //             for (var i in recent) {
-    //                 if (newRecent.length<5 && rId!= recent[i].roomId) {
-    //                     newRecent.push(recent[i]);
-    //                 }
-    //             }
-    //             recent= newRecent;
-    //         },
-    //     };
-    // })
 
     // MainCtrl được gọi đầu tiên khi ng dùng TRUY CẬP VÀO TRANG LOGIN
     .controller('MainCtrl', function ($scope, $stateParams, StorageData, Socket, ConnectServer, User, $ionicModal, $location, $rootScope, $ionicPopup) {
@@ -104,7 +27,61 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             }
         }
             
+        // nhận thông báo từ server về việc 1 group mới được tạo.
+        Socket.on('added to new group', function (data){
+            regexString= $rootScope.userId +"|\\+" +$rootScope.userId;
+            var regex= new RegExp (regexString, "g")
+            if (data.userList.match(regex)!= null) {
+                //lưu nhóm mới này vào trong danh sách tất cả các nhóm.
+                var allGroups= StorageData.getAllGroups();
+                var ele= {
+                    groupId: data.id,
+                    name: data.name,
+                    description: data.description
+                };
+                allGroups.push(ele);
+                var peopleInAllGroups= StorageData.getPeopleInAllGroups();
+                var ele;
+                for (var i in data.allUsers) {
+                    ele = {
+                        userId: data.allUsers[i].userId,
+                        groupId: data.id,
+                        firstName: data.allUsers[i].firstName,
+                        lastName: data.allUsers[i].lastName,
+                        face: data.allUsers[i].face,
+                        friendType: data.allUsers[i].friendType,
+                        activeTime: data.allUsers[i].activeTime,
+                        isAdmin: ((data.adminId==data.allUsers[i].userId) ?1 :0)
+                    }
+                    peopleInAllGroups.push(ele);
+                }
+                StorageData.setAllGroups(allGroups);
+                $rootScope.$broadcast("ReloadAllGroups");
+                StorageData.setPeopleInAllGroups(peopleInAllGroups);
+                $rootScope.$broadcast("ReloadPeopleInAllGroups");
+                if (data.adminId!= $rootScope.userId) {
+                    //console.log('next')
+                    $rootScope.pushNotification('New Group', 'You was added to \'' +data.name +'\' group.', '/rooms/'+data.id)
+                }
+            }
+        });
 
+        Socket.on('new topic', function (data) {
+            var allGroups= StorageData.getAllGroups();
+            for (var i in allGroups) {
+                if (allGroups[i].groupId== data.groupId) {
+                    console.log("find");
+                    var allRooms= StorageData.getAllRooms();
+                    allRooms.push (data);
+                    StorageData.setAllRooms(allRooms);
+                    $rootScope.$broadcast("ReloadAllRooms");
+                    $rootScope.pushNotification('New Topic', allGroups[i].name +' was created \'' +data.title +'\' topic', '/room/' +data.roomId);
+                    return;
+                }
+            }
+        });
+
+        // nhận mess từ server gửi xuống, kiểm tra xem tin nhắn đó có thuộc nhóm mà người dùng có trong đó hay không.
         Socket.on('server new all message', function (data) {
             var rooms= StorageData.getAllRooms();
             var topicName= '';
@@ -146,20 +123,20 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         // for new-group
         $rootScope.newGroupName = '';
         $scope.createNewGroup = function (groupName) {
-            var roomUserList = "";
+            var groupUserList = "";
             $scope.friends= User.getAllPeople();
             for (var i = 0; i < $scope.friends.length; i++) {
                 if ($scope.friends[i].checked) {
-                    if (!roomUserList) {
-                        roomUserList = $scope.friends[i].userId;
+                    if (!groupUserList) {
+                        groupUserList = $scope.friends[i].userId;
                     }
                     else {
-                        roomUserList += "+" + $scope.friends[i].userId;
+                        groupUserList += "+" + $scope.friends[i].userId;
                     }
                 }
             }
-            if (roomUserList.split("+").length < 2 || !groupName) {
-                if (roomUserList.split("+").length < 2) {
+            if (groupUserList.split("+").length < 2 || !groupName) {
+                if (groupUserList.split("+").length < 2) {
                     var alertPopup = $ionicPopup.alert({
                         title: 'Please Add More People',
                         template: 'Groups need at least three people.',
@@ -177,18 +154,115 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 }
             }
             else {
-                roomUserList += "+" + $rootScope.userId;
+                groupUserList += "+" + $rootScope.userId;
                 for (var i = 0; i < $scope.friends.length; i++) {
                     $scope.friends[i].checked = '';
                 }
                 $rootScope.newGroupName = '';
-                var roomData= {'name': groupName, 'userList': roomUserList};
+                var roomData= {'name': groupName, 'userList': groupUserList};
                 ConnectServer.newGroup(roomData).then(function (data) {
-                    //console.log(data);
+                    // lưu thông tin về phòng mới được tạo vào máy.
+                    var allGroups= StorageData.getAllGroups();
+                    var peopleInAllGroups= StorageData.getPeopleInAllGroups();
+                    var ele= {
+                        groupId: data,
+                        name: groupName,
+                        description: ""
+                    };
+                    allGroups.push(ele);
+                    // gửi lên server 1 thông báo về cho người dùng họ vừa được add vào 1 nhóm
+                    var usersInGroup= [];
+                    var allUsers= $scope.friends;
+                    var temp= groupUserList.split("+");
+                    for (var i in temp) {
+                        for (var j in allUsers) {
+                            if (temp[i]== allUsers[j].userId) {
+                                // thêm vào dữ liệu trên máy.
+                                ele = {
+                                    userId: allUsers[j].userId,
+                                    groupId: data,
+                                    firstName: allUsers[j].firstName,
+                                    lastName: allUsers[j].lastName,
+                                    face: allUsers[j].face,
+                                    friendType: allUsers[j].friendType,
+                                    activeTime: allUsers[j].activeTime,
+                                    isAdmin: 0
+                                }
+                                peopleInAllGroups.push(ele);
+                                // thêm vào mảng để upload lên server.
+                                usersInGroup.push(allUsers[j]);
+                            }
+                        }
+                    }
+                    // thêm chính mình với quyền admin do trong $scope.friend không chứa thông tin về bản thân.
+                    ele = {
+                        userId: $rootScope.userId,
+                        groupId: data,
+                        firstName: $rootScope.firstName,
+                        lastName: $rootScope.lastName,
+                        face: $rootScope.userAvata,
+                        friendType: '',
+                        activeTime: '',
+                        isAdmin: 1
+                    }
+                    peopleInAllGroups.push(ele);
+                    usersInGroup.push(allUsers[j]);
+                    // save
+                    StorageData.setAllGroups(allGroups);
+                    $rootScope.$broadcast("ReloadAllGroups");
+                    StorageData.setPeopleInAllGroups(peopleInAllGroups);
+                    $rootScope.$broadcast("ReloadPeopleInAllGroups");
+                    // push
+                    roomData= {'name': groupName, 
+                               'userList': groupUserList, 
+                               'id': data,
+                               adminId: $rootScope.userId,
+                               allUsers: usersInGroup};
+                    Socket.emit('new group', roomData);
                     $location.path("/rooms/" + data);
                 })
             }
+        }
 
+        $scope.createNewTopic = function (type, topicName, icon, groupId) {
+            //console.log(groupId);
+            if (!topicName) {
+                var alertPopup = $ionicPopup.alert({
+                    title: 'Name This ' +type +'Topic',
+                    template: 'To create the topic, please name it first. (Only you can change the name later.)',
+                    okType: 'button-clear'
+                });
+            }
+            // post data to server
+            else {
+                var data= {
+                    newRoomData: {
+                        title: topicName,
+                        roomType: (type=="Public" ?1 :0),
+                        thumbnail: icon
+                    },
+                    groupId: groupId
+                };
+                ConnectServer.newTopic(data).then(function (data) {
+                    // lưu thông tin về topic vừa tạo vào máy.
+                    var allRooms= StorageData.getAllRooms();
+                    var ele= {
+                        roomId: data,
+                        title: topicName,
+                        groupId: groupId,
+                        thumbnail: icon,
+                        activeTime: "",
+                        isOwner: 1
+                    }
+                    allRooms.push(ele);
+                    StorageData.setAllRooms(allRooms);
+                    $rootScope.$broadcast("ReloadAllRooms");
+                    // emit lên cho người dùng khác được biết về phòng được tạo.
+                    Socket.emit('newTopic', ele);
+                    $location.path("/room/" + data);
+                });
+            }
+            
         }
 
         // new-chat modal
@@ -199,7 +273,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             $scope.newChatmodal = modal;
         });
         $scope.openNewChat = function () {
-            $scope.friends = User.getAllPeople();
+            $scope.friends = User.getAllPeople($rootScope.userId);
             $scope.newChatmodal.show();
         };
         $scope.closeNewChat = function () {
@@ -214,7 +288,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             $scope.newGroupModal = modal;
         });
         $scope.openNewGroup = function () {
-            $scope.friends = User.getAllPeople();
+            $scope.friends = User.getAllPeople($rootScope.userId);
             $scope.newGroupModal.show();
         };
         $scope.closeNewGroup = function () {
@@ -314,6 +388,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 var peopleInAllGroups= [];
                 var ele;
                 for (var i in data) {
+                    //console.log(data[i]);
                     ele = {
                         userId: data[i].id,
                         groupId: data[i].groupId,
@@ -321,12 +396,15 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                         lastName: data[i].lastName,
                         face: data[i].face,
                         friendType: data[i].friendType,
-                        activeTime: data[i].activeTime
+                        activeTime: data[i].activeTime,
+                        isAdmin: data[i].isAdmin
                     }
                     peopleInAllGroups.push(ele);
                     if (data[i].id== userId) {
                         $rootScope.userAvata= data[i].face;
                         $rootScope.userName= data[i].firstName +" " +data[i].lastName;
+                        $rootScope.firstName= data[i].firstName;
+                        $rootScope.lastName= data[i].lastName;
                     }
                 }
                 StorageData.setPeopleInAllGroups(peopleInAllGroups);
@@ -351,8 +429,9 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                             title: data[i].group_room[j].rooms.title,
                             groupId: data[i].group_room[j].groupId,
                             thumbnail: data[i].group_room[j].rooms.thumbnail,
-                            activeTime: data[i].group_room[j].rooms.activeTime
-                        }
+                            activeTime: data[i].group_room[j].rooms.activeTime,
+                            isOwner: data[i].group_room[j].isOwner
+                        };
                         allRooms.push(ele);
                     }
                 }
@@ -372,7 +451,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             Socket.emit('user join to room', 1, userId);
         })
 
-        $rootScope.$on("CallSortRoomsInActivitiesCtrl", function(event, args){
+        $rootScope.$on("CallSortRoomsInActivitiesCtrl", function (event, args){
             sortRooms();
         });
         
@@ -535,25 +614,68 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
     .controller('GroupsCtrl', function ($rootScope, $scope, $stateParams, StorageData, Room) {
         $scope.allGroups= StorageData.getAllGroups();
         $scope.members= StorageData.getPeopleInAllGroups();
+        getGroupDetail();
+        $rootScope.$on("ReloadAllGroups", function (event, args){
+            $scope.allGroups= StorageData.getAllGroups();
+            getGroupDetail();
+        });
+        $rootScope.$on("ReloadPeopleInAllGroups", function (event, args){
+            $scope.members= StorageData.getPeopleInAllGroups();
+        });
+        function getGroupDetail () {
+            for (var i in $scope.allGroups) {
+                if ($scope.allGroups[i].groupId== $stateParams.groupId) {
+                    $scope.group= $scope.allGroups[i];
+                    break;
+                }
+            }
+        }
+        
     })
 
     .controller('RoomsCtrl', function ($rootScope, $scope, $stateParams, StorageData) {
+        //console.log('room ctrl run');
         allGroups= StorageData.getAllGroups();
         allRooms= StorageData.getAllRooms();
-        $scope.rooms= [];
-        for (var i in allGroups) {
-            if ($stateParams.groupId== allGroups[i].groupId) {
-                $scope.group= allGroups[i];
-                //$scope.room.settingURL = "#/room-setting/" + $stateParams.roomId;
-                break;
+        allPeople= StorageData.getPeopleInAllGroups();
+        setData();
+        $rootScope.$on ("ReloadAllGroups", function (event, args) {
+            allGroups= StorageData.getAllGroups();
+            setData();
+        });
+        $rootScope.$on ("ReloadAllRooms", function (event, args) {
+            allRooms= StorageData.getAllRooms();
+            setData();
+        });
+        $rootScope.$on ("ReloadPeopleInAllGroups", function (event, args) {
+            allPeople= StorageData.getPeopleInAllGroups();
+            setData();
+        });
+        function setData () {
+            $scope.rooms= [];
+            $scope.isAdmin= false;
+            for (var i in allGroups) {
+                if ($stateParams.groupId== allGroups[i].groupId) {
+                    $scope.group= allGroups[i];
+                    //$scope.room.settingURL = "#/room-setting/" + $stateParams.roomId;
+                    break;
+                }
             }
-        }
-        for (var i in allRooms) {
-            if (allRooms[i].groupId== $stateParams.groupId) {
-                $scope.rooms.push(allRooms[i]);
+            for (var i in allRooms) {
+                if (allRooms[i].groupId== $stateParams.groupId) {
+                    $scope.rooms.push(allRooms[i]);
+                }
+            }
+            for (var i in allPeople) {
+                //console.log(allPeople[i].groupId +", " +allPeople[i].isAdmin +", " +allPeople[i].userId);
+                if (allPeople[i].groupId==$scope.group.groupId && allPeople[i].isAdmin==1 && allPeople[i].userId==$rootScope.userId) {
+                    $scope.isAdmin= true;
+                    //console.log("is admin");
+                }
             }
         }
 
+        // phần này để hiển thị thông tin về thời gian và nội dung của tin nhắn cuối cùng trong mỗi topic
         var lastMess;
         $scope.getLastMessageText= function (roomId) {
             lastMess= null;
@@ -617,14 +739,17 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                     okText: 'Save',
                     okType: 'button-clear'
                 }
-            ).
-                then(function (res) {
-                    console.log('Your password is', res);
-                });
+            ).then(function (res) {
+                console.log('Your password is', res);
+            });
         }
     })
 
-    .controller('AccountCtrl', function ($scope, $ionicActionSheet, $ionicModal) {
+    .controller('AccountCtrl', function ($rootScope, $scope, $ionicActionSheet, $ionicModal) {
+        $scope.userName= $rootScope.userName;
+        $scope.userAvata= $rootScope.userAvata;
+        $scope.firstName= $rootScope.firstName;
+        $scope.lastName= $rootScope.lastName;
         $scope.showNotification = function () {
 
             $ionicActionSheet.show({
@@ -652,7 +777,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 buttons: [
                     { text: 'Stop Syncing' }
                 ],
-                titleText: 'Stop syncing your phone contacts？',
+                titleText: 'Stop syncing your phone contacts?',
                 cancelText: 'Cancel',
                 cancel: function () {
                     // add cancel code..
@@ -668,7 +793,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
             var hideSheet = $ionicActionSheet.show({
                 buttons: [
-                    { text: 'Change email' }
+                    { text: 'Change your name' }
                 ],
                 cancelText: 'Cancel',
                 cancel: function () {

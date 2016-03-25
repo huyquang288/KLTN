@@ -36,9 +36,10 @@
 
     <ion-content>
 
-        <ion-list ng-if="membersInGroup.length>0">
-            <span ng-repeat="member in membersInGroup">
-                <ion-item class="item-remove-animate item-avatar" 
+        <ion-list ng-if="members.length>0">
+            <span ng-repeat="member in members">
+                <ion-item ng-if="member.groupId== group.groupId"
+                          class="item-remove-animate item-avatar" 
                           nav-direction="forward" href="#/room/{{room.rooms.id}}"
                           type="item-text-wrap">
                     <img ng-src="{{member.face}}">
@@ -53,12 +54,12 @@
                     </span>
 
                     <h3>
-                        <small>{{member.name}}</small>
+                        <small>{{member.firstName}} {{member.lastName}}</small>
                     </h3>
 
                     <p><i>Last activity: {{member.activeTime}}</i></p>
 
-                    <span class="item-note">{{room.rooms.activeTime}}</span>
+                    <!-- <span class="item-note">{{room.rooms.activeTime}}</span> -->
 
                     <!-- đoạn này sau này sẽ phát triển thành chức năng ban người dùng trong nhóm dành cho admin -->
                     <!-- <ion-option-button class="button-dark" ng-click="">

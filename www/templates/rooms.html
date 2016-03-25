@@ -13,6 +13,31 @@
         font-size: 40px;
     }
 
+    .fileUpload {
+        position: relative;
+    }
+
+    .fileUpload input.upload {
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin: 0;
+        padding: 0;
+        cursor: pointer;
+        opacity: 0;
+    }
+
+    .fileUpload .icon {
+        font-size: 24px;
+        color: #cccccc;
+        border: 1px solid #cccccc;
+        border-radius: 50%;
+        padding: 8px 13px;
+
+        position: relative;
+        top: 12px;
+    }
+
     /*.item h3 small {*/
         /*overflow: hidden;*/
         /*text-overflow: ellipsis;*/
@@ -81,72 +106,76 @@
                 <div style="height: 10px"></div>
                 <h4 class="grey">All your group's topics will be here.</h4>
             </div>
-            <!-- nếu là admin đoạn phía dưới sẽ được hiển thị. -->
-            <div class="row">
-                <div class="col text-center">
-                    <div class="list card">
-                        <div class="item" style="padding: 30px 15px">
-                            <a class="plus-circle" ng-click="openNewGroup()">
-                                <i class="icon ion-ios-plus-empty stable"></i>
-                            </a>
+        </div>
 
-                            <div style="height: 10px"></div>
-                            <h2 class="positive">
-                                <small>New Topic</small>
-                            </h2>
-                            <p class="stable">public?</p>
+        <!-- nếu là admin đoạn phía dưới sẽ được hiển thị. -->
+        <div ng-if= "isAdmin==true" class="row">
+            <div class="col text-center">
+                <div class="list card">
+                    <div class="item" style="padding: 20px 15px">
+                        <h2 class="positive">
+                            <small>New Public Topic</small>
+                        </h2>
+                        <div style="height: 20px"></div>
+
+                        <!-- <a class="plus-circle" ng-click="openNewTopic()">
+                            <i class="icon ion-ios-plus-empty stable"></i>
+                        </a> -->
+                        <div class="fileUpload">
+                            <i class="icon ion-camera"></i>
+                            <input class="upload" type="file" accept="image/*" capture="camera">
                         </div>
-                    </div>
-                </div>
-                <div class="col text-center">
-                    <div class="list card">
-                        <div class="item" style="padding: 30px 15px">
-                            <a class="plus-circle" ng-click="openNewGroup()">
-                                <i class="icon ion-ios-plus-empty stable"></i>
-                            </a>
 
-                            <div style="height: 10px"></div>
-                            <h2 class="positive">
-                                <small>New Topic</small>
-                            </h2>
-                            <p class="stable">private?</p>
+                        <div style="height: 30px"></div>
+                        
+                        <p class="stable">public</p>
+                        <div>
+                            <input type="text" ng-model="$root.newPublicTopicName" 
+                                   placeholder="Name new topic"
+                                   style="height: 57px; text-align:center; width: 100%">
+                        </div>
+                        <div class="padding">
+                            <a class="button button-clear button-positive" 
+                               ng-click="createNewTopic('Public', $root.newPublicTopicName, '', group.groupId);">
+                                OK
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="col text-center">
+                <div class="list card">
+                    <div class="item" style="padding: 20px 15px">
+                        <h2 class="positive">
+                            <small>New Private Topic</small>
+                        </h2>
+                        <div style="height: 20px"></div>
 
-            <!-- <div class="row">
-                <div class="col text-center">
-                    <div class="list card">
-                        <div class="item" style="padding: 30px 15px">
-                            <a class="plus-circle" ng-click="openNewGroup()">
-                                <i class="icon ion-ios-plus-empty stable"></i>
+                        <!-- <a class="plus-circle" ng-click="openNewTopic()">
+                            <i class="icon ion-ios-plus-empty stable"></i>
+                        </a> -->
+                        <div class="fileUpload">
+                            <i class="icon ion-camera"></i>
+                            <input class="upload" type="file" accept="image/*" capture="camera">
+                        </div>
+
+                        <div style="height: 30px"></div>
+                        
+                        <p class="stable">private</p>
+                        <div>
+                            <input type="text" ng-model="$root.newPrivateTopicName" 
+                                   placeholder="Name new topic"
+                                   style="height: 57px; text-align:center; width: 100%">
+                        </div>
+                        <div class="padding">
+                            <a class="button button-clear button-positive" 
+                               ng-click="createNewTopic('Private', $root.newPrivateTopicName, '', group.groupId);">
+                                OK
                             </a>
-
-                            <div style="height: 10px"></div>
-                            <h2 class="positive">
-                                <small>New Group</small>
-                            </h2>
-                            <p class="stable">for photos?</p>
                         </div>
                     </div>
                 </div>
-                <div class="col text-center">
-                    <div class="list card">
-                        <div class="item" style="padding: 30px 15px">
-                            <a class="plus-circle" ng-click="openNewGroup()">
-                                <i class="icon ion-ios-plus-empty stable"></i>
-                            </a>
-
-                            <div style="height: 10px"></div>
-                            <h2 class="positive">
-                                <small>New Group</small>
-                            </h2>
-                            <p class="stable">for team?</p>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
+            </div>
         </div>
     </ion-content>
 </ion-view>

@@ -51,7 +51,8 @@
                     <a nav-direction="forward" class="item item-divider text-center" href="#/group-members/{{group.groupId}}">
                         <p>
                             <span ng-if="group.groupId==member.groupId" ng-repeat="member in members">
-                                {{member.firstName}}{{(member.groupId==members[$index+1].groupId) ?',' :''}}
+                                {{member.firstName}} <!-- {{member.groupId}} {{members[$index+1].groupId}} -->
+                                <!-- {{((member.groupId==members[$index+1].groupId) ?'1' :'')}} -->
                             </span>
                         </p>
                     </a>

@@ -21,7 +21,7 @@
 </style>
 
 <!-- name of tab -->
-<ion-view view-title="{{room.roomType == 'group'?'Group':'Contact'}}">
+<ion-view view-title="{{room.roomType == 'group'?'Group':'Topic Setting'}}">
     <ion-nav-buttons side="primary">
         <!-- back button -->
         <button nav-direction="back" 
@@ -77,7 +77,7 @@
             <!-- if tab= person -->
             <ion-item class="item-icon-left" ng-click="openNewGroup();" ng-if="room.roomType != 'group'">
                 <i class="icon ion-ios-plus-empty positive"></i>
-                Create Group
+                Tag Group
             </ion-item>
 
             <!-- if tab == group -->
