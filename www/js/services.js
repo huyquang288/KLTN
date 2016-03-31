@@ -5,49 +5,20 @@ var DOMAIN="http://localhost:8028/";
 // Users
 angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
     .factory('StorageData', function () {
-        var recent;
-        var peopleInGroups;
-        var recentRooms;
-        var allGroups;
-        var allRooms;
-        var allChats;
+        var data;
 
         return {
-            getRecent: function () {
-                return recent;
+            getUsers: function () {
+                return data.users;
             },
-            setRecent: function(value) {
-                recent = value;
+            getGroups_Topics: function () {
+                return data.groups_topics;
             },
-            getPeopleInAllGroups: function () {
-                return peopleInGroups;
+            getChats: function () {
+                return data.chats;
             },
-            setPeopleInAllGroups: function(value) {
-                peopleInGroups = value;
-            },
-            getRecentRooms: function () {
-                return recentRooms;
-            },
-            setRecentRooms: function(value) {
-                recentRooms = value;
-            },
-            getAllGroups: function() {
-                return allGroups;
-            },
-            setAllGroups: function(value) {
-                allGroups = value;
-            },
-            getAllRooms: function () {
-                return allRooms;
-            },
-            setAllRooms: function(value) {
-                allRooms = value;
-            },
-            getAllChats: function () {
-                return allChats;
-            },
-            setAllChats: function(value) {
-                allChats = value;
+            getBookmark: function () {
+                return data.bookmark;
             },
             addChat: function(chatId, text, roomId, userId, time, userAva, userNam) {
                 var id;
@@ -66,46 +37,38 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                     dateTime: (time=="now" ?new Date() :time),
                     userAvata: userAva, 
                     userName: userNam
-                }
+                };
                 allChats.push(ele);
             },
-            resortRecent: function (rId) {
-                var newRecent= [];
-                var ele= {roomId: rId};
-                newRecent.push(ele);
-                for (var i in recent) {
-                    if (newRecent.length<5 && rId!= recent[i].roomId) {
-                        newRecent.push(recent[i]);
+            saveData: function (dataIn) {
+                data= dataIn;
+                var temp= "";
+                var regex, regexString
+                // đưa trường group_group vào trong groups_topics
+                for (var i in data.group_group) {
+                    // first group id
+                    regexString= data.group_group[i].firstGroupId +"|\\+" +data.group_group[i].firstGroupId;
+                    regex= new RegExp (regexString, "g");
+                    if (temp.match(regex)== null) {
+                        temp+= ("+" +data.group_group[i].firstGroupId);
+                    }
+                    // second group id
+                    regexString= data.group_group[i].secondGroupId +"|\\+" +data.group_group[i].secondGroupId;
+                    regex= new RegExp (regexString, "g");
+                    if (temp.match(regex)== null) {
+                        temp+= ("+" +data.group_group[i].secondGroupId);
                     }
                 }
-                recent= newRecent;
+                console.log(temp.replace(/\+/,'').split("+"));
             },
         };
     })
 
-    .factory('ConnectServer', function ($http) {
+    .factory('ConnectServer', function ($http, StorageData) {
         return {
             getAll: function (userId) {
                 var data= {'id': userId}
-                return $http.post(DOMAIN+"groupsAndRooms", data).then(function (response) {
-                    return response.data;
-                });
-            },
-            getAllChats: function (userId) {
-                var data= {'id': userId}
-                return $http.post(DOMAIN+"chats", data).then(function (response) {
-                    return response.data;
-                });
-            },
-            getRecent: function (userId) {
-                var data= {'id': userId}
-                return $http.post(DOMAIN+"recent", data).then(function (response) {
-                    return response.data;
-                });
-            },
-            getPeopleInAllGroups: function (userId) {  
-                var data= {'id': userId}
-                return $http.post(DOMAIN+"peopleInAllGroups", data).then(function (response) {
+                return $http.post(DOMAIN+"all", data).then(function (response) {
                     return response.data;
                 });
             },
@@ -135,7 +98,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
         }
     })
 
-    .factory('Socket',function(socketFactory){
+    .factory('Socket', function (socketFactory){
         //Create socket and connect to localhost        
         var myIoSocket = io.connect(DOMAIN);
         mySocket = socketFactory({
@@ -182,17 +145,6 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
 
     // Rooms
     .factory('Room', ['User', 'Chat', 'StorageData', function (User, Chat) {
-        var rooms = [
-            {
-                id: "room_a",
-                roomType: "group",
-                thumbnail: "img/thumbnail01.jpg",
-                title: "I Love Coffee",
-                members: "Felix, Eric, Diamond",
-                activeTime: "Active today",
-                userList: ["213", "1", "2"]
-            }
-        ];
         return {
             getRecent: function () {
                 //return StorageData

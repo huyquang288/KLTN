@@ -372,77 +372,78 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         // lấy dữ liệu từ server về sau khi đăng nhập thành công...
         var userId= $rootScope.userId;
         if (userId!="" && userId!=undefined) {
-            ConnectServer.getRecent(userId).then(function (data){
-                var recent= [];
-                var ele;
-                for (var i in data) {
-                    ele = {
-                        roomId: data[i].roomId
-                    }
-                    recent.push(ele);
-                }
-                StorageData.setRecent(recent);
-                $scope.recent= StorageData.getRecent();
-            });
-            ConnectServer.getPeopleInAllGroups(userId).then(function (data) {
-                var peopleInAllGroups= [];
-                var ele;
-                for (var i in data) {
-                    //console.log(data[i]);
-                    ele = {
-                        userId: data[i].id,
-                        groupId: data[i].groupId,
-                        firstName: data[i].firstName,
-                        lastName: data[i].lastName,
-                        face: data[i].face,
-                        friendType: data[i].friendType,
-                        activeTime: data[i].activeTime,
-                        isAdmin: data[i].isAdmin
-                    }
-                    peopleInAllGroups.push(ele);
-                    if (data[i].id== userId) {
-                        $rootScope.userAvata= data[i].face;
-                        $rootScope.userName= data[i].firstName +" " +data[i].lastName;
-                        $rootScope.firstName= data[i].firstName;
-                        $rootScope.lastName= data[i].lastName;
-                    }
-                }
-                StorageData.setPeopleInAllGroups(peopleInAllGroups);
-            });
+            // ConnectServer.getRecent(userId).then(function (data){
+            //     var recent= [];
+            //     var ele;
+            //     for (var i in data) {
+            //         ele = {
+            //             roomId: data[i].roomId
+            //         }
+            //         recent.push(ele);
+            //     }
+            //     StorageData.setRecent(recent);
+            //     $scope.recent= StorageData.getRecent();
+            // });
+            // ConnectServer.getPeopleInAllGroups(userId).then(function (data) {
+            //     var peopleInAllGroups= [];
+            //     var ele;
+            //     for (var i in data) {
+            //         //console.log(data[i]);
+            //         ele = {
+            //             userId: data[i].id,
+            //             groupId: data[i].groupId,
+            //             firstName: data[i].firstName,
+            //             lastName: data[i].lastName,
+            //             face: data[i].face,
+            //             friendType: data[i].friendType,
+            //             activeTime: data[i].activeTime,
+            //             isAdmin: data[i].isAdmin
+            //         }
+            //         peopleInAllGroups.push(ele);
+            //         if (data[i].id== userId) {
+            //             $rootScope.userAvata= data[i].face;
+            //             $rootScope.userName= data[i].firstName +" " +data[i].lastName;
+            //             $rootScope.firstName= data[i].firstName;
+            //             $rootScope.lastName= data[i].lastName;
+            //         }
+            //     }
+            //     StorageData.setPeopleInAllGroups(peopleInAllGroups);
+            // });
             ConnectServer.getAll(userId).then(function (data) {
-                var allGroups= [];
-                var allRooms= [];
+                StorageData.saveData (data);
+                // var allGroups= [];
+                // var allRooms= [];
                 
-                var ele;
-                for (var i in data) {
-                    // sắp xếp vào allGroups
-                    ele= {
-                        groupId: data[i].id,
-                        name: data[i].name,
-                        description: data[i].description
-                    }
-                    allGroups.push(ele);
-                    for (var j in data[i].group_room) {
-                        // sắp xếp vào allRooms
-                        ele= {
-                            roomId: data[i].group_room[j].rooms.id,
-                            title: data[i].group_room[j].rooms.title,
-                            groupId: data[i].group_room[j].groupId,
-                            thumbnail: data[i].group_room[j].rooms.thumbnail,
-                            activeTime: data[i].group_room[j].rooms.activeTime,
-                            isOwner: data[i].group_room[j].isOwner
-                        };
-                        allRooms.push(ele);
-                    }
-                }
-                StorageData.setAllGroups(allGroups);
-                StorageData.setAllRooms(allRooms);
-                sortRooms();
+                // var ele;
+                // for (var i in data) {
+                //     // sắp xếp vào allGroups
+                //     ele= {
+                //         groupId: data[i].id,
+                //         name: data[i].name,
+                //         description: data[i].description
+                //     }
+                //     allGroups.push(ele);
+                //     for (var j in data[i].group_room) {
+                //         // sắp xếp vào allRooms
+                //         ele= {
+                //             roomId: data[i].group_room[j].rooms.id,
+                //             title: data[i].group_room[j].rooms.title,
+                //             groupId: data[i].group_room[j].groupId,
+                //             thumbnail: data[i].group_room[j].rooms.thumbnail,
+                //             activeTime: data[i].group_room[j].rooms.activeTime,
+                //             isOwner: data[i].group_room[j].isOwner
+                //         };
+                //         allRooms.push(ele);
+                //     }
+                // }
+                // StorageData.setAllGroups(allGroups);
+                // StorageData.setAllRooms(allRooms);
+                // sortRooms();
             });
 
-            ConnectServer.getAllChats(userId).then(function (data) {
-                StorageData.setAllChats(data);
-            });
+            // ConnectServer.getAllChats(userId).then(function (data) {
+            //     StorageData.setAllChats(data);
+            // });
         }
 
         // add user sau khi đăng nhập thành công để có thể thêm được những đoạn chat mới vào
