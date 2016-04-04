@@ -28,17 +28,72 @@
     <ion-content>
 
         <ion-item>
-            <button class="button button-small button-block icon-left ion-ios-search" ng-click="openGroupSearch()"
-                    style="margin: 0">
+            <button class="button button-small button-block icon-left ion-ios-search" 
+                    ng-click="openGroupSearch()" style="margin: 0">
                 Search for existed groups
             </button>
         </ion-item> 
-        <div class="row" ng-repeat="group in allGroups">
-            <!-- <div class="col col-50" ng-repeat="room in groups"> -->
-                <div class="col-50 col-offset-25 list card">
-                    <a nav-direction="forward" 
+        <!-- {{groupsOfUser.length}} -->
+        <div ng-if="groupsOfUser.length">
+            <div ng-repeat="group in groupsOfUser" ng-if="$index%2==0" class="row">
+                <div class="col col-50 {{($index==groupsOfUser.length-1) ?'col-offset-25' :''}}">
+                    <div class="col-100 list card">
+                        <a nav-direction="forward"
+                           class="item item-avatar item-avatar-center item-avatar-l text-center"
+                           href="#/topics/{{group.groupId}}">
+                            <!-- <img ng-src="{{room.rooms.thumbnail}}"> -->
+
+                            <h3>
+                                <small>{{group.name}}</small>
+                            </h3>
+
+                            <p>{{group.description}}</p>
+                        </a>
+
+                        <a nav-direction="forward" class="item item-divider text-center" href="#/group-members/{{group.groupId}}">
+                            <p>
+                                <span ng-if="group.groupId==member.groupId" ng-repeat="member in members">
+                                    {{member.firstName}} <!-- {{member.groupId}} {{members[$index+1].groupId}} -->
+                                    <!-- {{((member.groupId==members[$index+1].groupId) ?'1' :'')}} -->
+                                </span>
+                            </p>
+                        </a>
+                    </div>
+                </div>
+                <div ng-if="$index+1<groupsOfUser.length" class="col col-50">
+                    <div class="col-100 list card">
+                        <a nav-direction="forward"
+                           class="item item-avatar item-avatar-center item-avatar-l text-center"
+                           href="#/topics/{{groupsOfUser[$index+1].groupId}}">
+                            <!-- <img ng-src="{{room.rooms.thumbnail}}"> -->
+
+                            <h3>
+                                <small>{{groupsOfUser[$index+1].name}}</small>
+                            </h3>
+
+                            <p>{{groupsOfUser[$index+1].description}}</p>
+                        </a>
+
+                        <a nav-direction="forward" class="item item-divider text-center" href="#/group-members/{{groupsOfUser[$index+1].groupId}}">
+                            <p>
+                                <span ng-if="groupsOfUser[$index+1].groupId==member.groupId" ng-repeat="member in members">
+                                    {{member.firstName}} <!-- {{member.groupId}} {{members[$index+1].groupId}} -->
+                                    <!-- {{((member.groupId==members[$index+1].groupId) ?'1' :'')}} -->
+                                </span>
+                            </p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <h3><b>Sugguest groups</b></h3>
+        <div ng-repeat="group in suggestGroups" ng-if="$index%2==0" class="row">
+            <div class="col col-50 {{($index==suggestGroups.length-1) ?'col-offset-25' :''}}">
+                <div class="col-100 list card">
+                    <a nav-direction="forward"
                        class="item item-avatar item-avatar-center item-avatar-l text-center"
-                       href="#/rooms/{{group.groupId}}">
+                       href="#/topics/{{group.groupId}}">
                         <!-- <img ng-src="{{room.rooms.thumbnail}}"> -->
 
                         <h3>
@@ -57,7 +112,31 @@
                         </p>
                     </a>
                 </div>
-            <!-- </div> -->
+            </div>
+            <div ng-if="$index+1<suggestGroups.length" class="col col-50">
+                <div class="col-100 list card">
+                    <a nav-direction="forward"
+                       class="item item-avatar item-avatar-center item-avatar-l text-center"
+                       href="#/topics/{{suggestGroups[$index+1].groupId}}">
+                        <!-- <img ng-src="{{room.rooms.thumbnail}}"> -->
+
+                        <h3>
+                            <small>{{suggestGroups[$index+1].name}}</small>
+                        </h3>
+
+                        <p>{{suggestGroups[$index+1].description}}</p>
+                    </a>
+
+                    <a nav-direction="forward" class="item item-divider text-center" href="#/group-members/{{suggestGroups[$index+1].groupId}}">
+                        <p>
+                            <span ng-if="suggestGroups[$index+1].groupId==member.groupId" ng-repeat="member in members">
+                                {{member.firstName}} <!-- {{member.groupId}} {{members[$index+1].groupId}} -->
+                                <!-- {{((member.groupId==members[$index+1].groupId) ?'1' :'')}} -->
+                            </span>
+                        </p>
+                    </a>
+                </div>
+            </div>
         </div>
 
         <!--show when there is no group-->

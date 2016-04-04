@@ -22,10 +22,11 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 });
                 notification.onclick = function () {
                     $location.path(locationLink);
-                    //redirectLink(data.roomId);
                 }   
             }
         }
+
+        
             
         // nhận thông báo từ server về việc 1 group mới được tạo.
         Socket.on('added to new group', function (data){
@@ -60,7 +61,6 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 StorageData.setPeopleInAllGroups(peopleInAllGroups);
                 $rootScope.$broadcast("ReloadPeopleInAllGroups");
                 if (data.adminId!= $rootScope.userId) {
-                    //console.log('next')
                     $rootScope.pushNotification('New Group', 'You was added to \'' +data.name +'\' group.', '/rooms/'+data.id)
                 }
             }
@@ -94,15 +94,10 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             if (topicName!='') {
                 StorageData.addChat(data.chatId, data.chatText, data.roomId, data.userId, data.dateTime, data.userAvata);
                 $rootScope.pushNotification(topicName, data.chatText, '/room/'+data.roomId);
-                StorageData.resortRecent(data.roomId);
                 $rootScope.$broadcast("CallSortRoomsInActivitiesCtrl");
             }
         });
 
-        function redirectLink (roomId) {
-            var req= "/room/" +roomId;
-            $location.path(req);
-        }
 
         //$scope.friends = StorageData.getPeopleInAllGroups();
         //console.log($scope.friends);
@@ -225,7 +220,6 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         }
 
         $scope.createNewTopic = function (type, topicName, icon, groupId) {
-            //console.log(groupId);
             if (!topicName) {
                 var alertPopup = $ionicPopup.alert({
                     title: 'Name This ' +type +'Topic',
@@ -368,273 +362,101 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
     })
 
     // ActivitiesCtrl được gọi tiếp theo, sau MainCtrl. ActivitiesCtrl được gọi khi người dùng đăng nhập thành công, truy cập vào trang Recent
-    .controller('ActivitiesCtrl', function ($rootScope, $scope, ConnectServer, StorageData, Socket, Room, User) {
+    .controller('ActivitiesCtrl', function ($rootScope, $scope, ConnectServer, StorageData, Socket, Topic, Chat) {
         // lấy dữ liệu từ server về sau khi đăng nhập thành công...
         var userId= $rootScope.userId;
         if (userId!="" && userId!=undefined) {
-            // ConnectServer.getRecent(userId).then(function (data){
-            //     var recent= [];
-            //     var ele;
-            //     for (var i in data) {
-            //         ele = {
-            //             roomId: data[i].roomId
-            //         }
-            //         recent.push(ele);
-            //     }
-            //     StorageData.setRecent(recent);
-            //     $scope.recent= StorageData.getRecent();
-            // });
-            // ConnectServer.getPeopleInAllGroups(userId).then(function (data) {
-            //     var peopleInAllGroups= [];
-            //     var ele;
-            //     for (var i in data) {
-            //         //console.log(data[i]);
-            //         ele = {
-            //             userId: data[i].id,
-            //             groupId: data[i].groupId,
-            //             firstName: data[i].firstName,
-            //             lastName: data[i].lastName,
-            //             face: data[i].face,
-            //             friendType: data[i].friendType,
-            //             activeTime: data[i].activeTime,
-            //             isAdmin: data[i].isAdmin
-            //         }
-            //         peopleInAllGroups.push(ele);
-            //         if (data[i].id== userId) {
-            //             $rootScope.userAvata= data[i].face;
-            //             $rootScope.userName= data[i].firstName +" " +data[i].lastName;
-            //             $rootScope.firstName= data[i].firstName;
-            //             $rootScope.lastName= data[i].lastName;
-            //         }
-            //     }
-            //     StorageData.setPeopleInAllGroups(peopleInAllGroups);
-            // });
             ConnectServer.getAll(userId).then(function (data) {
                 StorageData.saveData (data);
-                // var allGroups= [];
-                // var allRooms= [];
-                
-                // var ele;
-                // for (var i in data) {
-                //     // sắp xếp vào allGroups
-                //     ele= {
-                //         groupId: data[i].id,
-                //         name: data[i].name,
-                //         description: data[i].description
-                //     }
-                //     allGroups.push(ele);
-                //     for (var j in data[i].group_room) {
-                //         // sắp xếp vào allRooms
-                //         ele= {
-                //             roomId: data[i].group_room[j].rooms.id,
-                //             title: data[i].group_room[j].rooms.title,
-                //             groupId: data[i].group_room[j].groupId,
-                //             thumbnail: data[i].group_room[j].rooms.thumbnail,
-                //             activeTime: data[i].group_room[j].rooms.activeTime,
-                //             isOwner: data[i].group_room[j].isOwner
-                //         };
-                //         allRooms.push(ele);
-                //     }
-                // }
-                // StorageData.setAllGroups(allGroups);
-                // StorageData.setAllRooms(allRooms);
-                // sortRooms();
+                getRecentTopcis();
+                getBookmarkTopics();
             });
-
-            // ConnectServer.getAllChats(userId).then(function (data) {
-            //     StorageData.setAllChats(data);
-            // });
         }
 
-        // add user sau khi đăng nhập thành công để có thể thêm được những đoạn chat mới vào
+        // add user sau khi đăng nhập thành công để có thể thêm được những đoạn thông tin mới vào, cần đưa người dùng vào 1 phòng để nhận thông báo, mặc định là phòng 08281994
         Socket.on('connect', function (){
-            //Add user
-            Socket.emit('user join to room', 1, userId);
-        })
+            Socket.emit('user join to topic', 08281994, userId);
+        });
+
+        //getRecentTopcis();
+        //getBookmarkTopics();
 
         $rootScope.$on("CallSortRoomsInActivitiesCtrl", function (event, args){
-            sortRooms();
+            
         });
         
-        function sortRooms () {
-            var allRooms= StorageData.getAllRooms();
-            var recent= StorageData.getRecent();
-            var recentRooms= [];
-            // sắp xếp theo trình tự thời gian.
-            for (var i in recent) {
-                for (var j in allRooms) {
-                    if (recent[i].roomId== allRooms[j].roomId) {
-                        recentRooms.push(allRooms[j]);
-                        break;
-                    }
-                }
-            }
-            StorageData.setRecentRooms(recentRooms);
-            $scope.recentRooms= recentRooms;
+        function getRecentTopcis () {
+            $scope.recentTopics= Topic.getRecentTopcis (userId);
         }
-
-        
-        //$scope.activities = Room.userActivities("213");
-        var lastMess;
-        $scope.getLastMessageText= function (roomId) {
-            var returnMess= "";
-            var allChats= StorageData.getAllChats();
-            if (allChats== null) {
-                return "No recent chat.";
-            }
-            for (var i=(allChats.length-1); i>=0; i--) {
-                if (allChats[i].roomId== roomId) {
-                    lastMess= allChats[i];
-                    break;
-                }
-            }
-            // trong trường hợp không tìm được tin nhắn (room vừa mới tạo chưa có nội dung chat) trả về giá trị rỗng
-            if (lastMess== null) {
-                return "No recent chat.";
-            }
-            var peopleInAllGroups= StorageData.getPeopleInAllGroups();
-            for (var i in peopleInAllGroups) {
-                if (peopleInAllGroups[i].userId== lastMess.userId) {
-                    returnMess+= (peopleInAllGroups[i].firstName +" " +peopleInAllGroups[i].lastName 
-                                    +": " +lastMess.chatText);
-                    break;
-                }
-            }
-            return returnMess;
+        function getBookmarkTopics () {
+            $scope.bookmarkTopics= Topic.getBookmarkTopics (userId);
         }
-
-        $scope.getLastMessageTime= function (roomId) {
-            // trong trường hợp không tìm được tin nhắn (room vừa mới tạo chưa có nội dung chat) trả về giá trị rỗng
-            if (lastMess== null) {
-                return "";
-            }
-            var dateTime= lastMess.dateTime;
-            var rewriteNow="";
-            var now= new Date();
-            // chuyển giá trị dateTime trả về từ server thành GMT+7(local timezone) từ giá trị GMT+0
-            var messTime= new Date(dateTime);
-            var returnTime= messTime.getHours() +":" 
-                    +((messTime.getMinutes()<10) ?('0'+messTime.getMinutes()) :(messTime.getMinutes()));
-            if (messTime.getDate()!= now.getDate() ||
-                messTime.getMonth()!= now.getMonth() ||
-                messTime.getFullYear()!= now.getFullYear()) {
-                returnTime+= "  " +messTime.getDate() +"/" +(messTime.getMonth()+1);
-            }
-            return returnTime;
+        $scope.getLastMessageText= function (topicId) {
+            return Chat.getLastMessageText(topicId);
         }
-
+        $scope.getLastMessageTime= function (topicId) {
+            return Chat.getLastMessageTime(topicId);
+        }
         $scope.remove = function (item) {
-            Room.remove(item);
+            Topic.remove(item);
             console.log("removed");
         };
 
-        $scope.friends = User;
     })
 
-    .controller('RoomCtrl', function ($rootScope, $scope, $stateParams, StorageData, Socket, Room, Chat) {
-        var allChats= StorageData.getAllChats();
-        var allRooms= StorageData.getAllRooms();
-        var userId= $rootScope.userId;
-        var userAvata= $rootScope.userAvata;
-        var userName= $rootScope.userName;
+    .controller('TopicCtrl', function ($rootScope, $scope, $stateParams, StorageData, Socket, Topic, Chat) {
+        $scope.userId= $rootScope.userId;
+        var topics= Topic.getTopics();
         
-        if ($stateParams.roomId == "new") {
+        if ($stateParams.topicId == "new") {
             if ($stateParams.userList) {
-                $scope.room = Room.newGroup($stateParams.groupName, $stateParams.userList);
-                $scope.room.settingURL = "#/room-setting/new/" + $stateParams.groupName + "/" + $stateParams.userList;
+                $scope.topic = Topic.newGroup($stateParams.groupName, $stateParams.userList);
+                $scope.topic.settingURL = "#/topic-setting/new/" + $stateParams.groupName + "/" + $stateParams.userList;
             } else {
-                $scope.room = Room.newRoom($stateParams.userId);
-                $scope.room.settingURL = "#/room-setting/new/" + $stateParams.userId;
+                $scope.topic = Topic.newTopic($stateParams.userId);
+                $scope.topic.settingURL = "#/topic-setting/new/" + $stateParams.userId;
             }
         }
         else {
-            for (var i=0; i< allRooms.length; i++) {
-                if ($stateParams.roomId== allRooms[i].roomId) {
-                    $scope.room= allRooms[i];
-                    $scope.room.settingURL = "#/room-setting/" + $stateParams.roomId;
+            for (var i=0; i< topics.length; i++) {
+                if ($stateParams.topicId== topics[i].id) {
+                    $scope.topic= topics[i];
+                    $scope.topic.settingURL = "#/topic-setting/" + $stateParams.topicId;
+                    $scope.chatList= Chat.getChatList($stateParams.topicId);
                     //console.log('join to room')
-                    Socket.emit('user join to room', $stateParams.roomId, userId);
-                    $scope.userId= userId;
+                    Socket.emit('user join to topic', $stateParams.topicId, $scope.userId);
                     break;
                 }
             }
         }
 
-        var chatList= [];
-        for (var i in allChats) {
-            if (allChats[i].roomId== $stateParams.roomId) {
-                chatList.push(allChats[i]);
-            }
-        }
-        $scope.chatList= chatList
-
-        //  KẾT NỐI ĐẾN SERVER ĐỂ VÀO ĐƯỢC PHÒNG CHAT.
-        var typing = false;
-        var lastTypingTime;
-        var TYPING_TIMER_LENGTH = 400;
-
-        Socket.on('server new room message', function (data) {
-            //console.log("has new mess");
-            addChat(data.chatId, data.chatText, $stateParams.roomId, data.userId, data.dateTime, data.userAvata);
-            StorageData.resortRecent(data.roomId);
-            $rootScope.$broadcast("CallSortRoomsInActivitiesCtrl");
-        });
-
         $scope.sendChat = function (chatText) {
             //console.log(userAvata);
-            Socket.emit('client new message', {chatText: chatText, roomId: $stateParams.roomId, userId: userId, userAvata: userAvata, userName: userName})
-            addChat(0, chatText, $stateParams.roomId, userId, "now", userAvata, userName);
-            StorageData.addChat(0, chatText, $stateParams.roomId, userId, "now", userAvata, userName);
-            StorageData.resortRecent($stateParams.roomId);
+            Socket.emit('client new message', {chatText: chatText, roomId: $stateParams.roomId, userId: $scope.userId, userAvata: userAvata, userName: userName})
+            Chat.addChat(0, chatText, $stateParams.roomId, userId, "now", userAvata, userName);
+            
             $rootScope.$broadcast("CallSortRoomsInActivitiesCtrl");
         };
 
-        function addChat (chatId, text, roomId, userId, time, userAva, userNam) {
-            var id
-            if (allChats.length< 1) {
-                id= 1;
-            }
-            else {
-                //0 là giá trị tương ứng với tin nhắn được gửi từ máy, lưu trực tiếp vào các dòng chat hiện tại
-                id= ((chatId<1) ?((allChats[allChats.length-1].chatId)+1) :chatId)
-            }
-            var ele= {
-                chatId: id,
-                roomId: roomId,
-                userId: userId,
-                chatText: text,
-                dateTime: (time=="now" ?new Date() :time),
-                userAvata: userAva,
-                userName: userNam
-            }
-            $scope.chatList.push(ele);
-        }
-
     })
 
-    .controller('GroupsCtrl', function ($rootScope, $scope, $stateParams, StorageData, Room) {
-        $scope.allGroups= StorageData.getAllGroups();
-        $scope.members= StorageData.getPeopleInAllGroups();
-        getGroupDetail();
+    .controller('GroupsCtrl', function ($rootScope, $scope, $stateParams, StorageData, Group) {
+        getGroups();
         $rootScope.$on("ReloadAllGroups", function (event, args){
-            $scope.allGroups= StorageData.getAllGroups();
-            getGroupDetail();
+            //$scope.allGroups= StorageData.getAllGroups();
+            getGroups();
         });
         $rootScope.$on("ReloadPeopleInAllGroups", function (event, args){
             $scope.members= StorageData.getPeopleInAllGroups();
         });
-        function getGroupDetail () {
-            for (var i in $scope.allGroups) {
-                if ($scope.allGroups[i].groupId== $stateParams.groupId) {
-                    $scope.group= $scope.allGroups[i];
-                    break;
-                }
-            }
+        function getGroups () {
+            $scope.groupsOfUser= Group.getGroupsOfUser($rootScope.userId);
+            $scope.suggestGroups= Group.getSuggestGroups();
         }
         
     })
 
-    .controller('RoomsCtrl', function ($rootScope, $scope, $stateParams, StorageData) {
+    .controller('TopicsCtrl', function ($rootScope, $scope, $stateParams, StorageData) {
         //console.log('room ctrl run');
         allGroups= StorageData.getAllGroups();
         allRooms= StorageData.getAllRooms();
@@ -668,7 +490,6 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 }
             }
             for (var i in allPeople) {
-                //console.log(allPeople[i].groupId +", " +allPeople[i].isAdmin +", " +allPeople[i].userId);
                 if (allPeople[i].groupId==$scope.group.groupId && allPeople[i].isAdmin==1 && allPeople[i].userId==$rootScope.userId) {
                     $scope.isAdmin= true;
                     //console.log("is admin");
@@ -676,44 +497,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             }
         }
 
-        // phần này để hiển thị thông tin về thời gian và nội dung của tin nhắn cuối cùng trong mỗi topic
-        var lastMess;
-        $scope.getLastMessageText= function (roomId) {
-            lastMess= null;
-            var allChats= StorageData.getAllChats();
-            if (allChats== null) {
-                return "No recent chat.";
-            }
-            for (var i=(allChats.length-1); i>=0; i--) {
-                if (allChats[i].roomId== roomId) {
-                    lastMess= allChats[i];
-                    break;
-                }
-            }
-            // trong trường hợp không tìm được tin nhắn (room vừa mới tạo chưa có nội dung chat) trả về giá trị rỗng
-            if (lastMess== null) {
-                return "No recent chat.";
-            }
-            return lastMess.userName +": " +lastMess.chatText;
-        }
-        $scope.getLastMessageTime= function (roomId) {
-            if (lastMess== null) {
-                return "";
-            }
-            var dateTime= lastMess.dateTime;
-            var rewriteNow="";
-            var now= new Date();
-            // chuyển giá trị dateTime trả về từ server thành GMT+7(local timezone) từ giá trị GMT+0
-            var messTime= new Date(dateTime);
-            var returnTime= messTime.getHours() +":" 
-                    +((messTime.getMinutes()<10) ?('0'+messTime.getMinutes()) :(messTime.getMinutes()));
-            if (messTime.getDate()!= now.getDate() ||
-                messTime.getMonth()!= now.getMonth() ||
-                messTime.getFullYear()!= now.getFullYear()) {
-                returnTime+= "  " +messTime.getDate() +"/" +(messTime.getMonth()+1);
-            }
-            return returnTime;
-        }
+        
     })
 
     .controller('FriendsCtrl', function ($rootScope, $scope, $stateParams, $ionicPopup, StorageData, User, Room, $state) {

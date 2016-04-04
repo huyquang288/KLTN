@@ -35,7 +35,6 @@ app.use(function (req, res, next) {
 });
 
 app.post('/login', function (req, res){
-	//console.log("login request")
 	var data= req.body;  
 	var sql= "select userId from account_user where accountId in (select id from accounts where email='" +data.email +"')";
 	var nestingOptions = [
@@ -62,7 +61,7 @@ app.post('/login', function (req, res){
 });
 
 app.post('/all', function(req, res){
-	var userId= req.body.id
+	var userId= req.body.id;
 	var groups_topics, group_group, group_user, chats, users, bookmark;
 	var sql = "SELECT * FROM groups LEFT JOIN topics ON groups.id=topics.groupId";
 	var nestingOptions = [

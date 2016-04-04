@@ -6,75 +6,27 @@ var DOMAIN="http://localhost:8028/";
 angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
     .factory('StorageData', function () {
         var data;
-
         return {
-            getUsers: function () {
-                return data.users;
-            },
-            getGroups_Topics: function () {
-                return data.groups_topics;
-            },
-            getChats: function () {
-                return data.chats;
-            },
-            getBookmark: function () {
-                return data.bookmark;
-            },
-            addChat: function(chatId, text, roomId, userId, time, userAva, userNam) {
-                var id;
-                if (allChats.length< 1) {
-                    id= 1;
-                }
-                else {
-                    //0 là giá trị tương ứng với tin nhắn được gửi từ máy, lưu trực tiếp vào các dòng chat hiện tại
-                    id= ((chatId<1) ?((allChats[allChats.length-1].chatId)+1) :chatId);
-                }
-                var ele= {
-                    chatId: id,
-                    roomId: roomId,
-                    userId: userId,
-                    chatText: text,
-                    dateTime: (time=="now" ?new Date() :time),
-                    userAvata: userAva, 
-                    userName: userNam
-                };
-                allChats.push(ele);
+            getData: function () {
+                return data;
             },
             saveData: function (dataIn) {
                 data= dataIn;
-                var temp= "";
-                var regex, regexString
-                // đưa trường group_group vào trong groups_topics
-                for (var i in data.group_group) {
-                    // first group id
-                    regexString= data.group_group[i].firstGroupId +"|\\+" +data.group_group[i].firstGroupId;
-                    regex= new RegExp (regexString, "g");
-                    if (temp.match(regex)== null) {
-                        temp+= ("+" +data.group_group[i].firstGroupId);
-                    }
-                    // second group id
-                    regexString= data.group_group[i].secondGroupId +"|\\+" +data.group_group[i].secondGroupId;
-                    regex= new RegExp (regexString, "g");
-                    if (temp.match(regex)== null) {
-                        temp+= ("+" +data.group_group[i].secondGroupId);
-                    }
-                }
-                console.log(temp.replace(/\+/,'').split("+"));
-            },
+            }
         };
     })
 
     .factory('ConnectServer', function ($http, StorageData) {
         return {
             getAll: function (userId) {
-                var data= {'id': userId}
+                var data= {'id': userId};
                 return $http.post(DOMAIN+"all", data).then(function (response) {
+                    console.log(response.data);
                     return response.data;
                 });
             },
             newGroup: function (data) {
                 return $http.post(DOMAIN+"newGroup", data).then(function (response) {
-                    //console.log(response.data);
                     return response.data;
                 });
             },
@@ -104,111 +56,147 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
         mySocket = socketFactory({
             ioSocket: myIoSocket
         });
-
         return mySocket;
     })
 
     .factory('User', ['StorageData', function (StorageData) {
-        var allPeople= [];
+        var users= [];
         return {
-            getAllPeople: function (userId) {
-                if (allPeople.length < 1) {
-                    var all= StorageData.getPeopleInAllGroups();
-                    var temp;
-                    var pos;
-                    for (var i in all) {
-                        temp= all[i].userId;
-                        pos= i;
-                        for (var j= i; j< all.length; j++) {
-                            if (temp> all[j].userId) {
-                                pos= j;
-                                temp= all[j].userId;
-                            }
-                        }
-                        temp= all[i];
-                        all[i]= all[pos];
-                        all[pos]= temp;
-                        if (all[i].userId!= userId) {
-                            if (i==0) {
-                                allPeople.push(all[i]);
-                            }
-                            else if (all[i].userId!= all[i-1].userId) {
-                                allPeople.push(all[i]);
-                            }
-                        }
-                    }
-                }
-                return allPeople;
-            }
+
         };
     }])
 
-    // Rooms
-    .factory('Room', ['User', 'Chat', 'StorageData', function (User, Chat) {
+    .factory('Group', ['StorageData', function (StorageData) {
+        var groupsIdOfUser= '+';
+        function returnGroups (groupsId) {
+            var groups_topics= StorageData.getData().groups_topics;
+            var groups= [];
+            for (var i in groups_topics) {
+                var regexString= ('\\+' +groups_topics[i].id +'\\+');
+                var regex= new RegExp(regexString, 'g');
+                if (groupsId.match(regex)!=null) {
+                    groups.push(groups_topics[i]);
+                }
+            }
+            return groups;
+        }
         return {
-            getRecent: function () {
-                //return StorageData
+            getGroupsOfUser: function (userId) {
+                var group_user= StorageData.getData().group_user;
+                for (var i in group_user) {
+                    if (userId== group_user[i].userId) {
+                        groupsIdOfUser+= (group_user[i].groupId +'+');
+                    }
+                }
+                return returnGroups(groupsIdOfUser);
             },
-
-            // for tab-groups
-            getRooms: function (userId, rowItemNum) {
-                var groupList = [];
-                var rowList = [];
-                for (var i = 0; i < rooms.length; i++) {
-                    var isInRoom = false;
-                    if (!isInRoom && rooms[i].userList.length > 2) {
-                        for (var j = 0; j < rooms[i].userList.length; j++) {
-                            if (rooms[i].userList[j] === userId) {
-                                isInRoom = true;
+            getSuggestGroups: function () {
+                var group_group= StorageData.getData().group_group;
+                var suggestGroupsId= '+';
+                //console.log(groupsIdOfUser);
+                for (var i in group_group) {
+                    var regexString1= ('\\+' +group_group[i].firstGroupId +'\\+');
+                    var regex1= new RegExp(regexString1, 'g');
+                    var regexString2= ('\\+' +group_group[i].secondGroupId +'\\+');
+                    var regex2= new RegExp(regexString2, 'g');
+                    if (groupsIdOfUser.match(regex1)!= null) {
+                        if (groupsIdOfUser.match(regex2)== null) {
+                            suggestGroupsId+= (group_group[i].secondGroupId +'+');
+                        }
+                    }
+                    else {
+                        if (groupsIdOfUser.match(regex2)!= null) {
+                            if (groupsIdOfUser.match(regex1)== null) {
+                                suggestGroupsId+= (group_group[i].firstGroupId +'+');
                             }
                         }
                     }
-                    if (isInRoom) {
-                        rowList.push(rooms[i]);
-                    }
-                    if (rowList.length == rowItemNum || i + 1 == rooms.length) {
-                        groupList.push(rowList);
-                        rowList = [];
+                }
+                return returnGroups(suggestGroupsId);
+            }
+        }
+    }])
+
+    // Topics
+    .factory('Topic', ['User', 'Chat', 'StorageData', function (User, Chat, StorageData) {
+        var bookmarkTopics= [];
+        var recentTopics= [];
+        var topics= [];
+        return {
+            getRecentTopcis: function (userId) {
+                var groups_topics= StorageData.getData().groups_topics;
+                var regexString= '';
+                var regex;
+                var topicsIdOfUser= '+';
+                var bookmarkTopicsIdOfUser= '+';
+                
+                // đưa những nhóm của người dùng vào string
+                var temp= StorageData.getData().group_user;
+                for (var i in temp) {
+                    if (userId== temp[i].userId) {
+                        topicsIdOfUser+= (temp[i].groupId +'+');
                     }
                 }
-                return groupList;
+                // đưa những topic được bookmark của người dùng vào string
+                temp= StorageData.getData().bookmark;
+                for (var i in temp) {
+                    bookmarkTopicsIdOfUser+= (temp[i].topicId +'+');
+                }
+                for (var i in groups_topics) {
+                    for (var j in groups_topics[i].topics) {
+                        // đưa những topic của người dùng vào mảng
+                        regexString= ('\\+' +groups_topics[i].id +'\\+');
+                        regex= new RegExp (regexString);
+                        if (topicsIdOfUser.match(regex)!= null) {
+                            topics.push(groups_topics[i].topics[j]);
+                        }
+                        // đưa những topic được bookmark vào mảng
+                        regexString= ('\\+' +groups_topics[i].topics[j].id +'\\+');
+                        //console.log (bookmarkTopicsIdOfUser +", " +regexString);
+                        regex= new RegExp (regexString);
+                        if (bookmarkTopicsIdOfUser.match(regex)!= null) {
+                            bookmarkTopics.push(groups_topics[i].topics[j]);
+                            topics.push(groups_topics[i].topics[j]);
+                        }
+                    }
+                }
+                // đưa ra danh sách của mảng đã xếp theo thứ tự recent
+                temp= StorageData.getData().chats;
+                var recentTopicId= '+';
+                for (var i= temp.length-1; i>=0; i--) {
+                    regexString= ('\\+' +temp[i].toTopicId +'\\+');
+                    regex= new RegExp (regexString);
+                    if (topicsIdOfUser.match(regex)!=null && recentTopicId.match(regex)==null) {
+                        if (recentTopicId.match(/\+[0-9]*/g)==null) {
+                            recentTopicId+= (temp[i].toTopicId +'+');
+                        }
+                        else if (recentTopicId.match(/\+[0-9]*/g).length<=6) {
+                            recentTopicId+= (temp[i].toTopicId +'+');   
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                }
+                recentTopicId= recentTopicId.match(/\+[0-9]*/g).map(function(data){return data.replace('+', '')});
+                for (var i in recentTopicId) {
+                    for (var j in topics) {
+                        if (recentTopicId[i]== topics[j].id) {
+                            recentTopics.push(topics[j])
+                        }
+                    }
+                }
+                return recentTopics;
+            },
+            getBookmarkTopics: function () {
+                return bookmarkTopics;
+            },
+            getTopics: function () {
+                return topics;
             },
 
             // for tab-activities
             userActivities: function (userId) {
-                //window.alert(data[0].description);
-                var roomList = [];
-                for (var i = 0; i < rooms.length; i++) {
-                    var isInRoom = false;
-                    if (!isInRoom) {
-                        for (var j = 0; j < rooms[i].userList.length; j++) {
-                            if (rooms[i].userList[j] === userId) {
-                                isInRoom = true;
-                            }
-                        }
-                    }
-                    if (isInRoom) {
-                        var roomChats = Chat.getByRoom(rooms[i].id);
-
-                        if(roomChats.length > 0){
-                            rooms[i].latest_chat = roomChats[roomChats.length - 1].chatText;
-                            roomList.push(rooms[i]);
-                        }
-                    }
-                }
-                return roomList;
-            },
-
-            get: function (roomId) {
-                for (var i = 0; i < rooms.length; i++) {
-                    if (rooms[i].id === roomId) {
-                        rooms[i].user = [];
-                        for (var j = 0; j < rooms[i].userList.length; j++) {
-                            rooms[i].user.push(User.get(rooms[i].userList[j]));
-                        }
-                        return rooms[i];
-                    }
-                }
                 return null;
             },
             newRoom: function(userId){
@@ -240,41 +228,62 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                     newRoom.user.push(User.get(userList[j]));
                 }
                 return newRoom;
-            },
-
-            // for tab-friends
-            getByUserId: function (userId) {
-                var hasRoom = false;
-                for (var i = 0; i < rooms.length; i++) {
-                    if(rooms[i].roomType != "group" && !hasRoom){
-                        for(var j=0; j<rooms[i].userList.length; j++){
-                            if(rooms[i].userList[j] === userId){
-                                hasRoom = true;
-                                return rooms[i];
-                            }
-                        }
-                    }
-                }
-                if(!hasRoom){
-                    var user = User.get(userId);
-                    var newRoom = {
-                        id: "new" + "/" + user.id
-                    };
-                    return newRoom;
-                }
-                return null;
-
             }
         };
     }])
 
     // Chats
-    .factory('Chat', ['User', function (User) {
-        var chats = [];
+    .factory('Chat', ['StorageData', function (StorageData) {
+        //var chats = [];
+        var lastMess;
 
         return {
-            all: function () {                
-                return chats;
+            getLastMessageText: function (topicId) {
+                var returnMess= "";
+                lastMess= null;
+                var chats= StorageData.getData().chats;
+                if (chats== null) {
+                    return "No recent chat.";
+                }
+                for (var i=(chats.length-1); i>=0; i--) {
+                    if (chats[i].toTopicId== topicId) {
+                        //console.log('true');
+                        lastMess= chats[i];
+                        break;
+                    }
+                }
+                // trong trường hợp không tìm được tin nhắn (room vừa mới tạo chưa có nội dung chat) trả về giá trị rỗng
+                if (lastMess== null) {
+                    return "No recent chat.";
+                }
+                var users= StorageData.getData().users;
+                for (var i in users) {
+                    if (users[i].id== lastMess.userId) {
+                        returnMess+= (users[i].firstName +" " +users[i].lastName 
+                                        +": " +lastMess.chatText);
+                        break;
+                    }
+                }
+                return returnMess;
+            },
+            getLastMessageTime: function (topicId) {
+                // trong trường hợp không tìm được tin nhắn (room vừa mới tạo chưa có nội dung chat) trả về giá trị rỗng
+                if (lastMess== null) {
+                    return "";
+                }
+                var dateTime= lastMess.dateTime;
+                var rewriteNow="";
+                var now= new Date();
+                // chuyển giá trị dateTime trả về từ server thành GMT+7(local timezone) từ giá trị GMT+0
+                var messTime= new Date(dateTime);
+                var returnTime= messTime.getHours() +":" 
+                        +((messTime.getMinutes()<10) ?('0'+messTime.getMinutes()) :(messTime.getMinutes()));
+                if (messTime.getDate()!= now.getDate() ||
+                    messTime.getMonth()!= now.getMonth() ||
+                    messTime.getFullYear()!= now.getFullYear()) {
+                    returnTime+= "  " +messTime.getDate() +"/" +(messTime.getMonth()+1);
+                }
+                return returnTime;
             },
             add: function (chatText, roomId, userId) {
                 var chat = {
@@ -287,19 +296,11 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 chats.push(chat);
                 //console.log(chats);
             },
-            get: function (chatId) {
-                for (var i = 0; i < chats.length; i++) {
-                    if (chats[i].id === chatId) {
-                        chats[i].user = User.get(chats[i].userId);
-                        return chats[i];
-                    }
-                }
-                return null;
-            },
-            getByRoom: function (roomId) {
+            getChatList: function (id) {
+                var chats= StorageData.getData().chats;
                 var chatList = [];
-                for (var i = 0; i < chats.length; i++) {
-                    if (chats[i].roomId === roomId) {
+                for (var i in chats) {
+                    if (chats[i].toTopicId == id) {
                         //chats[i].user = User.get(chats[i].userId);
                         chatList.push(chats[i]);
                     }

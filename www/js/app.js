@@ -48,47 +48,47 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                     }
                 }
             })
-            .state('rooms', {
-                url: '/rooms/:groupId',
-                templateUrl: 'templates/rooms.html',
-                controller: 'RoomsCtrl'
+            .state('topics', {
+                url: '/topics/:groupId',
+                templateUrl: 'templates/topics.html',
+                controller: 'TopicsCtrl'
             })
             .state('members-in-group', {
                 url: '/group-members/:groupId',
                 templateUrl: 'templates/members-in-group.html',
                 controller: 'GroupsCtrl'
             })
-            .state('room', {
-                url: '/room/:roomId',
-                templateUrl: 'templates/room.html',
-                controller: 'RoomCtrl'
+            .state('topic', {
+                url: '/topic/:topicId',
+                templateUrl: 'templates/topic.html',
+                controller: 'TopicCtrl'
             })
-            .state('room-user', {
-                url: '/room/:roomId/:userId',
-                templateUrl: 'templates/room.html',
-                controller: 'RoomCtrl'
+            .state('topic-user', {
+                url: '/topic/:topicId/:userId',
+                templateUrl: 'templates/topic.html',
+                controller: 'topicCtrl'
             })
-            .state('room-group', {
-                url: '/room/:roomId/:groupName/:userList',
-                templateUrl: 'templates/room.html',
-                controller: 'RoomCtrl'
-            })
-
-            .state('room-setting', {
-                url: '/room-setting/:roomId',
-                templateUrl: 'templates/room-setting.html',
-                controller: 'RoomSettingCtrl'
+            .state('topic-group', {
+                url: '/topic/:topicId/:groupName/:userList',
+                templateUrl: 'templates/topic.html',
+                controller: 'TopicCtrl'
             })
 
-            .state('room-setting-user', {
-                url: '/room-setting/:roomId/:userId',
-                templateUrl: 'templates/room-setting.html',
-                controller: 'RoomSettingCtrl'
+            .state('topic-setting', {
+                url: '/topic-setting/:topicId',
+                templateUrl: 'templates/topic-setting.html',
+                controller: 'TopicSettingCtrl'
             })
-            .state('room-setting-group', {
-                url: '/room-setting/:roomId/:groupName/:userList',
-                templateUrl: 'templates/room-setting.html',
-                controller: 'RoomSettingCtrl'
+
+            .state('topic-setting-user', {
+                url: '/topic-setting/:topicId/:userId',
+                templateUrl: 'templates/topic-setting.html',
+                controller: 'TopicSettingCtrl'
+            })
+            .state('topic-setting-group', {
+                url: '/topic-setting/:topicId/:groupName/:userList',
+                templateUrl: 'templates/topic-setting.html',
+                controller: 'TopicSettingCtrl'
             })
             .state('user-setting', {
                 url: '/user-setting/:userId',

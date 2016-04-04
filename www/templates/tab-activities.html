@@ -1,11 +1,11 @@
-<ion-view view-title="Recent">
+<ion-view view-title="Topics">
     <ion-nav-buttons side="right">
         <button class="button button-clear button-icon button-positive icon ion-ios-compose-outline"
                 ng-click="openNewChat()"></button>
     </ion-nav-buttons>
 
     <ion-content>
-        <ion-list ng-if="recentRooms.length>0">
+        <ion-list ng-if="recentTopics.length>0 || bookmarkTopics.length>0">
             <ion-item>
                 <button class="button button-small button-block icon-left ion-ios-search" 
                         ng-click="openSearch()"
@@ -13,54 +13,76 @@
                     Search for people and topics
                 </button>
             </ion-item>
-
-            <span ng-repeat="room in recentRooms track by $index">
+            <h3 ng-if="recentTopics.length>0"><b>Recent</b></h3>
+            <span ng-repeat="topic in recentTopics track by $index">
                 <ion-item class="item-remove-animate item-avatar" 
-                          nav-direction="forward" href="#/room/{{room.roomId}}"
+                          nav-direction="forward" href="#/topic/{{topic.id}}"
                           type="item-text-wrap">
-                    <img ng-src="{{room.thumbnail}}">
+                    <img ng-src="{{topic.thumbnail}}">
 
-                    <span class="badge avatar-badge avatar-badge-s"
+                    <!-- <span class="badge avatar-badge avatar-badge-s"
                           ng-class="{'badge-positive':room.roomType=='ms_friend', 'badge-stable':room.rooms.roomType=='fb_friend'}"
                           ng-if="room.roomType!='group'">
                         <i class="icon ion-ios-bolt" ng-if="room.roomType=='ms_friend'"></i>
                         <i class="icon ion-social-facebook light" 
-                           ng-if="room.roomType=='fb_friend'">
+                           ng-if="topic.roomType=='fb_friend'">
                         </i>
-                    </span>
+                    </span> -->
 
-                    <!-- tên phòng -->                    
                     <h3>
-                        <small>{{room.title}}</small>
+                        <small>{{topic.title}}</small>
                     </h3>
 
-                    <!-- đoạn chat gần đây nhất -->
-                    <p>{{getLastMessageText(room.roomId)}}</p>
+                    <p>{{getLastMessageText(topic.id)}}</p>
 
-                    <!-- thời gian của dòng chat cuối cùng -->
                     <span class="item-note">
-                        {{getLastMessageTime(room.roomId)}}
+                        {{getLastMessageTime(topic.id)}}
                     </span>
 
                     <ion-option-button class="button-dark" ng-click="">
-                        Leave group
+                        Unfollow topic
                     </ion-option-button>
+                </ion-item>
+            </span>
+            <h3 ng-if="bookmarkTopics.length>0"><b>Bookmark</b></h3>
+            <span ng-repeat="topic in bookmarkTopics track by $index">
+                <ion-item class="item-remove-animate item-avatar" 
+                          nav-direction="forward" href="#/topic/{{topic.id}}"
+                          type="item-text-wrap">
+                    <img ng-src="{{topic.thumbnail}}">
 
-                    <ion-option-button class="button-assertive" ng-click="remove(room)">
-                        Delete
+                    <!-- <span class="badge avatar-badge avatar-badge-s"
+                          ng-class="{'badge-positive':room.roomType=='ms_friend', 'badge-stable':room.rooms.roomType=='fb_friend'}"
+                          ng-if="room.roomType!='group'">
+                        <i class="icon ion-ios-bolt" ng-if="room.roomType=='ms_friend'"></i>
+                        <i class="icon ion-social-facebook light" 
+                           ng-if="topic.roomType=='fb_friend'">
+                        </i>
+                    </span> -->
+                 
+                    <h3>
+                        <small>{{topic.title}}</small>
+                    </h3>
+
+                    <p>{{getLastMessageText(topic.id)}}</p>
+
+                    <span class="item-note">
+                        {{getLastMessageTime(topic.id)}}
+                    </span>
+
+                    <ion-option-button class="button-dark" ng-click="">
+                        Unbookmark topic
                     </ion-option-button>
-                    
-
                 </ion-item>
             </span>
         </ion-list>
 
         <!--show when there is no activity-->
-        <div ng-if="recentRooms.length<=0">
+        <div ng-if="recentTopics.length<=0 && bookmarkTopics.length<=0">
             <div style="height: 60px"></div>
             <div class="text-center" style="padding: 45px">
                 <h2 class="grey">
-                    Recent
+                    Recent & Bookmark
                 </h2>
 
                 <div style="height: 10px"></div>
