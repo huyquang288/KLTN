@@ -60,10 +60,16 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
     })
 
     .factory('User', ['StorageData', function (StorageData) {
-        var users= [];
         return {
-
-        };
+            getUserInfo: function (id) {
+                var users= StorageData.getData().users;
+                for (var i in users) {
+                    if (users[i].id== id) {
+                        return users[i];
+                    }
+                }
+            }
+        }
     }])
 
     .factory('Group', ['StorageData', function (StorageData) {
@@ -81,6 +87,29 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
             return groups;
         }
         return {
+            getFriendGroups: function (id) {
+                var group_group= StorageData.getData().group_group;
+                var idList= '+';
+                for (var i in group_group) {
+                    if (group_group[i].firstGroupId== id) {
+                        idList+= (group_group[i].secondGroupId +'+');
+                    }
+                    else {
+                        if (group_group[i].secondGroupId== id) {
+                            idList+= (group_group[i].firstGroupId +'+');
+                        }
+                    }
+                }
+                return returnGroups(idList);
+            },
+            getGroupById: function (id) {
+                var groups_topics= StorageData.getData().groups_topics;
+                for (var i in groups_topics) {
+                    if (groups_topics[i].id== id) {
+                        return groups_topics[i];
+                    }
+                }
+            },
             getGroupsOfUser: function (userId) {
                 var group_user= StorageData.getData().group_user;
                 for (var i in group_user) {
@@ -112,6 +141,23 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                         }
                     }
                 }
+                var len= (suggestGroupsId.match(/\+[0-9]*/g).length- 1);
+                if (len< 3) {
+                    var groups= StorageData.getData().groups_topics;
+                    for (var i in groups) {
+                        len= (suggestGroupsId.match(/\+[0-9]*/g).length- 1);
+                        if (len< 3) {
+                            var regexString= '\\+' +groups[i].id +'\\+';
+                            var regex= new RegExp(regexString);
+                            if (suggestGroupsId.match(regex)==null && groupsIdOfUser.match(regex)==null) {
+                                suggestGroupsId+= (groups[i].id +'+');
+                            }
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                }
                 return returnGroups(suggestGroupsId);
             }
         }
@@ -127,14 +173,17 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 var groups_topics= StorageData.getData().groups_topics;
                 var regexString= '';
                 var regex;
-                var topicsIdOfUser= '+';
+                var groupsIdOfUser= '+';
                 var bookmarkTopicsIdOfUser= '+';
+                bookmarkTopics= [];
+                recentTopics= [];
+                topics= [];
                 
                 // đưa những nhóm của người dùng vào string
                 var temp= StorageData.getData().group_user;
                 for (var i in temp) {
                     if (userId== temp[i].userId) {
-                        topicsIdOfUser+= (temp[i].groupId +'+');
+                        groupsIdOfUser+= (temp[i].groupId +'+');
                     }
                 }
                 // đưa những topic được bookmark của người dùng vào string
@@ -142,13 +191,15 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 for (var i in temp) {
                     bookmarkTopicsIdOfUser+= (temp[i].topicId +'+');
                 }
+                var topicsIdOfUser= '+';
                 for (var i in groups_topics) {
                     for (var j in groups_topics[i].topics) {
-                        // đưa những topic của người dùng vào mảng
-                        regexString= ('\\+' +groups_topics[i].id +'\\+');
-                        regex= new RegExp (regexString);
-                        if (topicsIdOfUser.match(regex)!= null) {
-                            topics.push(groups_topics[i].topics[j]);
+                        // đưa những tất cả topic vào mảng
+                        topics.push(groups_topics[i].topics[j]);
+                        var regexString= ('\\+' +groups_topics[i].id +'\\+');
+                        var regex= new RegExp (regexString);
+                        if (groupsIdOfUser.match(regex)!= null) {
+                            topicsIdOfUser+= (groups_topics[i].topics[j].id +'+');
                         }
                         // đưa những topic được bookmark vào mảng
                         regexString= ('\\+' +groups_topics[i].topics[j].id +'\\+');
@@ -156,21 +207,17 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                         regex= new RegExp (regexString);
                         if (bookmarkTopicsIdOfUser.match(regex)!= null) {
                             bookmarkTopics.push(groups_topics[i].topics[j]);
-                            topics.push(groups_topics[i].topics[j]);
                         }
                     }
                 }
                 // đưa ra danh sách của mảng đã xếp theo thứ tự recent
-                temp= StorageData.getData().chats;
+                temp= StorageData.getData().topicchats;
                 var recentTopicId= '+';
                 for (var i= temp.length-1; i>=0; i--) {
                     regexString= ('\\+' +temp[i].toTopicId +'\\+');
                     regex= new RegExp (regexString);
                     if (topicsIdOfUser.match(regex)!=null && recentTopicId.match(regex)==null) {
-                        if (recentTopicId.match(/\+[0-9]*/g)==null) {
-                            recentTopicId+= (temp[i].toTopicId +'+');
-                        }
-                        else if (recentTopicId.match(/\+[0-9]*/g).length<=6) {
+                        if (recentTopicId.match(/\+[0-9]*/g).length<6) {
                             recentTopicId+= (temp[i].toTopicId +'+');   
                         }
                         else {
@@ -179,6 +226,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                     }
                 }
                 recentTopicId= recentTopicId.match(/\+[0-9]*/g).map(function(data){return data.replace('+', '')});
+                //console.log(recentTopicId);
                 for (var i in recentTopicId) {
                     for (var j in topics) {
                         if (recentTopicId[i]== topics[j].id) {
@@ -234,14 +282,16 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
 
     // Chats
     .factory('Chat', ['StorageData', function (StorageData) {
-        //var chats = [];
         var lastMess;
 
         return {
+            getLengthOfChats: function () {
+                return StorageData.getData().topicchats.length;
+            },
             getLastMessageText: function (topicId) {
                 var returnMess= "";
                 lastMess= null;
-                var chats= StorageData.getData().chats;
+                var chats= StorageData.getData().topicchats;
                 if (chats== null) {
                     return "No recent chat.";
                 }
@@ -285,19 +335,13 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 }
                 return returnTime;
             },
-            add: function (chatText, roomId, userId) {
-                var chat = {
-                    id: chats.length + 1,
-                    userId: userId,
-                    chatText: chatText,
-                    roomId: roomId,
-                    dateTime: "0000-00-00 00:00:00"
-                };
-                chats.push(chat);
-                //console.log(chats);
+            add: function (chat) {
+                var data= StorageData.getData();
+                data.topicchats[data.topicchats.length]= chat;
+                StorageData.saveData(data);
             },
             getChatList: function (id) {
-                var chats= StorageData.getData().chats;
+                var chats= StorageData.getData().topicchats;
                 var chatList = [];
                 for (var i in chats) {
                     if (chats[i].toTopicId == id) {

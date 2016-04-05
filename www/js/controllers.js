@@ -1,7 +1,7 @@
 angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btford.socket-io', 'angular-md5'])
 
     // MainCtrl được gọi đầu tiên khi ng dùng TRUY CẬP VÀO TRANG LOGIN
-    .controller('MainCtrl', function ($scope, $stateParams, StorageData, Socket, ConnectServer, User, $ionicModal, $location, $rootScope, $ionicPopup) {
+    .controller('MainCtrl', function ($scope, $stateParams, StorageData, Socket, ConnectServer, User, Chat, $ionicModal, $location, $rootScope, $ionicPopup) {
         var self= this;
         $scope.historyBack = function () {
             window.history.back();
@@ -25,8 +25,6 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 }   
             }
         }
-
-        
             
         // nhận thông báo từ server về việc 1 group mới được tạo.
         Socket.on('added to new group', function (data){
@@ -82,32 +80,22 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         });
 
         // nhận mess từ server gửi xuống, kiểm tra xem tin nhắn đó có thuộc nhóm mà người dùng có trong đó hay không.
-        Socket.on('server new all message', function (data) {
-            var rooms= StorageData.getAllRooms();
+        Socket.on('server new topic message', function (data) {
+            //console.log('new mess');
+            Chat.add(data);
+            $rootScope.$broadcast("have a new message");
             var topicName= '';
-            for (var i in rooms) {
-                if (rooms[i].roomId== data.roomId) {
-                    topicName= rooms[i].title;
-                    break;
-                }
-            }
             if (topicName!='') {
-                StorageData.addChat(data.chatId, data.chatText, data.roomId, data.userId, data.dateTime, data.userAvata);
                 $rootScope.pushNotification(topicName, data.chatText, '/room/'+data.roomId);
-                $rootScope.$broadcast("CallSortRoomsInActivitiesCtrl");
             }
         });
+        
 
 
-        //$scope.friends = StorageData.getPeopleInAllGroups();
-        //console.log($scope.friends);
+
+
+
         //$scope.activities = Room.userActivities("213");
-
-
-
-
-
-
         // IMPORTANT
         // for tab-account and sign-up-success
         //$scope.user = User.get("213");
@@ -362,12 +350,14 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
     })
 
     // ActivitiesCtrl được gọi tiếp theo, sau MainCtrl. ActivitiesCtrl được gọi khi người dùng đăng nhập thành công, truy cập vào trang Recent
-    .controller('ActivitiesCtrl', function ($rootScope, $scope, ConnectServer, StorageData, Socket, Topic, Chat) {
+    .controller('ActivitiesCtrl', function ($rootScope, $scope, ConnectServer, StorageData, Socket, Topic, User, Chat) {
         // lấy dữ liệu từ server về sau khi đăng nhập thành công...
         var userId= $rootScope.userId;
         if (userId!="" && userId!=undefined) {
             ConnectServer.getAll(userId).then(function (data) {
                 StorageData.saveData (data);
+                $rootScope.user= User.getUserInfo(userId);
+                //console.log($rootScope.user);
                 getRecentTopcis();
                 getBookmarkTopics();
             });
@@ -378,12 +368,15 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             Socket.emit('user join to topic', 08281994, userId);
         });
 
-        //getRecentTopcis();
-        //getBookmarkTopics();
-
-        $rootScope.$on("CallSortRoomsInActivitiesCtrl", function (event, args){
-            
+        $rootScope.$on("have a new message", function (event, args) {
+            getRecentTopcis();
+            getBookmarkTopics();
         });
+        $rootScope.$on("reload recent", function (event, args) {
+            getRecentTopcis();
+            getBookmarkTopics();
+        });
+
         
         function getRecentTopcis () {
             $scope.recentTopics= Topic.getRecentTopcis (userId);
@@ -404,9 +397,11 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
     })
 
-    .controller('TopicCtrl', function ($rootScope, $scope, $stateParams, StorageData, Socket, Topic, Chat) {
+    .controller('TopicCtrl', function ($rootScope, $scope, $stateParams, Socket, Topic, Chat) {
         $scope.userId= $rootScope.userId;
         var topics= Topic.getTopics();
+        $scope.typingList= [];
+        // $scope.typingList.push('Huy is typing...');
         
         if ($stateParams.topicId == "new") {
             if ($stateParams.userList) {
@@ -423,7 +418,6 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                     $scope.topic= topics[i];
                     $scope.topic.settingURL = "#/topic-setting/" + $stateParams.topicId;
                     $scope.chatList= Chat.getChatList($stateParams.topicId);
-                    //console.log('join to room')
                     Socket.emit('user join to topic', $stateParams.topicId, $scope.userId);
                     break;
                 }
@@ -431,19 +425,53 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         }
 
         $scope.sendChat = function (chatText) {
-            //console.log(userAvata);
-            Socket.emit('client new message', {chatText: chatText, roomId: $stateParams.roomId, userId: $scope.userId, userAvata: userAvata, userName: userName})
-            Chat.addChat(0, chatText, $stateParams.roomId, userId, "now", userAvata, userName);
-            
-            $rootScope.$broadcast("CallSortRoomsInActivitiesCtrl");
+            var chat= {chatText: chatText, toTopicId: $stateParams.topicId, userId: $scope.userId, userAvata: $rootScope.userAvata, dateTime: new Date()}
+            Socket.emit('client new message', chat);
+            chat.id= Chat.getLengthOfChats();
+            Chat.add(chat);
+            $rootScope.$broadcast("reload recent");
+            $scope.chatList= Chat.getChatList($stateParams.topicId);
         };
 
+        $rootScope.$on("have a new message", function (event, args) {
+            $scope.chatList= Chat.getChatList($stateParams.topicId);
+        });
+
+        // IS TYPING
+        var TYPING_TIMER_LENGTH = 1000; // ms
+        var typing= false;
+        var lastTypingTime= (new Date()).getTime();
+        $scope.inputChange = function () {
+            var typingData= {topicId: $stateParams.topicId, 
+                            userName: $rootScope.user.firstName +' ' +$rootScope.user.lastName}
+            if (!typing) {
+                typing= true;
+                Socket.emit('typing', typingData);
+            }
+            lastTypingTime= (new Date()).getTime();
+            setTimeout(function () {
+                var now = (new Date()).getTime();
+                var timeDiff = now - lastTypingTime;
+                if (timeDiff >= TYPING_TIMER_LENGTH && typing) {
+                    Socket.emit('stop typing', typingData);
+                    typing = false;
+                }
+            }, TYPING_TIMER_LENGTH);
+        }
+        Socket.on('stop typing', function (data) {
+            var pos= $scope.typingList.indexOf(data +' is typing...');
+            if (pos > -1) {
+                $scope.typingList.splice(pos, 1);
+            }
+        });
+        Socket.on('typing', function (data) {
+            $scope.typingList.push(data +' is typing...');
+        });
     })
 
     .controller('GroupsCtrl', function ($rootScope, $scope, $stateParams, StorageData, Group) {
         getGroups();
         $rootScope.$on("ReloadAllGroups", function (event, args){
-            //$scope.allGroups= StorageData.getAllGroups();
             getGroups();
         });
         $rootScope.$on("ReloadPeopleInAllGroups", function (event, args){
@@ -456,47 +484,17 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         
     })
 
-    .controller('TopicsCtrl', function ($rootScope, $scope, $stateParams, StorageData) {
-        //console.log('room ctrl run');
-        allGroups= StorageData.getAllGroups();
-        allRooms= StorageData.getAllRooms();
-        allPeople= StorageData.getPeopleInAllGroups();
-        setData();
-        $rootScope.$on ("ReloadAllGroups", function (event, args) {
-            allGroups= StorageData.getAllGroups();
-            setData();
-        });
+    .controller('TopicsCtrl', function ($rootScope, $scope, $stateParams, StorageData, Group) {
+        //console.log($stateParams.belong);
+        setData($stateParams.groupId, $stateParams.belong);
         $rootScope.$on ("ReloadAllRooms", function (event, args) {
-            allRooms= StorageData.getAllRooms();
-            setData();
+            setData($stateParams.groupId, $stateParams.belong);
         });
-        $rootScope.$on ("ReloadPeopleInAllGroups", function (event, args) {
-            allPeople= StorageData.getPeopleInAllGroups();
-            setData();
-        });
-        function setData () {
-            $scope.rooms= [];
-            $scope.isAdmin= false;
-            for (var i in allGroups) {
-                if ($stateParams.groupId== allGroups[i].groupId) {
-                    $scope.group= allGroups[i];
-                    //$scope.room.settingURL = "#/room-setting/" + $stateParams.roomId;
-                    break;
-                }
-            }
-            for (var i in allRooms) {
-                if (allRooms[i].groupId== $stateParams.groupId) {
-                    $scope.rooms.push(allRooms[i]);
-                }
-            }
-            for (var i in allPeople) {
-                if (allPeople[i].groupId==$scope.group.groupId && allPeople[i].isAdmin==1 && allPeople[i].userId==$rootScope.userId) {
-                    $scope.isAdmin= true;
-                    //console.log("is admin");
-                }
-            }
+        function setData (id, belong) {
+            $scope.group= Group.getGroupById(id);
+            $scope.group.belong= belong;
+            $scope.friendGroups= Group.getFriendGroups(id);
         }
-
         
     })
 

@@ -61,36 +61,32 @@
 
     <ion-content>
 
-        <ion-list ng-if="rooms.length>0">
-            <span ng-repeat="room in rooms">
+        <ion-list ng-if="group.topics.length>0">
+            <span ng-repeat="topic in group.topics">
                 <ion-item class="item-remove-animate item-avatar" 
-                          nav-direction="forward" href="#/room/{{room.roomId}}"
+                          nav-direction="forward" href="#/topic/{{topic.id}}"
                           type="item-text-wrap">
-                    <img ng-src="{{room.thumbnail}}">
+                    <img ng-src="{{topic.thumbnail}}">
 
-                    <span class="badge avatar-badge avatar-badge-s"
+                    <!-- <span class="badge avatar-badge avatar-badge-s"
                           ng-class="{'badge-positive':room.roomType=='ms_friend', 'badge-stable':room.roomType=='fb_friend'}"
                           ng-if="room.roomType!='group'">
                         <i class="icon ion-ios-bolt" ng-if="room.roomType=='ms_friend'"></i>
                         <i class="icon ion-social-facebook light" 
                            ng-if="room.roomType=='fb_friend'">
                         </i>
-                    </span>
+                    </span> -->
 
                     <h3>
-                        <small>{{room.title}}</small>
+                        <small>{{topic.title}}</small>
                     </h3>
 
-                    <p>{{getLastMessageText(room.roomId)}}</p>
+                    <p>{{getLastMessageText(topic.id)}}</p>
 
-                    <span class="item-note">{{getLastMessageTime(room.roomId)}}</span>
+                    <span class="item-note">{{getLastMessageTime(topic.id)}}</span>
 
-                    <ion-option-button class="button-dark" ng-click="">
-                        Leave group
-                    </ion-option-button>
-
-                    <ion-option-button class="button-assertive" ng-click="remove(room)">
-                        Delete
+                    <ion-option-button class="button-assertive" ng-click="">
+                        Unfollow
                     </ion-option-button>
 
                 </ion-item>
@@ -98,25 +94,25 @@
         </ion-list>
 
         <!--show when there is no room and you are admin of this group-->
-        <div ng-if="rooms.length<1">
+        <div ng-if="group.topics.length==null">
             <div class="text-center" style="padding: 50px">
                 <h2 class="grey">
                     Topic
                 </h2>
                 <div style="height: 10px"></div>
-                <h4 class="grey">All your group's topics will be here.</h4>
+                <h4 class="grey">All {{group.name}}'s topics will be here.</h4>
             </div>
         </div>
 
-        <!-- nếu là admin đoạn phía dưới sẽ được hiển thị. -->
-        <div ng-if= "isAdmin==true" class="row">
+        <!-- nếu thuộc về nhóm đó thì có thể new topic -->
+        <div ng-if="group.belong=='true'" class="row">
             <div class="col text-center">
                 <div class="list card">
-                    <div class="item" style="padding: 20px 15px">
+                    <div class="item" style="padding: 5px 15px 0px 15px">
                         <h2 class="positive">
                             <small>New Public Topic</small>
                         </h2>
-                        <div style="height: 20px"></div>
+                        <div style="height: 15px"></div>
 
                         <!-- <a class="plus-circle" ng-click="openNewTopic()">
                             <i class="icon ion-ios-plus-empty stable"></i>
@@ -132,24 +128,22 @@
                         <div>
                             <input type="text" ng-model="$root.newPublicTopicName" 
                                    placeholder="Name new topic"
-                                   style="height: 57px; text-align:center; width: 100%">
+                                   style="height: 50px; text-align:center; width: 100%">
                         </div>
-                        <div class="padding">
-                            <a class="button button-clear button-positive" 
-                               ng-click="createNewTopic('Public', $root.newPublicTopicName, '', group.groupId);">
-                                OK
-                            </a>
-                        </div>
+                        <a class="button button-clear button-positive" 
+                           ng-click="createNewTopic('Public', $root.newPublicTopicName, '', group.groupId);">
+                            OK
+                        </a>
                     </div>
                 </div>
             </div>
             <div class="col text-center">
                 <div class="list card">
-                    <div class="item" style="padding: 20px 15px">
+                    <div class="item" style="padding: 5px 15px 0px 15px">
                         <h2 class="positive">
                             <small>New Private Topic</small>
                         </h2>
-                        <div style="height: 20px"></div>
+                        <div style="height: 15px"></div>
 
                         <!-- <a class="plus-circle" ng-click="openNewTopic()">
                             <i class="icon ion-ios-plus-empty stable"></i>
@@ -165,15 +159,65 @@
                         <div>
                             <input type="text" ng-model="$root.newPrivateTopicName" 
                                    placeholder="Name new topic"
-                                   style="height: 57px; text-align:center; width: 100%">
+                                   style="height: 50px; text-align:center; width: 100%">
                         </div>
-                        <div class="padding">
-                            <a class="button button-clear button-positive" 
-                               ng-click="createNewTopic('Private', $root.newPrivateTopicName, '', group.groupId);">
-                                OK
-                            </a>
-                        </div>
+                        <a class="button button-clear button-positive" 
+                           ng-click="createNewTopic('Private', $root.newPrivateTopicName, '', group.groupId);">
+                            OK
+                        </a>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <h4><b>Friend groups</b></h4>
+        <div ng-repeat="group in friendGroups" ng-if="$index%2==0" class="row">
+            <div class="col col-50 {{($index==friendGroups.length-1) ?'col-offset-25' :''}}">
+                <div class="col-100 list card">
+                    <a nav-direction="forward"
+                       class="item item-avatar item-avatar-center item-avatar-l text-center"
+                       href="#/topics/{{group.id}}/false">
+                        <!-- <img ng-src="{{room.rooms.thumbnail}}"> -->
+
+                        <h3>
+                            <small>{{group.name}}</small>
+                        </h3>
+
+                        <p>{{group.description}}</p>
+                    </a>
+
+                    <a nav-direction="forward" class="item item-divider text-center" href="#/group-members/{{group.id}}">
+                        <p>
+                            <span ng-if="group.id==member.groupId" ng-repeat="member in members">
+                                {{member.firstName}} <!-- {{member.groupId}} {{members[$index+1].groupId}} -->
+                                <!-- {{((member.groupId==members[$index+1].groupId) ?'1' :'')}} -->
+                            </span>
+                        </p>
+                    </a>
+                </div>
+            </div>
+            <div ng-if="$index+1<friendGroups.length" class="col col-50">
+                <div class="col-100 list card">
+                    <a nav-direction="forward"
+                       class="item item-avatar item-avatar-center item-avatar-l text-center"
+                       href="#/topics/{{friendGroups[$index+1].id}}/false">
+                        <!-- <img ng-src="{{room.rooms.thumbnail}}"> -->
+
+                        <h3>
+                            <small>{{friendGroups[$index+1].name}}</small>
+                        </h3>
+
+                        <p>{{friendGroups[$index+1].description}}</p>
+                    </a>
+
+                    <a nav-direction="forward" class="item item-divider text-center" href="#/group-members/{{friendGroups[$index+1].id}}">
+                        <p>
+                            <span ng-if="friendGroups[$index+1].id==member.groupId" ng-repeat="member in members">
+                                {{member.firstName}} <!-- {{member.groupId}} {{members[$index+1].groupId}} -->
+                                <!-- {{((member.groupId==members[$index+1].groupId) ?'1' :'')}} -->
+                            </span>
+                        </p>
+                    </a>
                 </div>
             </div>
         </div>

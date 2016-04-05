@@ -62,7 +62,7 @@ app.post('/login', function (req, res){
 
 app.post('/all', function(req, res){
 	var userId= req.body.id;
-	var groups_topics, group_group, group_user, chats, users, bookmark;
+	var groups_topics, group_group, group_user, topicchats, users, bookmark;
 	var sql = "SELECT * FROM groups LEFT JOIN topics ON groups.id=topics.groupId";
 	var nestingOptions = [
 		{ tableName: 'groups', pkey: 'id'},
@@ -76,7 +76,7 @@ app.post('/all', function(req, res){
 		}
 		else {
 			groups_topics = func.convertToNested(rows, nestingOptions);
-			sql = "SELECT * FROM chats";
+			sql = "SELECT * FROM topicchats";
 			mysqlConnection.query(sql, function (err, rows) {
 			// error handling
 				if (err){
@@ -84,7 +84,7 @@ app.post('/all', function(req, res){
 					res.send("Mysql query execution error!");
 				}
 				else {
-					chats = func.convertToNested(rows);
+					topicchats = func.convertToNested(rows);
 					sql = "SELECT * FROM users";
 					mysqlConnection.query(sql, function (err, rows) {
 					// error handling
@@ -126,7 +126,7 @@ app.post('/all', function(req, res){
 														group_group: group_group,
 														group_user: group_user,
 														bookmark: bookmark,
-														chats: chats,
+														topicchats: topicchats,
 														users: users
 													};
 													//console.log (result);
@@ -231,8 +231,7 @@ io.on('connection', function (socket) {
 		socket.join(topicId);
 		//console.log('added to topic');
 		// we store the username in the socket session for this client
-		socket.userId = userId;    
-		//addedUser = true;
+		socket.userId = userId;
 		socket.broadcast.to(topicId).emit('user joined', {
 			userId: socket.userId,
 		});
@@ -255,48 +254,28 @@ io.on('connection', function (socket) {
 		socket.topicId= data.topicId;
 		socket.userAvata= data.userAvata;
 		// write to db
-		//console.log(data.userAvata);
-		mysqlConnection.query("INSERT INTO chats SET ?", data, function(err, rows){
+		mysqlConnection.query("INSERT INTO topicchats SET ?", data, function(err, rows){
 			if (err) {
 				console.log('Internal error: ', err);
 			}
 			else {
 				var nestedRows = func.convertToNested(rows);
-				//console.log(nestedRows.insertId);
-				socket.chatId= nestedRows.insertId;
-				socket.dateTime= new Date();
-				//console.log(socket.dateTime);
-				socket.broadcast.to(socket.topicId).emit('server new topic message', {
-					userId: socket.userId,
-					chatText: socket.text,
-					chatId: socket.chatId,
-					dateTime: socket.dateTime,
-					userAvata: socket.userAvata
-				});
-				socket.broadcast.emit('server new all message', {
-					userId: socket.userId,
-					chatText: socket.text,
-					chatId: socket.chatId,
-					topicId: socket.topicId,
-					dateTime: socket.dateTime,
-					userAvata: socket.userAvata
-				});
+				data.id= nestedRows.insertId;
+				socket.broadcast.emit('server new topic message', data);
 			}
 		})
 	});
 
 	// when the client emits 'typing', we broadcast it to others
-	socket.on('typing', function () {
-		socket.broadcast.to(topicId).emit('typing', {
-			username: socket.username
-		});
+	socket.on('typing', function (data) {
+		//console.log(data);
+		socket.broadcast.to(data.topicId).emit('typing', data.userName);
 	});
 
 	// when the client emits 'stop typing', we broadcast it to others
-	socket.on('stop typing', function () {
-		socket.broadcast.to(topicId).emit('stop typing', {
-			username: socket.username
-		});
+	socket.on('stop typing', function (data) {
+		//console.log(data);
+		socket.broadcast.to(data.topicId).emit('stop typing', data.userName);
 	});
 
 	// when the user disconnects.. perform this

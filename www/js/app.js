@@ -49,7 +49,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                 }
             })
             .state('topics', {
-                url: '/topics/:groupId',
+                url: '/topics/:groupId/:belong',
                 templateUrl: 'templates/topics.html',
                 controller: 'TopicsCtrl'
             })

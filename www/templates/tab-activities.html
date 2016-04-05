@@ -13,7 +13,7 @@
                     Search for people and topics
                 </button>
             </ion-item>
-            <h3 ng-if="recentTopics.length>0"><b>Recent</b></h3>
+            <h4 ng-if="recentTopics.length>0"><b>Recent</b></h4>
             <span ng-repeat="topic in recentTopics track by $index">
                 <ion-item class="item-remove-animate item-avatar" 
                           nav-direction="forward" href="#/topic/{{topic.id}}"
@@ -39,12 +39,12 @@
                         {{getLastMessageTime(topic.id)}}
                     </span>
 
-                    <ion-option-button class="button-dark" ng-click="">
-                        Unfollow topic
+                    <ion-option-button class="button-assertive" ng-click="">
+                        Unfollow
                     </ion-option-button>
                 </ion-item>
             </span>
-            <h3 ng-if="bookmarkTopics.length>0"><b>Bookmark</b></h3>
+            <h4 ng-if="bookmarkTopics.length>0"><b>Bookmark</b></h4>
             <span ng-repeat="topic in bookmarkTopics track by $index">
                 <ion-item class="item-remove-animate item-avatar" 
                           nav-direction="forward" href="#/topic/{{topic.id}}"
@@ -71,7 +71,7 @@
                     </span>
 
                     <ion-option-button class="button-dark" ng-click="">
-                        Unbookmark topic
+                        Unbookmark
                     </ion-option-button>
                 </ion-item>
             </span>

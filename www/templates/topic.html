@@ -38,16 +38,22 @@
             </div>
         </div>
 
-        <div ng-if="chatList.length==0" class="empty-des text-center padding">
+        <div ng-if="typingList.length>0" ng-repeat="typing in typingList track by $index"
+             class="empty-des text-center padding">
+            <h5>{{typing}}</h5>
+        </div>
+
+        <div ng-if="chatList.length==0" class="empty-des text-center">
             <div style="height: 100px"></div>
             <h3>Start a conversation</h3>
             <h4>{{topic.title}} is on Messenger and will get your messages instantly.</h4>
         </div>
     </ion-content>
 
+
     <ion-footer-bar class="bar-light chat-bar">
         <form class="row" name="theform">
-            <input class="col col-75" type="text" ng-model="chatText" placeholder="Type a message" ng-minlength="1" ng-required="true">
+            <input class="col col-75" type="text" ng-model="chatText" placeholder="Type a message" ng-minlength="1" ng-required="true" ng-change="inputChange()">
             <button class="col button" ng-click="sendChat(chatText); chatText = null" ng-disabled="theform.$invalid">Send</button>
         </form>
     </ion-footer-bar>
