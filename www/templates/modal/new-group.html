@@ -1,7 +1,9 @@
 
 <ion-modal-view id="new-group" class="modal-page">
     <ion-header-bar class="bar-stable">
-        <button class="button button-clear button-positive" ng-click="closeNewGroup()">Cancel</button>
+        <button class="button button-clear button-icon icon button-positive ion-ios-arrow-down" 
+                ng-click="closeNewGroup()">
+        </button>
         <h1 class="title">New Group</h1>
         <button class="button button-clear button-positive" ng-click="createNewGroup($root.newGroupName)">Create
         </button>
@@ -18,21 +20,21 @@
                        style="height: 57px; text-align:left; width: 100%">
             </div> -->
         </div>
-
         <ion-list>
-            <ion-item class="item-checkbox item-checkbox-right item-avatar" ng-repeat="friend in friends">
+            <ion-item class="item-checkbox item-checkbox-right item-avatar" 
+                      ng-repeat="user in users" ng-if="user.id!= userId">
                 <label class="checkbox">
-                    <input type="checkbox" ng-model="friend.checked" ng-checked="friend.checked">
+                    <input type="checkbox" ng-model="user.checked" ng-checked="user.checked">
                 </label>
-                <img ng-src="{{friend.face}}">
-                <span class="badge avatar-badge avatar-badge-s"
+                <img ng-src="{{user.face}}">
+                <!-- <span class="badge avatar-badge avatar-badge-s"
                       ng-class="{'badge-positive':friend.friendType=='Messenger', 'badge-stable':friend.friendType=='facebook'}">
                     <i class="icon ion-ios-bolt" ng-if="friend.friendType=='Messenger'"></i>
                     <i class="icon ion-social-facebook light" ng-if="friend.friendType=='facebook'"></i>
-                </span>
+                </span> -->
 
                 <h2>
-                    <small>{{friend.firstName}} {{friend.lastName}}</small>
+                    <small>{{user.firstName}} {{user.lastName}}</small>
                 </h2>
             </ion-item>
         </ion-list>

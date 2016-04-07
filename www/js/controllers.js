@@ -1,8 +1,9 @@
 angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btford.socket-io', 'angular-md5'])
 
     // MainCtrl được gọi đầu tiên khi ng dùng TRUY CẬP VÀO TRANG LOGIN
-    .controller('MainCtrl', function ($scope, $stateParams, StorageData, Socket, ConnectServer, User, Chat, $ionicModal, $location, $rootScope, $ionicPopup) {
-        var self= this;
+    .controller('MainCtrl', function ($scope, $stateParams, StorageData, Socket, ConnectServer, User, Chat, Topic, Group, $ionicModal, $location, $rootScope, $ionicPopup, $state) {
+        //console.log('main ctrl');
+        $scope.userId= $rootScope.userId;
         $scope.historyBack = function () {
             window.history.back();
         };
@@ -17,10 +18,11 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 Notification.requestPermission();
             else {
                 var notification = new Notification(notiTitle, {
-                    icon: 'https://s3.amazonaws.com/ionic-marketplace/ionic-starter-messenger/icon.png',
+                    icon: 'http://www.fotech.org/forum/uploads/profile/photo-41239.jpg?_r=0',
                     body: notiBody,
                 });
                 notification.onclick = function () {
+                    //$state.go('topic/');
                     $location.path(locationLink);
                 }   
             }
@@ -32,73 +34,61 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             var regex= new RegExp (regexString, "g")
             if (data.userList.match(regex)!= null) {
                 //lưu nhóm mới này vào trong danh sách tất cả các nhóm.
-                var allGroups= StorageData.getAllGroups();
-                var ele= {
-                    groupId: data.id,
-                    name: data.name,
-                    description: data.description
-                };
-                allGroups.push(ele);
-                var peopleInAllGroups= StorageData.getPeopleInAllGroups();
-                var ele;
-                for (var i in data.allUsers) {
-                    ele = {
-                        userId: data.allUsers[i].userId,
-                        groupId: data.id,
-                        firstName: data.allUsers[i].firstName,
-                        lastName: data.allUsers[i].lastName,
-                        face: data.allUsers[i].face,
-                        friendType: data.allUsers[i].friendType,
-                        activeTime: data.allUsers[i].activeTime,
-                        isAdmin: ((data.adminId==data.allUsers[i].userId) ?1 :0)
-                    }
-                    peopleInAllGroups.push(ele);
-                }
-                StorageData.setAllGroups(allGroups);
-                $rootScope.$broadcast("ReloadAllGroups");
-                StorageData.setPeopleInAllGroups(peopleInAllGroups);
-                $rootScope.$broadcast("ReloadPeopleInAllGroups");
-                if (data.adminId!= $rootScope.userId) {
-                    $rootScope.pushNotification('New Group', 'You was added to \'' +data.name +'\' group.', '/rooms/'+data.id)
-                }
+                Group.setGroup(data.id, data.name);
+                User.setGroupUser(data.userList, data.id);
+                // gửi thông báo reload dữ liệu
+                $rootScope.$broadcast("reload groups");
+                $rootScope.$broadcast("reload users");
+                
+                var temp= data.userList.split('+')
+                var user= User.getUserInfo(temp[temp.length-1]);
+                temp= user.firstName +' ' +user.lastName +' added you to \'' +data.name +'\' group.';
+                $rootScope.pushNotification('New Group', temp, '/rooms/'+data.id)
             }
         });
 
-        Socket.on('new topic', function (data) {
-            var allGroups= StorageData.getAllGroups();
-            for (var i in allGroups) {
-                if (allGroups[i].groupId== data.groupId) {
-                    console.log("find");
-                    var allRooms= StorageData.getAllRooms();
-                    allRooms.push (data);
-                    StorageData.setAllRooms(allRooms);
-                    $rootScope.$broadcast("ReloadAllRooms");
-                    $rootScope.pushNotification('New Topic', allGroups[i].name +' was created \'' +data.title +'\' topic', '/room/' +data.roomId);
-                    return;
-                }
+        Socket.on('created new topic', function (data) {
+            if (Group.userIsBelong(data.groupId, $scope.userId) == 'true') {
+                Topic.newTopic(data);
+                $rootScope.$broadcast("reload topics");
+                var body= Group.getGroupById(data.groupId).name +' was created \'' +data.title +'\' topic';
+                $rootScope.pushNotification('New Topic', body, '/topic/' +data.id);
             }
         });
 
         // nhận mess từ server gửi xuống, kiểm tra xem tin nhắn đó có thuộc nhóm mà người dùng có trong đó hay không.
         Socket.on('server new topic message', function (data) {
-            //console.log('new mess');
             Chat.add(data);
-            $rootScope.$broadcast("have a new message");
-            var topicName= '';
-            if (topicName!='') {
-                $rootScope.pushNotification(topicName, data.chatText, '/room/'+data.roomId);
+            var temp = window.location.href.match(/topic\/[0-9]*/g);
+            if (temp!= null) {
+                if (temp[0].replace(/[a-z]|\//g, '') == data.toTopicId) {
+                    $rootScope.$broadcast("have a new message");
+                    return;
+                }
+            }
+            else {
+                if (Topic.isRelation(data.toTopicId)) {
+                    $rootScope.$broadcast("have a new message");
+                    $rootScope.pushNotification(Topic.getTopicById(data.toTopicId).title, User.getUserInfo(data.userId).firstName +': ' +data.chatText, 'topic/'+data.toTopicId);    
+                }
             }
         });
         
-
-
-
-
-
-        //$scope.activities = Room.userActivities("213");
         // IMPORTANT
         // for tab-account and sign-up-success
-        //$scope.user = User.get("213");
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -107,14 +97,13 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         $rootScope.newGroupName = '';
         $scope.createNewGroup = function (groupName) {
             var groupUserList = "";
-            $scope.friends= User.getAllPeople();
-            for (var i = 0; i < $scope.friends.length; i++) {
-                if ($scope.friends[i].checked) {
+            for (var i in $scope.users) {
+                if ($scope.users[i].checked) {
                     if (!groupUserList) {
-                        groupUserList = $scope.friends[i].userId;
+                        groupUserList = $scope.users[i].id;
                     }
                     else {
-                        groupUserList += "+" + $scope.friends[i].userId;
+                        groupUserList += ("+" + $scope.users[i].id);
                     }
                 }
             }
@@ -138,71 +127,23 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             }
             else {
                 groupUserList += "+" + $rootScope.userId;
-                for (var i = 0; i < $scope.friends.length; i++) {
-                    $scope.friends[i].checked = '';
+                for (var i = 0; i < $scope.users.length; i++) {
+                    $scope.users[i].checked = '';
                 }
-                $rootScope.newGroupName = '';
                 var roomData= {'name': groupName, 'userList': groupUserList};
                 ConnectServer.newGroup(roomData).then(function (data) {
                     // lưu thông tin về phòng mới được tạo vào máy.
-                    var allGroups= StorageData.getAllGroups();
-                    var peopleInAllGroups= StorageData.getPeopleInAllGroups();
-                    var ele= {
-                        groupId: data,
-                        name: groupName,
-                        description: ""
-                    };
-                    allGroups.push(ele);
-                    // gửi lên server 1 thông báo về cho người dùng họ vừa được add vào 1 nhóm
-                    var usersInGroup= [];
-                    var allUsers= $scope.friends;
-                    var temp= groupUserList.split("+");
-                    for (var i in temp) {
-                        for (var j in allUsers) {
-                            if (temp[i]== allUsers[j].userId) {
-                                // thêm vào dữ liệu trên máy.
-                                ele = {
-                                    userId: allUsers[j].userId,
-                                    groupId: data,
-                                    firstName: allUsers[j].firstName,
-                                    lastName: allUsers[j].lastName,
-                                    face: allUsers[j].face,
-                                    friendType: allUsers[j].friendType,
-                                    activeTime: allUsers[j].activeTime,
-                                    isAdmin: 0
-                                }
-                                peopleInAllGroups.push(ele);
-                                // thêm vào mảng để upload lên server.
-                                usersInGroup.push(allUsers[j]);
-                            }
-                        }
-                    }
-                    // thêm chính mình với quyền admin do trong $scope.friend không chứa thông tin về bản thân.
-                    ele = {
-                        userId: $rootScope.userId,
-                        groupId: data,
-                        firstName: $rootScope.firstName,
-                        lastName: $rootScope.lastName,
-                        face: $rootScope.userAvata,
-                        friendType: '',
-                        activeTime: '',
-                        isAdmin: 1
-                    }
-                    peopleInAllGroups.push(ele);
-                    usersInGroup.push(allUsers[j]);
-                    // save
-                    StorageData.setAllGroups(allGroups);
-                    $rootScope.$broadcast("ReloadAllGroups");
-                    StorageData.setPeopleInAllGroups(peopleInAllGroups);
-                    $rootScope.$broadcast("ReloadPeopleInAllGroups");
+                    Group.setGroup(data, groupName);
+                    User.setGroupUser(groupUserList, data);
+                    // gửi thông báo reload dữ liệu
+                    $rootScope.$broadcast("reload groups");
+                    $rootScope.$broadcast("reload users");
                     // push
-                    roomData= {'name': groupName, 
+                    groupData= {'name': groupName, 
                                'userList': groupUserList, 
-                               'id': data,
-                               adminId: $rootScope.userId,
-                               allUsers: usersInGroup};
-                    Socket.emit('new group', roomData);
-                    $location.path("/rooms/" + data);
+                               'id': data};
+                    Socket.emit('new group', groupData);
+                    $location.path("/topics/" + data);
                 })
             }
         }
@@ -218,33 +159,21 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             // post data to server
             else {
                 var data= {
-                    newRoomData: {
-                        title: topicName,
-                        roomType: (type=="Public" ?1 :0),
-                        thumbnail: icon
-                    },
+                    title: topicName,
+                    type: (type=="Public" ?1 :0),
+                    thumbnail: icon,
                     groupId: groupId
                 };
-                ConnectServer.newTopic(data).then(function (data) {
+                ConnectServer.newTopic(data).then(function (res) {
                     // lưu thông tin về topic vừa tạo vào máy.
-                    var allRooms= StorageData.getAllRooms();
-                    var ele= {
-                        roomId: data,
-                        title: topicName,
-                        groupId: groupId,
-                        thumbnail: icon,
-                        activeTime: "",
-                        isOwner: 1
-                    }
-                    allRooms.push(ele);
-                    StorageData.setAllRooms(allRooms);
-                    $rootScope.$broadcast("ReloadAllRooms");
+                    data.id= res;
+                    Topic.newTopic(data);
+                    $rootScope.$broadcast("reload topics");
                     // emit lên cho người dùng khác được biết về phòng được tạo.
-                    Socket.emit('newTopic', ele);
-                    $location.path("/room/" + data);
+                    Socket.emit('new topic', data);
+                    $location.path("/topic/" + res);
                 });
             }
-            
         }
 
         // new-chat modal
@@ -255,7 +184,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             $scope.newChatmodal = modal;
         });
         $scope.openNewChat = function () {
-            $scope.friends = User.getAllPeople($rootScope.userId);
+            $scope.users = User.getUsers();
+            $scope.userId= $rootScope.userId;
             $scope.newChatmodal.show();
         };
         $scope.closeNewChat = function () {
@@ -270,7 +200,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             $scope.newGroupModal = modal;
         });
         $scope.openNewGroup = function () {
-            $scope.friends = User.getAllPeople($rootScope.userId);
+            $scope.users = User.getUsers();
+            $scope.userId= $rootScope.userId;
             $scope.newGroupModal.show();
         };
         $scope.closeNewGroup = function () {
@@ -291,13 +222,6 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         $scope.closeAddPeople = function () {
             $scope.addPeopleModal.hide();
         };
-
-        // search modal
-        for (var i in $scope.friends) {
-            var room = Room.getByUserId($scope.friends[i].id);
-
-            $scope.friends[i].room = room;
-        }
 
         $ionicModal.fromTemplateUrl('templates/modal/search.html', {
             scope: $scope,
@@ -351,6 +275,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
     // ActivitiesCtrl được gọi tiếp theo, sau MainCtrl. ActivitiesCtrl được gọi khi người dùng đăng nhập thành công, truy cập vào trang Recent
     .controller('ActivitiesCtrl', function ($rootScope, $scope, ConnectServer, StorageData, Socket, Topic, User, Chat) {
+        //console.log('activities ctrl');
         // lấy dữ liệu từ server về sau khi đăng nhập thành công...
         var userId= $rootScope.userId;
         if (userId!="" && userId!=undefined) {
@@ -376,6 +301,9 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             getRecentTopcis();
             getBookmarkTopics();
         });
+        $rootScope.$on("reload bookmark", function (event, args) {
+            getBookmarkTopics();
+        });
 
         
         function getRecentTopcis () {
@@ -397,11 +325,10 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
     })
 
-    .controller('TopicCtrl', function ($rootScope, $scope, $stateParams, Socket, Topic, Chat) {
+    .controller('TopicCtrl', function ($rootScope, $scope, $stateParams, $ionicPopup, Socket, Topic, Chat) {
         $scope.userId= $rootScope.userId;
         var topics= Topic.getTopics();
         $scope.typingList= [];
-        // $scope.typingList.push('Huy is typing...');
         
         if ($stateParams.topicId == "new") {
             if ($stateParams.userList) {
@@ -424,6 +351,31 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             }
         }
 
+        $scope.isBookmark= function (id) {
+            return Topic.isBookmark(id);
+        };
+        $scope.pin= function (id) {
+            var state= (Topic.isBookmark(id)==true ?'Unbookmark' :'Bookmark');
+            var confirmPopup = $ionicPopup.confirm({
+                title: (state +' this topic'),
+                template: 'Are you sure?'
+            });
+            confirmPopup.then(function(res) {
+                if(res) {
+                    //console.log('Sure!');
+                    Socket.emit('bookmark', {state: state, userId: $scope.userId, topicId: id});
+                    if (state=='Bookmark') {
+                        Topic.addBookmark ($scope.userId, id)
+                    }
+                    else {
+                        Topic.removeBookmark ($scope.userId, id);
+                    }
+                    Topic.getRecentTopcis($scope.userId);
+                    $rootScope.$broadcast("reload bookmark");
+                }
+            });
+        }
+
         $scope.sendChat = function (chatText) {
             var chat= {chatText: chatText, toTopicId: $stateParams.topicId, userId: $scope.userId, userAvata: $rootScope.userAvata, dateTime: new Date()}
             Socket.emit('client new message', chat);
@@ -438,7 +390,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         });
 
         // IS TYPING
-        var TYPING_TIMER_LENGTH = 1000; // ms
+        var TYPING_TIMER_LENGTH = 750; // ms
         var typing= false;
         var lastTypingTime= (new Date()).getTime();
         $scope.inputChange = function () {
@@ -469,31 +421,49 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         });
     })
 
-    .controller('GroupsCtrl', function ($rootScope, $scope, $stateParams, StorageData, Group) {
+    .controller('GroupsCtrl', function ($rootScope, $scope, $stateParams, StorageData, Group, User) {
+        $scope.userId= $rootScope.userId;
         getGroups();
-        $rootScope.$on("ReloadAllGroups", function (event, args){
+        if ($stateParams.groupId) {
+            $scope.group= Group.getGroupById($stateParams.groupId);
+            $scope.members= User.getMembers($stateParams.groupId);
+        }
+        $rootScope.$on("reload groups", function (event, args){
             getGroups();
         });
-        $rootScope.$on("ReloadPeopleInAllGroups", function (event, args){
-            $scope.members= StorageData.getPeopleInAllGroups();
+        $rootScope.$on("reload users", function (event, args){
+            if ($stateParams.groupId) {
+                $scope.members= User.getMembers($stateParams.groupId);
+            }
         });
         function getGroups () {
             $scope.groupsOfUser= Group.getGroupsOfUser($rootScope.userId);
             $scope.suggestGroups= Group.getSuggestGroups();
         }
+
+        $scope.userNames= function (id) {
+            return User.getUserNamesInGroup(id);
+        }
         
     })
 
-    .controller('TopicsCtrl', function ($rootScope, $scope, $stateParams, StorageData, Group) {
+    .controller('TopicsCtrl', function ($rootScope, $scope, $stateParams, StorageData, Group, Topic, User) {
         //console.log($stateParams.belong);
         setData($stateParams.groupId, $stateParams.belong);
-        $rootScope.$on ("ReloadAllRooms", function (event, args) {
+        $rootScope.$on ("reload topics", function (event, args) {
             setData($stateParams.groupId, $stateParams.belong);
         });
         function setData (id, belong) {
             $scope.group= Group.getGroupById(id);
             $scope.group.belong= belong;
             $scope.friendGroups= Group.getFriendGroups(id);
+        }
+
+        $scope.isBelong= function (groupId) {
+            return Group.userIsBelong(groupId, $rootScope.userId);
+        }
+        $scope.userNames= function (id) {
+            return User.getUserNamesInGroup(id);
         }
         
     })
@@ -528,7 +498,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         }
     })
 
-    .controller('AccountCtrl', function ($rootScope, $scope, $ionicActionSheet, $ionicModal) {
+    .controller('AccountCtrl', function ($rootScope, $scope, $ionicActionSheet, $ionicModal, $location, Auth) {
         $scope.userName= $rootScope.userName;
         $scope.userAvata= $rootScope.userAvata;
         $scope.firstName= $rootScope.firstName;
@@ -590,6 +560,11 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 }
             });
         };
+
+        $scope.logout = function () {
+            Auth.logout();
+            $location.path('/login');
+        }
 
         // change email modal
         $ionicModal.fromTemplateUrl('templates/modal/change-email.html', {
@@ -692,7 +667,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         };
     })
    
-    .controller('LoginCtrl', function ($rootScope, $scope, $location, StorageData, Login, md5) {
+    .controller('LoginCtrl', function ($rootScope, $scope, $location, StorageData, Login, md5, Auth) {
         $scope.loginData={};
         $scope.login= function() {
             var ema= $scope.loginData.email;
@@ -703,11 +678,10 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                     alert("Can't connect to database, please reconnect later...");
                 }
                 else {
-                    if (data== "Wrong") {
-
-                    }
+                    if (data== "Wrong") {}
                     else {
                         $rootScope.userId= data[0].userId;
+                        Auth.setUser($rootScope.userId);
                         $location.path("/tab/activities");
                     }
                 }

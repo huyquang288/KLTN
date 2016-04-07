@@ -44,7 +44,11 @@
                     </ion-option-button>
                 </ion-item>
             </span>
-            <h4 ng-if="bookmarkTopics.length>0"><b>Bookmark</b></h4>
+            <h4 ng-if="bookmarkTopics.length>0">
+                <p style='text-align:center'>
+                    <b class="button-icon icon ion-ios-bookmarks-outline"></b>
+                </p>
+            </h4>
             <span ng-repeat="topic in bookmarkTopics track by $index">
                 <ion-item class="item-remove-animate item-avatar" 
                           nav-direction="forward" href="#/topic/{{topic.id}}"

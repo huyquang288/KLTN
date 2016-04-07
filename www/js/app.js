@@ -7,7 +7,7 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'ngSanitize','btford.socket-io'])
 
-    .run(function ($ionicPlatform, $rootScope) {
+    .run(function ($ionicPlatform, $rootScope, $location) {
         $ionicPlatform.ready(function () {
             // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
             // for form inputs)
@@ -20,8 +20,39 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                 StatusBar.styleLightContent();
             }
         });
+        //console.log('hih');
+        //$location.path('/tab/activities/')
+        //$rootScope.currentUserID = 213;
+    })
 
-        $rootScope.currentUserID = 213;
+    .factory('Auth', function ($rootScope) {
+        if (localStorage['ionic_session']) {
+            var _user = JSON.parse(localStorage['ionic_session']);
+        }
+        var setUser = function (session) {
+            _user = session;
+            //_user= 1;
+            localStorage['ionic_session'] = JSON.stringify(_user);
+        }
+
+        return {
+            setUser: setUser,
+            isLoggedIn: function () {
+                if (_user) {
+                    $rootScope.userId= _user;
+                    return true;
+                }
+                return false;
+            },
+            getUser: function () {
+                return _user;
+            },
+            logout: function () {
+                window.localStorage.removeItem("ionic_session");
+                window.localStorage.removeItem("ionic_data");
+                _user = null;
+            }
+        }
     })
 
     .config(function ($stateProvider, $urlRouterProvider) {
@@ -36,7 +67,13 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             .state('tab', {
                 url: '/tab',
                 abstract: true,
-                templateUrl: 'templates/tabs.html'
+                templateUrl: 'templates/tabs.html',
+                onEnter: function($state, Auth) {
+                    //console.log('run');
+                    if (!Auth.isLoggedIn()) {
+                        $state.go('login');
+                    }
+                }
             })
             // Each tab has its own nav history stack:
             .state('tab.activities', {
@@ -165,7 +202,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             });
 
         // if none of the above states are matched, use this as the fallback
-        $urlRouterProvider.otherwise('/login');
+        $urlRouterProvider.otherwise('/tab/activities');
 
     });
 

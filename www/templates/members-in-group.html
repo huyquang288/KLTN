@@ -38,20 +38,20 @@
 
         <ion-list ng-if="members.length>0">
             <span ng-repeat="member in members">
-                <ion-item ng-if="member.groupId== group.groupId"
+                <ion-item ng-if="member.id!= userId"
                           class="item-remove-animate item-avatar" 
-                          nav-direction="forward" href="#/room/{{room.rooms.id}}"
+                          nav-direction="forward" href="#/topic/{{member.id+19940828}}"
                           type="item-text-wrap">
                     <img ng-src="{{member.face}}">
 
-                    <span class="badge avatar-badge avatar-badge-s"
+                    <!-- <span class="badge avatar-badge avatar-badge-s"
                           ng-class="{'badge-positive':room.roomType=='ms_friend', 'badge-stable':room.rooms.roomType=='fb_friend'}"
                           ng-if="room.rooms.roomType!='group'">
                         <i class="icon ion-ios-bolt" ng-if="room.rooms.roomType=='ms_friend'"></i>
                         <i class="icon ion-social-facebook light" 
                            ng-if="room.rooms.roomType=='fb_friend'">
                         </i>
-                    </span>
+                    </span> -->
 
                     <h3>
                         <small>{{member.firstName}} {{member.lastName}}</small>

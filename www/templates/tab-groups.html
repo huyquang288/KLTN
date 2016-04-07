@@ -22,7 +22,9 @@
 
 <ion-view view-title="Groups" id="tab-groups">
     <ion-nav-buttons side="right">
-        <button class="button button-clear button-positive" ng-click="openNewGroup()">Create</button>
+        <button class="button button-clear button-positive" ng-click="openNewGroup()">
+            <img style='height:32px; width:32px' ng-src="img/icon/new_group-512.png">
+        </button>
     </ion-nav-buttons>
 
     <ion-content>
@@ -42,20 +44,16 @@
                            class="item item-avatar item-avatar-center item-avatar-l text-center"
                            href="#/topics/{{group.id}}/true">
                             <!-- <img ng-src="{{room.rooms.thumbnail}}"> -->
-
                             <h3>
                                 <small>{{group.name}}</small>
                             </h3>
-
-                            <p>{{group.description}}</p>
+                            <p>{{(group.description) ?group.description :'No description'}}</p>
                         </a>
 
-                        <a nav-direction="forward" class="item item-divider text-center" href="#/group-members/{{group.id}}">
+                        <a nav-direction="forward" class="item item-divider text-center" 
+                           href="#/group-members/{{group.id}}">
                             <p>
-                                <span ng-if="group.id==member.groupId" ng-repeat="member in members">
-                                    {{member.firstName}} <!-- {{member.groupId}} {{members[$index+1].groupId}} -->
-                                    <!-- {{((member.groupId==members[$index+1].groupId) ?'1' :'')}} -->
-                                </span>
+                                {{userNames(group.id)}}
                             </p>
                         </a>
                     </div>
@@ -66,20 +64,16 @@
                            class="item item-avatar item-avatar-center item-avatar-l text-center"
                            href="#/topics/{{groupsOfUser[$index+1].id}}/true">
                             <!-- <img ng-src="{{room.rooms.thumbnail}}"> -->
-
                             <h3>
                                 <small>{{groupsOfUser[$index+1].name}}</small>
                             </h3>
-
-                            <p>{{groupsOfUser[$index+1].description}}</p>
+                            <p>{{(groupsOfUser[$index+1].description) ?groupsOfUser[$index+1].description :'No description'}}</p>
                         </a>
 
-                        <a nav-direction="forward" class="item item-divider text-center" href="#/group-members/{{groupsOfUser[$index+1].id}}">
+                        <a nav-direction="forward" class="item item-divider text-center" 
+                           href="#/group-members/{{groupsOfUser[$index+1].id}}">
                             <p>
-                                <span ng-if="groupsOfUser[$index+1].id==member.groupId" ng-repeat="member in members">
-                                    {{member.firstName}} <!-- {{member.groupId}} {{members[$index+1].groupId}} -->
-                                    <!-- {{((member.groupId==members[$index+1].groupId) ?'1' :'')}} -->
-                                </span>
+                                {{userNames(groupsOfUser[$index+1].id)}}
                             </p>
                         </a>
                     </div>
@@ -95,20 +89,16 @@
                        class="item item-avatar item-avatar-center item-avatar-l text-center"
                        href="#/topics/{{group.id}}/false">
                         <!-- <img ng-src="{{room.rooms.thumbnail}}"> -->
-
                         <h3>
                             <small>{{group.name}}</small>
                         </h3>
-
-                        <p>{{group.description}}</p>
+                        <p>{{(group.description) ?group.description :'No description'}}</p>
                     </a>
 
-                    <a nav-direction="forward" class="item item-divider text-center" href="#/group-members/{{group.id}}">
+                    <a nav-direction="forward" class="item item-divider text-center" 
+                       href="#/group-members/{{group.id}}">
                         <p>
-                            <span ng-if="group.id==member.groupId" ng-repeat="member in members">
-                                {{member.firstName}} <!-- {{member.groupId}} {{members[$index+1].groupId}} -->
-                                <!-- {{((member.groupId==members[$index+1].groupId) ?'1' :'')}} -->
-                            </span>
+                            {{userNames(group.id)}}
                         </p>
                     </a>
                 </div>
@@ -123,16 +113,13 @@
                         <h3>
                             <small>{{suggestGroups[$index+1].name}}</small>
                         </h3>
-
-                        <p>{{suggestGroups[$index+1].description}}</p>
+                        <p>{{(suggestGroups[$index+1].description) ?suggestGroups[$index+1].description :'No description'}}</p>
                     </a>
 
-                    <a nav-direction="forward" class="item item-divider text-center" href="#/group-members/{{suggestGroups[$index+1].id}}">
+                    <a nav-direction="forward" class="item item-divider text-center" 
+                       href="#/group-members/{{suggestGroups[$index+1].id}}">
                         <p>
-                            <span ng-if="suggestGroups[$index+1].id==member.groupId" ng-repeat="member in members">
-                                {{member.firstName}} <!-- {{member.groupId}} {{members[$index+1].groupId}} -->
-                                <!-- {{((member.groupId==members[$index+1].groupId) ?'1' :'')}} -->
-                            </span>
+                            {{userNames(suggestGroups[$index+1].id)}}
                         </p>
                     </a>
                 </div>

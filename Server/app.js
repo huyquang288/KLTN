@@ -147,7 +147,6 @@ app.post('/all', function(req, res){
 
 
 app.post('/newGroup', function(req, res){
-	//console.log("BB");
 	var groupName= req.body.name
 	var groupId;
 	var userList= req.body.userList.split("+");
@@ -161,23 +160,17 @@ app.post('/newGroup', function(req, res){
 		}
 		else {
 			var nestedRows = func.convertToNested(rows);
-			//console.log(req.body)
 			groupId= nestedRows.insertId;
 			var isAd= 0;
 			var end= ", "
 			for (var i in userList) {
-				//console.log(i);
-				//userList[i]= parseInt(userList[i]);
-				//userList[i]= {'groupId': groupId, 'userId': userList[i]};
 				if (i== (userList.length-1)) {
 					isAd= 1;
 					end= ";";
 				}
 				userString+= "(" +groupId +", " +userList[i] +", " +isAd +")" +end;
 			}
-			//console.log(userList);
 			var sql= "INSERT INTO group_user (groupId, userId, isAdmin) VALUES " +userString;
-			//console.log(sql);
 			mysqlConnection.query(sql, function (err, rows) {
 			// error handling
 				if (err){
@@ -193,7 +186,7 @@ app.post('/newGroup', function(req, res){
 });
 
 app.post('/newTopic', function(req, res){
-	mysqlConnection.query("INSERT INTO topics SET ?", req.body.newtopicData, function (err, rows) {
+	mysqlConnection.query("INSERT INTO topics SET ?", req.body, function (err, rows) {
     // error handling
 		if (err){
 			console.log('Insert to topics error: ', err);
@@ -201,21 +194,7 @@ app.post('/newTopic', function(req, res){
 		}
 		else {
 			var nestedRows = func.convertToNested(rows);
-			//console.log(req.body)
-			var topicId= nestedRows.insertId;
-			//console.log(userList);
-			var sql= "INSERT INTO group_topic (groupId, topicId, isOwner) VALUES (" +req.body.groupId +", " +topicId +", 1)";
-			//console.log(sql);
-			mysqlConnection.query(sql, function (err, rows) {
-			// error handling
-				if (err){
-					console.log('Insert to group_topic error: ', err);
-					res.send("Mysql query execution error!");
-				}
-				else {
-					res.send(topicId.toString());
-				}
-			});
+			res.send(nestedRows.insertId.toString());
 		}
 	});
 });
@@ -241,18 +220,28 @@ io.on('connection', function (socket) {
 		socket.broadcast.emit('added to new group', data);
 	});
 	
-	socket.on('newTopic', function (data) {
-		socket.broadcast.emit('new topic', data);
+	socket.on('new topic', function (data) {
+		socket.broadcast.emit('created new topic', data);
+	});
+	
+	socket.on('bookmark', function (data) {
+		var sql;
+		if (data.state== 'Bookmark') {
+			sql= "INSERT INTO bookmark (userId, topicId) VALUES (" +data.userId +", " +data.topicId +")";
+		}
+		else {
+			sql= "DELETE FROM bookmark WHERE userId=" +data.userId +" AND topicId=" +data.topicId;
+		}
+		mysqlConnection.query(sql, function(err, rows){
+			if (err) {
+				console.log('Internal error: ', err);
+			}
+		})
 	});
   
 	// when the client emits 'new message', this listens and executes
 	// we tell the client to execute 'new message'  
 	socket.on('client new message', function (data) {
-		// query to save mess into db
-		socket.text= data.chatText;
-		socket.userId= data.userId;
-		socket.topicId= data.topicId;
-		socket.userAvata= data.userAvata;
 		// write to db
 		mysqlConnection.query("INSERT INTO topicchats SET ?", data, function(err, rows){
 			if (err) {

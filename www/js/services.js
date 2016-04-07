@@ -4,14 +4,29 @@ var DOMAIN="http://localhost:8028/";
 
 // Users
 angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
+    .factory('$localstorage', ['$window', function ($window) {
+        return {
+            save: function (data) {
+                localStorage['data']= JSON.stringify(data);
+            },
+            get: function () {
+                return JSON.parse(localStorage['data'] || '{}');
+            }
+        };
+    }])
+
     .factory('StorageData', function () {
         var data;
         return {
             getData: function () {
+                if (!data) {
+                    data= JSON.parse(localStorage['ionic_data']);
+                }
                 return data;
             },
             saveData: function (dataIn) {
                 data= dataIn;
+                localStorage['ionic_data'] = JSON.stringify(data);
             }
         };
     })
@@ -60,7 +75,40 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
     })
 
     .factory('User', ['StorageData', function (StorageData) {
+        function getUserIdList (id) {
+            var string= '+';
+            var group_user= StorageData.getData().group_user;
+            for (var i in group_user) {
+                if (group_user[i].groupId== id) {
+                    if (!string) {
+                        string= group_user[i].userId;
+                    }
+                    else {
+                        string+= (group_user[i].userId +'+');
+                    }
+                }
+            }
+            return string;
+        };
         return {
+            getUserNamesInGroup: function (id) {
+                var list= getUserIdList(id);
+                var users= StorageData.getData().users;
+                var string= '';
+                for (var i in users) {
+                    var regexString= '\\+' +users[i].id +'\\+';
+                    var regex= new RegExp(regexString, 'g');
+                    if (list.match(regex)!= null) {
+                        if (!string) {
+                            string= users[i].firstName;
+                        }
+                        else {
+                            string+= (', ' +users[i].firstName);
+                        }
+                    }
+                }
+                return string;
+            },
             getUserInfo: function (id) {
                 var users= StorageData.getData().users;
                 for (var i in users) {
@@ -68,11 +116,39 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                         return users[i];
                     }
                 }
+            },
+            getUsers: function () {
+                return StorageData.getData().users;
+            },
+            setGroupUser: function (userList, groupId) {
+                var data= StorageData.getData();
+                var list= userList.split('+');
+                var ele;
+                for (var i in list) {
+                    ele= {  id: data.group_user[data.group_user.length-1].id+1,
+                            groupId: groupId,
+                            userId: list[i],
+                            isAdmin: (i==(list.length-1) ?1 :0)}
+                    data.group_user[data.group_user.length]= ele;
+                }
+            },
+            getMembers: function (id) {
+                var list= getUserIdList(id);
+                var members= [];
+                var users= StorageData.getData().users;
+                for (var i in users) {
+                    var regexString= '\\+' +users[i].id +'\\+';
+                    var regex= new RegExp(regexString, 'g');
+                    if (list.match(regex)!= null) {
+                        members.push(users[i]);
+                    }
+                }
+                return members;
             }
         }
     }])
 
-    .factory('Group', ['StorageData', function (StorageData) {
+    .factory('Group', ['StorageData', function (StorageData, $rootScope) {
         var groupsIdOfUser= '+';
         function returnGroups (groupsId) {
             var groups_topics= StorageData.getData().groups_topics;
@@ -85,8 +161,33 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 }
             }
             return groups;
+        };
+        function getGroupsIdOfUser (userId) {
+            groupsIdOfUser= '+';
+            var group_user= StorageData.getData().group_user;
+            for (var i in group_user) {
+                if (userId== group_user[i].userId) {
+                    groupsIdOfUser+= (group_user[i].groupId +'+');
+                }
+            }
         }
         return {
+            setGroup: function (id, name) {
+                var data= StorageData.getData();
+                data.groups_topics[data.groups_topics.length]= {id: id, name: name};
+                StorageData.saveData(data);
+            },
+            userIsBelong: function (groupId, userId) {
+                if (groupsIdOfUser.length<3) {
+                    getGroupsIdOfUser(userId);
+                }
+                var regexString= ('\\+' +groupId +'\\+');
+                var regex= new RegExp(regexString, 'g');
+                if (groupsIdOfUser.match(regex)!=null) {
+                    return 'true';
+                }
+                return 'false';
+            },
             getFriendGroups: function (id) {
                 var group_group= StorageData.getData().group_group;
                 var idList= '+';
@@ -111,11 +212,8 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 }
             },
             getGroupsOfUser: function (userId) {
-                var group_user= StorageData.getData().group_user;
-                for (var i in group_user) {
-                    if (userId== group_user[i].userId) {
-                        groupsIdOfUser+= (group_user[i].groupId +'+');
-                    }
+                if (groupsIdOfUser.length<3) {
+                    getGroupsIdOfUser(userId);
                 }
                 return returnGroups(groupsIdOfUser);
             },
@@ -165,19 +263,64 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
 
     // Topics
     .factory('Topic', ['User', 'Chat', 'StorageData', function (User, Chat, StorageData) {
+        var topicsIdOfUser= '+';
+        var bookmarkTopicsIdOfUser= '+';
         var bookmarkTopics= [];
         var recentTopics= [];
         var topics= [];
+        function setTopics () {
+            var groups_topics= StorageData.getData().groups_topics;
+            for (var i in groups_topics) {
+                for (var j in groups_topics[i].topics) {
+                    // đưa những tất cả topic vào mảng
+                    topics.push(groups_topics[i].topics[j]);
+                }
+            }
+        };
         return {
+            addBookmark: function (userId, topicId) {
+                var data= StorageData.getData();
+                var pos= (data.bookmark.length>0 ?data.bookmark.length :0);
+                data.bookmark[pos]= {userId: userId, topicId: topicId,
+                    id: (pos>0 ?data.bookmark[pos-1].id :1)};
+                StorageData.saveData(data);
+            },
+            removeBookmark: function (userId, topicId) {
+                var data= StorageData.getData();
+                for (var i in data.bookmark) {
+                    if (data.bookmark[i].userId== userId && data.bookmark[i].topicId== topicId) {
+                        data.bookmark.splice(i, 1);
+                    }
+                }
+                StorageData.saveData(data);
+            },
+            isBookmark: function (id) {
+                var regexString= ('\\+' +id +'\\+');
+                var regex= new RegExp (regexString);
+                if (bookmarkTopicsIdOfUser.match(regex)!= null) {
+                    return true;
+                }
+                return false;
+            },
+            isRelation: function (id) {
+                var regexString= ('\\+' +id +'\\+');
+                var regex= new RegExp (regexString);
+                if (topicsIdOfUser.match(regex)!= null || bookmarkTopicsIdOfUser.match(regex)!= null) {
+                    return true;
+                }
+                return false;
+            },
             getRecentTopcis: function (userId) {
                 var groups_topics= StorageData.getData().groups_topics;
                 var regexString= '';
                 var regex;
                 var groupsIdOfUser= '+';
-                var bookmarkTopicsIdOfUser= '+';
+                
                 bookmarkTopics= [];
                 recentTopics= [];
                 topics= [];
+                topicsIdOfUser= '+';
+                bookmarkTopicsIdOfUser= '+';
                 
                 // đưa những nhóm của người dùng vào string
                 var temp= StorageData.getData().group_user;
@@ -191,7 +334,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 for (var i in temp) {
                     bookmarkTopicsIdOfUser+= (temp[i].topicId +'+');
                 }
-                var topicsIdOfUser= '+';
+                
                 for (var i in groups_topics) {
                     for (var j in groups_topics[i].topics) {
                         // đưa những tất cả topic vào mảng
@@ -240,42 +383,29 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 return bookmarkTopics;
             },
             getTopics: function () {
+                setTopics();
                 return topics;
             },
-
-            // for tab-activities
-            userActivities: function (userId) {
-                return null;
-            },
-            newRoom: function(userId){
-                var user = User.get(userId);
-                var newRoom = {
-                    id: "",
-                    roomType: "fb_friend",
-                    thumbnail: user.face,
-                    title: user.name,
-                    members: user.name + ", Diamond",
-                    activeTime: "Now",
-                    userList: ["213", user.id]
-                };
-                return newRoom;
-            },
-            newGroup: function(groupName, UserList){
-                var userList = UserList.split("+");
-                var newRoom = {
-                    id: "",
-                    roomType: "group",
-                    thumbnail: "img/placeholder.png",
-                    title: groupName,
-                    members: "",
-                    activeTime: "Now",
-                    userList: userList
-                };
-                newRoom.user = [];
-                for (var j = 0; j < userList.length; j++) {
-                    newRoom.user.push(User.get(userList[j]));
+            getTopicById: function (id) {
+                if (topics.length<1) {
+                    setTopics();
                 }
-                return newRoom;
+                for (var i in topics) {
+                    if (topics[i].id== id) {
+                        return topics[i];
+                    }
+                }
+            },
+            newTopic: function (topic) {
+                var data= StorageData.getData();
+                for (var i in data.groups_topics) {
+                    if (data.groups_topics[i].id== topic.groupId) {
+                        var pos= (data.groups_topics[i].topics.length>0) ?data.groups_topics[i].topics.length :0;
+                        data.groups_topics[i].topics[pos]= topic;
+                        StorageData.saveData(data);
+                        return;
+                    }
+                }
             }
         };
     }])

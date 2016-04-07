@@ -55,7 +55,7 @@
 
     <ion-nav-title>
         <a>
-            Topics in {{group.name}}
+            {{(group.belong=='true' ?'' :'Public ')}}Topics in {{group.name}}
         </a>
     </ion-nav-title>
 
@@ -63,7 +63,8 @@
 
         <ion-list ng-if="group.topics.length>0">
             <span ng-repeat="topic in group.topics">
-                <ion-item class="item-remove-animate item-avatar" 
+                <ion-item ng-if="group.belong=='true' || ( group.belong=='false'&& topic.type==1)"
+                          class="item-remove-animate item-avatar" 
                           nav-direction="forward" href="#/topic/{{topic.id}}"
                           type="item-text-wrap">
                     <img ng-src="{{topic.thumbnail}}">
@@ -128,10 +129,10 @@
                         <div>
                             <input type="text" ng-model="$root.newPublicTopicName" 
                                    placeholder="Name new topic"
-                                   style="height: 50px; text-align:center; width: 100%">
+                                   style="height: 40px; text-align:center; width: 100%">
                         </div>
                         <a class="button button-clear button-positive" 
-                           ng-click="createNewTopic('Public', $root.newPublicTopicName, '', group.groupId);">
+                           ng-click="createNewTopic('Public', $root.newPublicTopicName, '', group.id); $root.newPublicTopicName=''">
                             OK
                         </a>
                     </div>
@@ -159,10 +160,10 @@
                         <div>
                             <input type="text" ng-model="$root.newPrivateTopicName" 
                                    placeholder="Name new topic"
-                                   style="height: 50px; text-align:center; width: 100%">
+                                   style="height: 40px; text-align:center; width: 100%">
                         </div>
                         <a class="button button-clear button-positive" 
-                           ng-click="createNewTopic('Private', $root.newPrivateTopicName, '', group.groupId);">
+                           ng-click="createNewTopic('Private', $root.newPrivateTopicName, '', group.id); $root.newPrivateTopicName=''">
                             OK
                         </a>
                     </div>
@@ -170,28 +171,24 @@
             </div>
         </div>
 
-        <h4><b>Friend groups</b></h4>
+        <h4><b>Friend's groups of {{group.name}}</b></h4>
         <div ng-repeat="group in friendGroups" ng-if="$index%2==0" class="row">
             <div class="col col-50 {{($index==friendGroups.length-1) ?'col-offset-25' :''}}">
                 <div class="col-100 list card">
                     <a nav-direction="forward"
                        class="item item-avatar item-avatar-center item-avatar-l text-center"
-                       href="#/topics/{{group.id}}/false">
+                       href="#/topics/{{group.id}}/{{isBelong(group.id)}}">
                         <!-- <img ng-src="{{room.rooms.thumbnail}}"> -->
 
                         <h3>
                             <small>{{group.name}}</small>
                         </h3>
-
-                        <p>{{group.description}}</p>
+                        <p>{{(group.description) ?group.description :'No description'}}</p>
                     </a>
 
                     <a nav-direction="forward" class="item item-divider text-center" href="#/group-members/{{group.id}}">
                         <p>
-                            <span ng-if="group.id==member.groupId" ng-repeat="member in members">
-                                {{member.firstName}} <!-- {{member.groupId}} {{members[$index+1].groupId}} -->
-                                <!-- {{((member.groupId==members[$index+1].groupId) ?'1' :'')}} -->
-                            </span>
+                            {{userNames(group.id)}}
                         </p>
                     </a>
                 </div>
@@ -206,16 +203,12 @@
                         <h3>
                             <small>{{friendGroups[$index+1].name}}</small>
                         </h3>
-
-                        <p>{{friendGroups[$index+1].description}}</p>
+                        <p>{{(friendGroups[$index+1].description) ?friendGroups[$index+1].description :'No description'}}</p>
                     </a>
 
                     <a nav-direction="forward" class="item item-divider text-center" href="#/group-members/{{friendGroups[$index+1].id}}">
                         <p>
-                            <span ng-if="friendGroups[$index+1].id==member.groupId" ng-repeat="member in members">
-                                {{member.firstName}} <!-- {{member.groupId}} {{members[$index+1].groupId}} -->
-                                <!-- {{((member.groupId==members[$index+1].groupId) ?'1' :'')}} -->
-                            </span>
+                            {{userNames(friendGroups[$index+1].id)}}
                         </p>
                     </a>
                 </div>

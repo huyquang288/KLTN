@@ -1,27 +1,28 @@
 <ion-modal-view>
     <ion-header-bar class="bar-stable">
-        <button class="button button-clear button-positive" ng-click="closeNewChat()">
-            Cancel
+        <button class="button button-clear button-icon button-positive icon ion-ios-arrow-down" 
+                ng-click="closeNewChat()">
         </button>
         <h1 class="title">New Message</h1>
         <button class="button button-clear button-positive" ng-click="closeNewChat(); openNewGroup()">
-            Group
+            <img style='height:32px; width:32px' ng-src="img/icon/new_group-512.png">
         </button>
     </ion-header-bar>
 
     <ion-content>
         <ion-list>
-            <ion-item class="item-avatar" ng-repeat="friend in friends" type="item-text-wrap" href="#/room/{{friend.room.id}}">
-                <img ng-src="{{friend.face}}">
+            <ion-item class="item-avatar" type="item-text-wrap" ng-repeat="user in users"
+                      ng-if="user.id!=userId" href="#/topic/{{user.id+19940828}}">
+                <img ng-src="{{user.face}}">
 
-                <span class="badge avatar-badge avatar-badge-s"
-                      ng-class="{'badge-positive':friend.friendType=='Messenger', 'badge-stable':friend.friendType=='facebook'}">
-                    <i class="icon ion-ios-bolt" ng-if="friend.friendType=='Messenger'"></i>
-                    <i class="icon ion-social-facebook light" ng-if="friend.friendType=='facebook'"></i>
-                </span>
+                <!-- <span class="badge avatar-badge avatar-badge-s"
+                      ng-class="{'badge-positive':user.userType=='Messenger', 'badge-stable':user.userType=='facebook'}">
+                    <i class="icon ion-ios-bolt" ng-if="user.userType=='Messenger'"></i>
+                    <i class="icon ion-social-facebook light" ng-if="user.userType=='facebook'"></i>
+                </span> -->
 
                 <h3>
-                    <small>{{friend.firstName}} {{friend.lastName}}</small>
+                    <small>{{user.firstName}} {{user.lastName}}</small>
                 </h3>
             </ion-item>
         </ion-list>

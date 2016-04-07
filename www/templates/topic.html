@@ -7,10 +7,18 @@
 
     <ion-nav-title>
         <a ng-href="{{topic.settingURL}}">
-            {{topic.title}}
+            {{topic.title}} 
             <i class="icon ion-ios-arrow-forward"></i>
         </a>
     </ion-nav-title>
+
+    <ion-nav-buttons side="right">
+        <button class="button button-clear button-icon button-positive 
+                        {{(isBookmark(topic.id)==false) ?'ion-ios-star-outline' :'ion-ios-star'}}"
+                style="{{(isBookmark(topic.id)==false) ?'color:#685f5f' :'color:#FAEF85'}}" 
+                ng-click="pin(topic.id)">
+        </button>
+    </ion-nav-buttons>
 
     <ion-content class="padding">
         <div style="height: 10px"></div>

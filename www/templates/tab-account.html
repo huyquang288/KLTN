@@ -1,6 +1,6 @@
 <ion-view view-title="Setting">
-    <ion-nav-buttons side="left">
-        <button class="button button-clear button-positive" ng-click="showEdit()">Edit</button>
+    <ion-nav-buttons side="right">
+        <button class="button button-clear button-positive ion-edit" ng-click="showEdit()"></button>
     </ion-nav-buttons>
 
     <ion-content id="tab-account">
@@ -72,6 +72,9 @@
             <ion-item class="item-icon-right" ng-click="show();">
                 <h3><small>Report a Problem</small></h3>
                 <i class="icon ion-ios-arrow-right"></i>
+            </ion-item>
+            <ion-item class="item-icon-right" ng-click="logout();">
+                <h4 style='text-align:center; color:blue'>Log out</h4>
             </ion-item>
         </ion-list>
     </ion-content>
