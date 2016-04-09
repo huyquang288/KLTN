@@ -1,0 +1,27 @@
+<ion-view view-title="People" id="tab-people">
+
+    <ion-nav-buttons side="left">
+        <button class="button button-clear button-icon button-positive icon ion-ios-search"
+                ng-click="openPeopleSearch()">
+        </button>
+    </ion-nav-buttons>
+
+    <ion-content>
+        <ion-list>
+            <span ng-repeat="user in users">
+                <ion-item class="item-avatar" type="item-text-wrap" href="#/topic/{{user.id}}" 
+                          nav-direction="forward">
+
+                    <img ng-src="{{(chat.userAvata) ?chat.userAvata :'img/icon/male.jpg'}}">
+                    <h3>
+                        <small>{{user.firstName}} {{user.lastName}}</small>
+                    </h3>
+
+                    <p><i>Last activity: {{(lastActive(user.id)) ?lastActive(user.id) :'None'}}</i></p>
+
+                </ion-item>
+            </span>
+        </ion-list>
+        <div style="height: 60px"></div>
+    </ion-content>
+</ion-view>

@@ -3324,8 +3324,8 @@ a.subdued {
 
 .bar-light .button {
   border-color: #D9D9D9;
-  background-color: white;
-  color: #444;
+  background-color: #028EE6;
+  color: #fff;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden; }
@@ -8319,6 +8319,15 @@ input[type="text"], input[type="password"], input[type="datetime"], input[type="
   top: 46px;
   left: 46px;
   font-size: 22px;
+  width: 15px;
+  height: 15px;
+  line-height: 10px;
+  padding: 0; }
+
+.item .badge.avatar-badge-s7 {
+  top: 0;
+  right: 0;
+  font-size: 30px;
   width: 15px;
   height: 15px;
   line-height: 10px;

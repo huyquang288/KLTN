@@ -9,12 +9,12 @@
         <ion-list>
             <ion-item ng-if="true"
                       class="item-avatar item-avatar-center item-avatar-xl text-center">
-                <img ng-src="{{userAvata}}">
+                <img ng-src="{{(chat.userAvata) ?chat.userAvata :'img/icon/male.jpg'}}">
                 
                 <div>
-                <button class="button button-clear button-positive" ng-click="showEdit()">
-                    <b><h3>{{userName}}</h3></b>
-                </button>
+                    <button class="button button-clear button-positive" ng-click="showEdit()">
+                        <b><h3>{{userName}}</h3></b>
+                    </button>
                 </div>
             </ion-item>
 

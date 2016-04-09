@@ -143,6 +143,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                 }
             })
 
+            .state('tab.people', {
+                url: '/people',
+                views: {
+                    'tab-people': {
+                        templateUrl: 'templates/tab-people.html',
+                        controller: 'FriendsCtrl'
+                    }
+                }
+            })
+
             .state('tab.friends', {
                 url: '/friends',
                 abstract: true,
@@ -153,11 +163,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                     }
                 }
             })
-            .state('tab.friends.messenger', {
-                url: '/messenger',
-                templateUrl: 'templates/tab-friends-messenger.html'
 
-            })
             .state('tab.friends.active', {
                 url: '/active',
                 templateUrl: 'templates/tab-friends-active.html'

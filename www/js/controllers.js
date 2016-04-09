@@ -444,6 +444,14 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         $scope.userNames= function (id) {
             return User.getUserNamesInGroup(id);
         }
+
+        $scope.more= function (id) {
+            console.log('more');
+        }
+
+        $scope.lastActive= function (id) {
+            return User.getLastTimeActive(id);
+        }
         
     })
 
@@ -474,17 +482,12 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         
     })
 
-    .controller('FriendsCtrl', function ($rootScope, $scope, $stateParams, $ionicPopup, StorageData, User, Room, $state) {
+    .controller('FriendsCtrl', function ($rootScope, $scope, $stateParams, $ionicPopup, User) {
 
-        $scope.fullData= $rootScope.fullData;
-        $scope.$state = $state;
-        $scope.friends = User.myFriends("213");
+        $scope.users = User.getUsers();
 
-
-        for (var i in $scope.friends) {
-            var room = Room.getByUserId($scope.friends[i].id);
-
-            $scope.friends[i].room = room;
+        $scope.lastActive= function (id) {
+            return User.getLastTimeActive(id);
         }
 
         // add contact

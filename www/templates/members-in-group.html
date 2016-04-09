@@ -30,7 +30,7 @@
 
     <ion-nav-title>
         <a>
-            People in {{group.name}}
+            Members in {{group.name}}
         </a>
     </ion-nav-title>
 
@@ -42,7 +42,7 @@
                           class="item-remove-animate item-avatar" 
                           nav-direction="forward" href="#/topic/{{member.id+19940828}}"
                           type="item-text-wrap">
-                    <img ng-src="{{member.face}}">
+                    <img ng-src="{{(chat.userAvata) ?chat.userAvata :'img/icon/male.jpg'}}">
 
                     <!-- <span class="badge avatar-badge avatar-badge-s"
                           ng-class="{'badge-positive':room.roomType=='ms_friend', 'badge-stable':room.rooms.roomType=='fb_friend'}"
@@ -57,7 +57,7 @@
                         <small>{{member.firstName}} {{member.lastName}}</small>
                     </h3>
 
-                    <p><i>Last activity: {{member.activeTime}}</i></p>
+                    <p><i>Last activity: {{(lastActive(member.id)) ?lastActive(member.id) :'None'}}</i></p>
 
                     <!-- <span class="item-note">{{room.rooms.activeTime}}</span> -->
 

@@ -1,5 +1,5 @@
-var DOMAIN="http://192.168.0.103:8028/";
-//var DOMAIN="http://localhost:8028/";
+//var DOMAIN="http://192.168.0.103:8028/";
+var DOMAIN="http://localhost:8028/";
 //var DOMAIN="http://:8028/";
 
 // Users
@@ -144,6 +144,24 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                     }
                 }
                 return members;
+            },
+            getLastTimeActive: function (id) {
+                var chats= StorageData.getData().topicchats;
+                for (var i in chats) {
+                    if (chats[i].userId == id) {
+                        var now= new Date();
+                        // chuyển giá trị dateTime trả về từ server thành GMT+7(local timezone) từ giá trị GMT+0
+                        var messTime= new Date(chats[i].dateTime);
+                        var returnTime= messTime.getHours() +":" 
+                                +((messTime.getMinutes()<10) ?('0'+messTime.getMinutes()) :(messTime.getMinutes()));
+                        if (messTime.getDate()!= now.getDate() ||
+                            messTime.getMonth()!= now.getMonth() ||
+                            messTime.getFullYear()!= now.getFullYear()) {
+                            returnTime+= "  " +messTime.getDate() +"/" +(messTime.getMonth()+1);
+                        }
+                        return returnTime;
+                    }
+                }
             }
         }
     }])
