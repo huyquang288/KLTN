@@ -23,19 +23,24 @@
 <ion-view view-title="Groups" id="tab-groups">
     <ion-nav-buttons side="right">
         <button class="button button-clear button-positive" ng-click="openNewGroup()">
-            <img style='height:32px; width:32px' ng-src="img/icon/new_group-512.png">
+            <img style='height:32px; width:32px' ng-src="img/icon/new_group-256.png">
+        </button>
+    </ion-nav-buttons>
+
+    <ion-nav-buttons side="left">
+        <button class="button button-clear button-icon button-positive icon ion-ios-search"
+                ng-click="openGroupSearch()">
         </button>
     </ion-nav-buttons>
 
     <ion-content>
 
-        <ion-item>
+        <!-- <ion-item>
             <button class="button button-small button-block icon-left ion-ios-search" 
                     ng-click="openGroupSearch()" style="margin: 0">
                 Search for existed groups
             </button>
-        </ion-item> 
-        <!-- {{groupsOfUser.length}} -->
+        </ion-item>  -->
         <div ng-if="groupsOfUser.length">
             <div ng-repeat="group in groupsOfUser" ng-if="$index%2==0" class="row">
                 <div class="col col-50 {{($index==groupsOfUser.length-1) ?'col-offset-25' :''}}">

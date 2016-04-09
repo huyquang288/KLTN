@@ -67,16 +67,12 @@
                           class="item-remove-animate item-avatar" 
                           nav-direction="forward" href="#/topic/{{topic.id}}"
                           type="item-text-wrap">
-                    <img ng-src="{{topic.thumbnail}}">
+                    <img ng-src="{{(topic.thumbnail) ?topic.thumbnail :'img/icon/topic.jpg'}}">
 
-                    <!-- <span class="badge avatar-badge avatar-badge-s"
-                          ng-class="{'badge-positive':room.roomType=='ms_friend', 'badge-stable':room.roomType=='fb_friend'}"
-                          ng-if="room.roomType!='group'">
-                        <i class="icon ion-ios-bolt" ng-if="room.roomType=='ms_friend'"></i>
-                        <i class="icon ion-social-facebook light" 
-                           ng-if="room.roomType=='fb_friend'">
-                        </i>
-                    </span> -->
+                    <span ng-if="topic.type==0"
+                          class="badge avatar-badge avatar-badge-s" ng-class="badge-positive">
+                        <i class="ion-ios-locked"></i>
+                    </span>
 
                     <h3>
                         <small>{{topic.title}}</small>
@@ -106,7 +102,7 @@
         </div>
 
         <!-- nếu thuộc về nhóm đó thì có thể new topic -->
-        <div ng-if="group.belong=='true'" class="row">
+        <!-- <div ng-if="group.belong=='true'" class="row">
             <div class="col text-center">
                 <div class="list card">
                     <div class="item" style="padding: 5px 15px 0px 15px">
@@ -115,9 +111,6 @@
                         </h2>
                         <div style="height: 15px"></div>
 
-                        <!-- <a class="plus-circle" ng-click="openNewTopic()">
-                            <i class="icon ion-ios-plus-empty stable"></i>
-                        </a> -->
                         <div class="fileUpload">
                             <i class="icon ion-camera"></i>
                             <input class="upload" type="file" accept="image/*" capture="camera">
@@ -146,9 +139,6 @@
                         </h2>
                         <div style="height: 15px"></div>
 
-                        <!-- <a class="plus-circle" ng-click="openNewTopic()">
-                            <i class="icon ion-ios-plus-empty stable"></i>
-                        </a> -->
                         <div class="fileUpload">
                             <i class="icon ion-camera"></i>
                             <input class="upload" type="file" accept="image/*" capture="camera">
@@ -169,7 +159,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <h4><b>Friend's groups of {{group.name}}</b></h4>
         <div ng-repeat="group in friendGroups" ng-if="$index%2==0" class="row">

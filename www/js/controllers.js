@@ -447,7 +447,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         
     })
 
-    .controller('TopicsCtrl', function ($rootScope, $scope, $stateParams, StorageData, Group, Topic, User) {
+    .controller('TopicsCtrl', function ($rootScope, $scope, $stateParams, StorageData, Group, Topic, User, Chat) {
         //console.log($stateParams.belong);
         setData($stateParams.groupId, $stateParams.belong);
         $rootScope.$on ("reload topics", function (event, args) {
@@ -457,14 +457,20 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             $scope.group= Group.getGroupById(id);
             $scope.group.belong= belong;
             $scope.friendGroups= Group.getFriendGroups(id);
-        }
+        };
 
         $scope.isBelong= function (groupId) {
             return Group.userIsBelong(groupId, $rootScope.userId);
-        }
+        };
         $scope.userNames= function (id) {
             return User.getUserNamesInGroup(id);
-        }
+        };
+        $scope.getLastMessageText= function (topicId) {
+            return Chat.getLastMessageText(topicId);
+        };
+        $scope.getLastMessageTime= function (topicId) {
+            return Chat.getLastMessageTime(topicId);
+        };
         
     })
 

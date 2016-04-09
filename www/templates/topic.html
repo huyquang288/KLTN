@@ -1,4 +1,4 @@
-<ion-view>
+<ion-view style='color:black'>
     <ion-nav-buttons side="primary">
         <button nav-direction="back" class="button button-clear button-icon button-positive icon ion-ios-arrow-back"
                 ng-click="historyBack()">
@@ -15,19 +15,19 @@
     <ion-nav-buttons side="right">
         <button class="button button-clear button-icon button-positive 
                         {{(isBookmark(topic.id)==false) ?'ion-ios-star-outline' :'ion-ios-star'}}"
-                style="{{(isBookmark(topic.id)==false) ?'color:#685f5f' :'color:#FAEF85'}}" 
+                style="{{(isBookmark(topic.id)==false) ?'color:#fff' :'color:#FAEF85'}}" 
                 ng-click="pin(topic.id)">
         </button>
     </ion-nav-buttons>
 
-    <ion-content class="padding">
-        <div style="height: 10px"></div>
+    <ion-content class="padding" style='background-color: #EDEEF1'>
+        <div style="height: 10px; color:red"></div>
         <div ng-if="chatList.length" class="list border-none" ng-repeat="chat in chatList" 
              ng-class="[{'me':chat.userId==userId}]">
 
             <!-- đoạn chat không phải của chủ tài khoản -->
-            <div class="item item-avatar-s chat-friend" ng-if="chat.userId!=userId">
-                <img ng-src="{{chat.user.face}}">
+            <div class="itemtopic item-avatar-s chat-friend" ng-if="chat.userId!=userId">
+                <img ng-src="{{(chat.userAvata) ?chat.userAvata :'img/icon/male.jpg'}}">
 
                 <!-- <span class="badge avatar-badge avatar-badge-xs"
                       ng-class="{'badge-positive':chat.user.friendType=='Messenger', 'badge-stable':chat.user.friendType=='facebook'}">
@@ -39,8 +39,8 @@
             </div>
 
             <!-- đoạn chat của chủ tài khoản -->
-            <div class="item item-avatar-right-s chat-me text-right" ng-if="chat.userId==userId">
-                <img ng-src="{{chat.user.face}}">
+            <div class="itemtopic item-avatar-right-s chat-me text-right" ng-if="chat.userId==userId">
+                <img ng-src="{{(chat.userAvata) ?chat.userAvata :'img/icon/male.jpg'}}">
 
                 <p class="chat-text positive-bg text-left"> {{chat.chatText}}</p>
             </div>

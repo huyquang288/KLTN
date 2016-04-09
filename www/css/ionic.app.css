@@ -3166,11 +3166,11 @@ a.subdued {
       background-image: linear-gradient(180deg, #D9D9D9, #D9D9D9 50%, transparent 50%); }
   .bar.bar-stable {
     border-color: #BABABA;
-    background-color: #d9d9d9;
+    background-color: #028EE6;
     background-image: linear-gradient(0deg, #BABABA, #BABABA 50%, transparent 50%);
     color: #444; }
     .bar.bar-stable .title {
-      color: #444; }
+      color: #fff; }
     .bar.bar-stable.bar-footer {
       background-image: linear-gradient(180deg, #BABABA, #BABABA 50%, transparent 50%); }
   .bar.bar-positive {
@@ -3629,7 +3629,7 @@ a.subdued {
   -webkit-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
   border-color: #BABABA;
-  background-color: #D9D9D9;
+  background-color: #f9fbfc;
   background-image: linear-gradient(0deg, #BABABA, #BABABA 50%, transparent 50%);
   color: #BABABA;
   position: absolute;
@@ -4793,6 +4793,19 @@ ion-tabs.tabs-color-active-dark .tab-item {
  * Items
  * --------------------------------------------------
  */
+.itemtopic {
+  border-color: #eeeeee;
+  background-color: #EDEEF1;
+  color: #444;
+  position: relative;
+  z-index: 2;
+  display: block;
+  margin: -1px;
+  padding: 15px;
+  border-width: 1px;
+  border-style: solid;
+  font-size: 16px; }
+
 .item {
   border-color: #eeeeee;
   background-color: #fff;
@@ -5179,10 +5192,10 @@ a.item-content {
   min-height: 60px; }
   .item-avatar-s > img:first-child, .item-avatar-s .item-image, .item-avatar-s .item-content > img:first-child, .item-avatar-s .item-content .item-image, .item-avatar-left-s > img:first-child, .item-avatar-left-s .item-image, .item-avatar-left-s .item-content > img:first-child, .item-avatar-left-s .item-content .item-image {
     position: absolute;
-    top: 15px;
+    top: 10px;
     left: 15px;
-    max-width: 30px;
-    max-height: 30px;
+    max-width: 40px;
+    max-height: 40px;
     width: 100%;
     height: 100%;
     border-radius: 50%; }
@@ -5218,10 +5231,10 @@ a.item-content {
   min-height: 60px; }
   .item-avatar-right-s > img:first-child, .item-avatar-right-s .item-image, .item-avatar-right-s .item-content > img:first-child, .item-avatar-right-s .item-content .item-image {
     position: absolute;
-    top: 15px;
+    top: 10px;
     right: 15px;
-    max-width: 30px;
-    max-height: 30px;
+    max-width: 40px;
+    max-height: 40px;
     width: 100%;
     height: 100%;
     border-radius: 50%; }
@@ -5397,7 +5410,7 @@ a.item-content {
   padding-top: 4px;
   padding-bottom: 4px;
   min-height: 14px;
-  background-color: #f5f5f5;
+  background-color: #f4f5f7;
   color: #222;
   font-weight: 500;
   font-size: 10px;
@@ -6996,7 +7009,7 @@ progress {
       border-color: transparent;
       background: none;
       box-shadow: none;
-      color: #009FE8;
+      color: #fff;
       font-size: ""; }
       .button.button-positive.button-clear.active, .button.button-positive.button-clear.activated {
         color: #171616; }
@@ -7811,7 +7824,7 @@ a.button {
   color: #D9D9D9; }
 
 .stable-bg {
-  background-color: #D9D9D9; }
+  background-color: #fff; }
 
 .stable-border {
   border-color: #D9D9D9; }
@@ -7820,7 +7833,7 @@ a.button {
   color: #009FE8; }
 
 .positive-bg {
-  background-color: #009FE8; }
+  background-color: #B1E2FC; }
 
 .positive-border {
   border-color: #009FE8; }
@@ -8086,7 +8099,7 @@ a.button {
   max-width: 200px; }
 
 .chat-me .chat-text {
-  color: #ffffff; }
+  color: #444; }
 
 .chat-friend .chat-text:before {
   position: absolute;
@@ -8096,7 +8109,7 @@ a.button {
   height: 0;
   border-width: 7px 14px 7px 0;
   border-style: solid;
-  border-color: transparent #D9D9D9 transparent; }
+  border-color: transparent #fff transparent; }
 
 .chat-me .chat-text:before {
   position: absolute;
@@ -8106,15 +8119,13 @@ a.button {
   height: 0;
   border-width: 7px 0 7px 14px;
   border-style: solid;
-  border-color: transparent #009FE8 transparent; }
+  border-color: transparent #B1E2FC transparent; }
 
 .chat-friend.item-avatar-s > img:first-child {
-  left: 5px;
-  top: 0; }
+  left: 5px;}
 
 .chat-me.item-avatar-right-s > img:first-child {
-  right: 5px;
-  top: 0; }
+  right: 5px;}
 
 .item p.chat-text {
   white-space: normal; }
@@ -8307,7 +8318,7 @@ input[type="text"], input[type="password"], input[type="datetime"], input[type="
 .item .badge.avatar-badge-s {
   top: 46px;
   left: 46px;
-  font-size: 10px;
+  font-size: 22px;
   width: 15px;
   height: 15px;
   line-height: 10px;
