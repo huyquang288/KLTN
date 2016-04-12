@@ -1,0 +1,42 @@
+
+<ion-modal-view id="new-topic" class="modal-page">
+    <ion-header-bar class="bar-stable">
+        <button class="button button-clear button-icon icon button-positive ion-ios-arrow-down" 
+                ng-click="closeNewTopic()">
+        </button>
+        <h1 class="title">New Topic</h1>
+        <button class="button button-clear button-icon icon button-positive ion-ios-checkmark-outline" 
+                ng-click="createNewTopic($root.newTopicName); $root.newTopicName=''">
+        </button>
+    </ion-header-bar>
+
+    <ion-content style='background-color: #EDEEF1'>
+
+        <div style="height: 15px"></div>
+        <ion-item class="item-avatar item-avatar-center item-avatar-xl text-center">
+            <img ng-src="img/icon/topic.jpg">
+            <span ng-if="isDisp"
+                  class="avatar-badge" ng-class="badge-positive">
+                <i style="font-size:30px" class="ion-ios-locked"></i>
+            </span>
+        </ion-item>
+        <div style="height: 30px"></div>
+
+        <div style="margin-left:10%; width:80%">
+            <input type="text" ng-model="$root.newTopicName" placeholder="Name this group"
+                   style="height: 57px; text-align:center; width: 100%">
+        </div>
+        <div style="height: 20px"></div>
+
+        <label class="item item-input item-select">
+            <div class="input-label">
+                Privacy
+            </div>
+            <select name="category-group" id="categoryGroup" ng-model="itemSelected"
+                    ng-change="onCategoryChange(itemSelected)" 
+                    ng-options="category.name for category in categories">
+            </select>
+        </label>
+
+    </ion-content>
+</ion-modal-view>

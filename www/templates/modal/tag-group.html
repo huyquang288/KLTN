@@ -1,0 +1,28 @@
+
+<ion-modal-view id="new-group" class="modal-page">
+    <ion-header-bar class="bar-stable">
+        <button class="button button-clear button-icon icon button-positive ion-ios-arrow-down" 
+                ng-click="closeTagGroup()">
+        </button>
+        <h1 class="title">Tag Group</h1>
+        <button class="button button-clear button-icon icon button-positive ion-ios-checkmark-outline" 
+                ng-click="tagGroup()">
+        </button>
+    </ion-header-bar>
+123
+    <ion-content style='background-color: #EDEEF1'>
+        <ion-list>
+            <ion-item class="item-checkbox item-checkbox-right item-avatar" 
+                      ng-repeat="gr in groups">
+                <label class="checkbox">
+                    <input type="checkbox" ng-model="gr.checked" ng-checked="gr.checked">
+                </label>
+
+                <h3>
+                    <small>{{gr.name}}</small>
+                </h3>
+                <p>Members: {{userNames(gr.id)}}</p>
+            </ion-item>
+        </ion-list>
+    </ion-content>
+</ion-modal-view>

@@ -1,35 +1,34 @@
 <ion-view view-title="Setting">
-    <ion-nav-buttons side="right">
+    <!-- <ion-nav-buttons side="right">
         <button style="color:#fff" class="icon button-clear button-icon button-positive ion-edit" 
                 ng-click="showEdit()">
         </button>
-    </ion-nav-buttons>
+    </ion-nav-buttons> -->
 
-    <ion-content id="tab-account">
+    <ion-content id="tab-account" style='background-color: #EDEEF1'>
         <ion-list>
-            <ion-item ng-if="true"
-                      class="item-avatar item-avatar-center item-avatar-xl text-center">
-                <img ng-src="{{(chat.userAvata) ?chat.userAvata :'img/icon/male.jpg'}}">
+            <div style="height: 10px"></div>
+            <ion-item class="item-avatar item-avatar-center item-avatar-xl text-center">
+                <img ng-src="{{(user.face) ?user.face :'img/icon/male.jpg'}}">
                 
-                <div>
+                <h2>
                     <button class="button button-clear button-positive" ng-click="showEdit()">
-                        <b><h3>{{userName}}</h3></b>
+                        <small style="color:black">{{user.firstName}} {{user.lastName}}</small>
                     </button>
-                </div>
+                </h2>
             </ion-item>
-
+            <div style="height: 30px"></div>
             <ion-item class="item-icon-right" ng-click="showNotification();">
                 <h3><small>Notifications</small></h3>
                 <p>On</p>
                 <i class="icon ion-ios-arrow-right"></i>
             </ion-item>
-
             <ion-toggle ng-model="setting_preview">
                 <h3><small>Notification Previews</small></h3>
                 <p ng-if="!setting_preview">Show name only</p>
                 <p ng-if="setting_preview">Show name and massage</p>
             </ion-toggle>
-
+            <div style="height: 20px"></div>
             <ion-toggle ng-model="setting_sound">
                 <h3><small>In-App Sound</small></h3>
                 <p ng-if="!setting_sound">Off</p>
@@ -41,43 +40,38 @@
                 <p ng-if="!setting_vibration">Off</p>
                 <p ng-if="setting_vibration">On</p>
             </ion-toggle>
-            <ion-item class="item-icon-right" ng-click="showSync();">
-                <h3><small>Synced Contacts</small></h3>
-                <p>On</p>
-                <i class="icon ion-ios-arrow-right"></i>
-            </ion-item>
-            <ion-item class="item-icon-right" ng-click="show();">
-                <h3><small>Invite Friends</small></h3>
-                <i class="icon ion-ios-arrow-right"></i>
-            </ion-item>
-            <ion-toggle ng-modal="setting_camera">
-                <h3><small>Save Photos to the Camera Roll</small></h3>
-                <p ng-if="!setting_camera">Off</p>
-                <p ng-if="setting_camera">On</p>
-            </ion-toggle>
+            <div style="height: 20px"></div>
+
             <ion-item class="item-icon-right" href="#">
                 <h3><small>Help</small></h3>
                 <i class="icon ion-ios-arrow-right"></i>
             </ion-item>
+
             <ion-item class="item-icon-right" href="#">
                 <h3><small>Third Party Notice</small></h3>
                 <i class="icon ion-ios-arrow-right"></i>
             </ion-item>
+
             <ion-item class="item-icon-right" href="#">
                 <h3><small>Privacy Policy</small></h3>
                 <i class="icon ion-ios-arrow-right"></i>
             </ion-item>
+
             <ion-item class="item-icon-right" href="#">
                 <h3><small>Terms of Service</small></h3>
                 <i class="icon ion-ios-arrow-right"></i>
             </ion-item>
+
             <ion-item class="item-icon-right" ng-click="show();">
                 <h3><small>Report a Problem</small></h3>
                 <i class="icon ion-ios-arrow-right"></i>
             </ion-item>
+
+            <div style="height: 30px"></div>
             <ion-item class="item-icon-right" ng-click="logout();">
-                <h4 style='text-align:center; color:blue'>Log out</h4>
+                <h2 style='text-align:center; color:blue'><small>Log out</small></h2>
             </ion-item>
+            <div style="height: 20px"></div>
         </ion-list>
     </ion-content>
 </ion-view>

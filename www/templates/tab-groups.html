@@ -33,14 +33,7 @@
         </button>
     </ion-nav-buttons>
 
-    <ion-content>
-
-        <!-- <ion-item>
-            <button class="button button-small button-block icon-left ion-ios-search" 
-                    ng-click="openGroupSearch()" style="margin: 0">
-                Search for existed groups
-            </button>
-        </ion-item>  -->
+    <ion-content style='background-color: #EDEEF1'>
         <div ng-if="groupsOfUser.length">
             <div ng-repeat="group in groupsOfUser" ng-if="$index%2==0" class="row">
                 <div class="col col-50 {{($index==groupsOfUser.length-1) ?'col-offset-25' :''}}">
@@ -100,6 +93,7 @@
             </div>
         </div>
     
+        <div style="height: 30px"></div>
         <h4><b>Sugguest groups</b></h4>
         <div ng-repeat="group in suggestGroups" ng-if="$index%2==0" class="row">
             <div class="col col-50 {{($index==suggestGroups.length-1) ?'col-offset-25' :''}}">

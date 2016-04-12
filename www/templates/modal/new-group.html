@@ -6,20 +6,16 @@
         </button>
         <h1 class="title">New Group</h1>
         <button class="button button-clear button-icon icon button-positive ion-ios-checkmark-outline" 
-                ng-click="createNewGroup($root.newGroupName)">
+                ng-click="createNewGroup($root.newGroupName); $root.newGroupName=''">
         </button>
     </ion-header-bar>
 
-    <ion-content>
+    <ion-content style='background-color: #EDEEF1'>
         <div>
-            <div style="margin-left:20%">
-                <input type="text" ng-model="$root.newGroupName" placeholder="Name this group"
-                       style="height: 57px; text-align:left; width: 100%">
+            <div style="margin-left:10%; width:80%">
+                <input type="text" ng-model="$root.newTopicName" placeholder="Name this topic"
+                       style="height: 57px; text-align:center; width: 100%">
             </div>
-            <!-- <div style="margin-left:20%">
-                <input type="text" ng-model="$root.newGroupDescription" placeholder="Description"
-                       style="height: 57px; text-align:left; width: 100%">
-            </div> -->
         </div>
         <ion-list>
             <ion-item class="item-checkbox item-checkbox-right item-avatar" 
@@ -28,11 +24,6 @@
                     <input type="checkbox" ng-model="user.checked" ng-checked="user.checked">
                 </label>
                 <img ng-src="{{user.face}}">
-                <!-- <span class="badge avatar-badge avatar-badge-s"
-                      ng-class="{'badge-positive':friend.friendType=='Messenger', 'badge-stable':friend.friendType=='facebook'}">
-                    <i class="icon ion-ios-bolt" ng-if="friend.friendType=='Messenger'"></i>
-                    <i class="icon ion-social-facebook light" ng-if="friend.friendType=='facebook'"></i>
-                </span> -->
 
                 <h2>
                     <small>{{user.firstName}} {{user.lastName}}</small>

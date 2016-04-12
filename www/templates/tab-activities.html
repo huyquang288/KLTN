@@ -9,20 +9,12 @@
                 ng-click="openSearch()"></button>
     </ion-nav-buttons>
 
-    <ion-content>
+    <ion-content style='background-color: #EDEEF1'>
         <ion-list ng-if="recentTopics.length>0 || bookmarkTopics.length>0">
-            <!-- <ion-item>
-                <button class="button button-small button-block icon-left ion-ios-search" 
-                        ng-click="openSearch()"
-                        style="margin: 0">
-                    Search for people and topics
-                </button>
-            </ion-item> -->
-            <h4 ng-if="recentTopics.length>0">
-                <p style='text-align:center'>
-                    <b class="button-icon icon ion-ios-clock-outline"></b>
-                </p>
-            </h4>
+            <div ng-if="recentTopics.length>0"
+                 class="item item-divider" style="text-align:center" >
+                <b class="button-icon icon ion-ios-clock-outline"></b>
+            </div>
             <span ng-repeat="topic in recentTopics track by $index">
                 <ion-item class="item-remove-animate item-avatar" 
                           nav-direction="forward" href="#/topic/{{topic.id}}"
@@ -48,11 +40,11 @@
                     </ion-option-button>
                 </ion-item>
             </span>
-            <h4 ng-if="bookmarkTopics.length>0">
-                <p style='text-align:center'>
-                    <b class="button-icon icon ion-ios-bookmarks-outline"></b>
-                </p>
-            </h4>
+
+            <div ng-if="bookmarkTopics.length>0" 
+                 class="item item-divider" style="text-align:center" >
+                <b class="button-icon icon ion-ios-bookmarks-outline"></b>
+            </div>
             <span ng-repeat="topic in bookmarkTopics track by $index">
                 <ion-item class="item-remove-animate item-avatar" 
                           nav-direction="forward" href="#/topic/{{topic.id}}"

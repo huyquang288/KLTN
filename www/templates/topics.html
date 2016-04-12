@@ -33,16 +33,9 @@
         border: 1px solid #cccccc;
         border-radius: 50%;
         padding: 8px 13px;
-
         position: relative;
         top: 12px;
     }
-
-    /*.item h3 small {*/
-        /*overflow: hidden;*/
-        /*text-overflow: ellipsis;*/
-        /*white-space: nowrap;*/
-    /*}*/
 </style>
 
 <ion-view>
@@ -52,6 +45,12 @@
                 ng-click="historyBack()">
         </button>
     </ion-nav-buttons>
+    <ion-nav-buttons side="right">
+        <button ng-if="group.belong=='true'" 
+                class="button button-clear button-positive" ng-click="openNewTopic()">
+            <img style='height:32px; width:32px' ng-src="img/icon/new_topic-256.png">
+        </button>
+    </ion-nav-buttons>
 
     <ion-nav-title>
         <a>
@@ -59,7 +58,7 @@
         </a>
     </ion-nav-title>
 
-    <ion-content>
+    <ion-content style='background-color: #EDEEF1'>
 
         <ion-list ng-if="group.topics.length>0">
             <span ng-repeat="topic in group.topics">
@@ -107,39 +106,11 @@
                 <div class="list card">
                     <div class="item" style="padding: 5px 15px 0px 15px">
                         <h2 class="positive">
-                            <small>New Public Topic</small>
-                        </h2>
-                        <div style="height: 15px"></div>
-
-                        <div class="fileUpload">
-                            <i class="icon ion-camera"></i>
-                            <input class="upload" type="file" accept="image/*" capture="camera">
-                        </div>
-
-                        <div style="height: 30px"></div>
-                        
-                        <p class="stable">public</p>
-                        <div>
-                            <input type="text" ng-model="$root.newPublicTopicName" 
-                                   placeholder="Name new topic"
-                                   style="height: 40px; text-align:center; width: 100%">
-                        </div>
-                        <a class="button button-clear button-positive" 
-                           ng-click="createNewTopic('Public', $root.newPublicTopicName, '', group.id); $root.newPublicTopicName=''">
-                            OK
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col text-center">
-                <div class="list card">
-                    <div class="item" style="padding: 5px 15px 0px 15px">
-                        <h2 class="positive">
                             <small>New Private Topic</small>
                         </h2>
                         <div style="height: 15px"></div>
 
-                        <div class="fileUpload">
+                        <div class="fileUpload" >
                             <i class="icon ion-camera"></i>
                             <input class="upload" type="file" accept="image/*" capture="camera">
                         </div>
@@ -161,6 +132,7 @@
             </div>
         </div> -->
 
+        <div style="height: 40px"></div>
         <h4><b>Friend's groups of {{group.name}}</b></h4>
         <div ng-repeat="group in friendGroups" ng-if="$index%2==0" class="row">
             <div class="col col-50 {{($index==friendGroups.length-1) ?'col-offset-25' :''}}">

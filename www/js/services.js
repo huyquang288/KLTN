@@ -49,6 +49,11 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 return $http.post(DOMAIN+"newTopic", data).then(function (response) {
                     return response.data;
                 });
+            },
+            newTag: function (data) {
+                return $http.post(DOMAIN+"newTag", data).then(function (response) {
+                    return response.data;
+                });
             }
         }
     })
@@ -129,7 +134,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                             groupId: groupId,
                             userId: list[i],
                             isAdmin: (i==(list.length-1) ?1 :0)}
-                    data.group_user[data.group_user.length]= ele;
+                    data.group_user.push(ele);
                 }
             },
             getMembers: function (id) {
@@ -190,9 +195,24 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
             }
         }
         return {
+            setTag: function (arg) {
+                var data= StorageData.getData();
+                var pos;
+                if (data.tags== null) {
+                    pos= 0;
+                    data.tags= [];
+                } else {
+                    pos= data.tags.length;
+                }
+                list= arg.groupList.split('+');
+                for (var i in list) {
+                    data.tags.push({id:++pos, groupId:list[i], topicId: arg.topic});
+                }
+                StorageData.saveData(data);
+            },
             setGroup: function (id, name) {
                 var data= StorageData.getData();
-                data.groups_topics[data.groups_topics.length]= {id: id, name: name};
+                data.groups_topics.push({id: id, name: name});
                 StorageData.saveData(data);
             },
             userIsBelong: function (groupId, userId) {
@@ -275,6 +295,9 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                     }
                 }
                 return returnGroups(suggestGroupsId);
+            },
+            getAllGroups: function () {
+                return StorageData.getData().groups_topics;
             }
         }
     }])
@@ -419,7 +442,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 for (var i in data.groups_topics) {
                     if (data.groups_topics[i].id== topic.groupId) {
                         var pos= (data.groups_topics[i].topics.length>0) ?data.groups_topics[i].topics.length :0;
-                        data.groups_topics[i].topics[pos]= topic;
+                        data.groups_topics[i].topics.push(topic);
                         StorageData.saveData(data);
                         return;
                     }
@@ -485,7 +508,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
             },
             add: function (chat) {
                 var data= StorageData.getData();
-                data.topicchats[data.topicchats.length]= chat;
+                data.topicchats.push(chat);
                 StorageData.saveData(data);
             },
             getChatList: function (id) {
@@ -501,5 +524,3 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
             }
         };
     }]);
-
-   

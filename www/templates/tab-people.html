@@ -6,13 +6,13 @@
         </button>
     </ion-nav-buttons>
 
-    <ion-content>
+    <ion-content style='background-color: #EDEEF1'>
         <ion-list>
             <span ng-repeat="user in users">
                 <ion-item class="item-avatar" type="item-text-wrap" href="#/topic/{{user.id}}" 
                           nav-direction="forward">
 
-                    <img ng-src="{{(chat.userAvata) ?chat.userAvata :'img/icon/male.jpg'}}">
+                    <img ng-src="{{(user.face) ?user.face :((user.gender==0) ?'img/icon/male.jpg' :'img/icon/female.jpg')}}">
                     <h3>
                         <small>{{user.firstName}} {{user.lastName}}</small>
                     </h3>

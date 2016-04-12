@@ -22,27 +22,22 @@
 
     <ion-content class="padding" style='background-color: #EDEEF1'>
         <div style="height: 10px; color:red"></div>
-        <div ng-if="chatList.length" class="list border-none" ng-repeat="chat in chatList" 
-             ng-class="[{'me':chat.userId==userId}]">
+        <div ng-if="chatList.length">
+            <div class="list border-none" ng-repeat="chat in chatList" 
+                 ng-class="[{'me':chat.userId==userId}]">
 
-            <!-- đoạn chat không phải của chủ tài khoản -->
-            <div class="itemtopic item-avatar-s chat-friend" ng-if="chat.userId!=userId">
-                <img ng-src="{{(chat.userAvata) ?chat.userAvata :'img/icon/male.jpg'}}">
+                <!-- đoạn chat không phải của chủ tài khoản -->
+                <div class="itemtopic item-avatar-s chat-friend" ng-if="chat.userId!=userId">
+                    <img ng-src="{{(chat.userAvata) ?chat.userAvata :'img/icon/male.jpg'}}">
+                    <p class="chat-text stable-bg"> {{chat.chatText}}</p>
+                </div>
 
-                <!-- <span class="badge avatar-badge avatar-badge-xs"
-                      ng-class="{'badge-positive':chat.user.friendType=='Messenger', 'badge-stable':chat.user.friendType=='facebook'}">
-                    <i class="icon ion-ios-bolt" ng-if="chat.user.friendType=='Messenger'"></i>
-                    <i class="icon ion-social-facebook light" ng-if="chat.user.friendType=='facebook'"></i>
-                </span> -->
-
-                <p class="chat-text stable-bg"> {{chat.chatText}}</p>
-            </div>
-
-            <!-- đoạn chat của chủ tài khoản -->
-            <div class="itemtopic item-avatar-right-s chat-me text-right" ng-if="chat.userId==userId">
-                <img ng-src="{{(chat.userAvata) ?chat.userAvata :'img/icon/male.jpg'}}">
-
-                <p class="chat-text positive-bg text-left"> {{chat.chatText}}</p>
+                <!-- đoạn chat của chủ tài khoản -->
+                <div ng-if="chat.userId==userId"
+                     class="itemtopic item-avatar-right-s chat-me text-right">
+                    <img ng-src="{{face}}">
+                    <p class="chat-text positive-bg text-left"> {{chat.chatText}}</p>
+                </div>
             </div>
         </div>
 
@@ -57,7 +52,6 @@
             <h4>{{topic.title}} is on Messenger and will get your messages instantly.</h4>
         </div>
     </ion-content>
-
 
     <ion-footer-bar class="bar-light chat-bar">
         <form class="row" name="theform">

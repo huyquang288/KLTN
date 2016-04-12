@@ -21,14 +21,19 @@
 </style>
 
 <!-- name of tab -->
-<ion-view view-title="{{room.roomType == 'group'?'Group':'Topic Setting'}}">
+<ion-view view-title="Topic Setting">
     <ion-nav-buttons side="primary">
-        <!-- back button -->
         <button nav-direction="back" 
                 class="button button-clear button-icon button-positive icon ion-ios-arrow-back"
                 ng-click="historyBack()">
         </button>
     </ion-nav-buttons>
+
+    <!-- <ion-nav-buttons side="right">
+        <button style="color:#fff" class="icon button-clear button-icon button-positive ion-edit" 
+                ng-click="showEdit()">
+        </button>
+    </ion-nav-buttons> -->
 
     <ion-content style="background-color: #f4f4f4">
         <ion-list>
@@ -37,19 +42,17 @@
 
                 <!-- anh dai dien, click vao de thay doi anh dai dien -->
                 <div class="fileUpload">
-                    <img ng-src="{{room.thumbnail}}">
+                    <img ng-src="{{(topic.thumbnail) ?topic.thumbnail :'img/icon/topic.jpg'}}">
                     <input class="upload" type="file" accept="image/*" capture="camera">
                 </div>
 
-                <!-- name of person or group -->
+                <!-- name of topic -->
                 <h2>
-                    <small>{{room.title}}</small>
+                    <button class="button button-clear button-positive" ng-click="showEdit()">
+                        <small style="color:black">{{topic.title}}</small>
+                    </button>
                 </h2>
-
-
-                <p ng-if="room.userList.length > 2">{{room.activeTime}}</p>
-
-                <p ng-if="room.userList.length == 2">{{user.friendType}}</p>
+                
             </ion-item>
 
             <!-- noti tab -->
@@ -59,28 +62,23 @@
                 <span class="item-note">On</span>
             </ion-item>
 
-            <!-- chua co su kien -->
-            <ion-item class="item-icon-left item-icon-right">
-                <i class="icon ion-ios-camera-outline positive"></i>
-                Shared Photos
-                <i class="icon ion-ios-arrow-right"></i>
-            </ion-item>
-
             <div style="height: 35px"></div>
 
-            <!-- if tab == group -->
-            <ion-item class="item-icon-left" ng-click="openAddPeople();" ng-if="room.roomType == 'group'">
-                <i class="icon ion-ios-plus-empty positive"></i>
-                Add People
-            </ion-item>
-
-            <!-- if tab= person -->
-            <ion-item class="item-icon-left" ng-click="openNewGroup();" ng-if="room.roomType != 'group'">
+            <ion-item ng-if="room.roomType != 'group'"
+                    class="item-icon-left" ng-click="openTagGroup();">
                 <i class="icon ion-ios-plus-empty positive"></i>
                 Tag Group
             </ion-item>
 
+
+
             <!-- if tab == group -->
+            <!-- <ion-item class="item-icon-left" ng-click="openAddPeople();" >
+                <i class="icon ion-ios-plus-empty positive"></i>
+                Add People
+            </ion-item> 
+
+
             <ion-item href="#/user-setting/{{user.id}}" class="item-avatar item-icon-right"
                       ng-repeat="user in room.user" type="item-text-wrap" ng-if="room.roomType == 'group'">
                 <img ng-src="{{user.face}}">
@@ -95,15 +93,10 @@
                 <i class="icon ion-ios-information-outline positive"></i>
             </ion-item>
 
-            <!-- div trang, khoang cach tach phan ben duoi ra -->
-            <div style="height: 35px"></div>
-
-            <!-- thoat nhom, tab nhom -->
             <ion-item class="assertive" ng-click="showConfirmLeave();" ng-if="room.roomType == 'group'">
                 Leave Group
-            </ion-item>
+            </ion-item> -->
 
-            <div style="height: 35px"></div>
         </ion-list>
     </ion-content>
 </ion-view>
