@@ -62,7 +62,7 @@ app.post('/login', function (req, res){
 
 app.post('/all', function(req, res){
 	var userId= req.body.id;
-	var groups_topics, group_group, group_user, topicchats, users, bookmark;
+	var groups_topics, group_group, group_user, topicchats, users, bookmark, tags;
 	var sql = "SELECT * FROM groups LEFT JOIN topics ON groups.id=topics.groupId";
 	var nestingOptions = [
 		{ tableName: 'groups', pkey: 'id'},
@@ -121,16 +121,28 @@ app.post('/all', function(req, res){
 												}
 												else {
 													bookmark = func.convertToNested(rows);
-													var result= {
-														groups_topics: groups_topics,
-														group_group: group_group,
-														group_user: group_user,
-														bookmark: bookmark,
-														topicchats: topicchats,
-														users: users
-													};
-													//console.log (result);
-													res.send(result);
+													sql = "SELECT * FROM tags";
+													mysqlConnection.query(sql, function (err, rows) {
+													// error handling
+														if (err){
+															console.log('Internal error: ', err);
+															res.send("Mysql query execution error!");
+														}
+														else {
+															tags = func.convertToNested(rows);
+															var result= {
+																groups_topics: groups_topics,
+																group_group: group_group,
+																group_user: group_user,
+																bookmark: bookmark,
+																topicchats: topicchats,
+																users: users,
+																tags: tags
+															};
+															//console.log (result);
+															res.send(result);
+														}
+													});
 												}
 											});
 										}

@@ -262,9 +262,9 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             animation: 'slide-in-up'
         }).then(function (modal) {
             $scope.tagGroupModal = modal;
-            $scope.groups = Group.getAllGroups();
         });
         $scope.openTagGroup = function () {
+            $scope.groups = Group.getAllGroups();
             $scope.tagGroupModal.show();
         };
         $scope.closeTagGroup = function () {
@@ -378,6 +378,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         if (userId!="" && userId!=undefined) {
             ConnectServer.getAll(userId).then(function (data) {
                 StorageData.saveData (data);
+                StorageData.rewriteData();
                 $rootScope.user= User.getUserInfo(userId);
                 getRecentTopcis();
                 getBookmarkTopics();

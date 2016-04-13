@@ -4,17 +4,6 @@ var DOMAIN="http://localhost:8028/";
 
 // Users
 angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
-    .factory('$localstorage', ['$window', function ($window) {
-        return {
-            save: function (data) {
-                localStorage['data']= JSON.stringify(data);
-            },
-            get: function () {
-                return JSON.parse(localStorage['data'] || '{}');
-            }
-        };
-    }])
-
     .factory('StorageData', function () {
         var data;
         return {
@@ -26,6 +15,30 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
             },
             saveData: function (dataIn) {
                 data= dataIn;
+                localStorage['ionic_data'] = JSON.stringify(data);
+            },
+            rewriteData: function () {
+                var topics= [];
+                for (var i in data.groups_topics) {
+                    for (var j in data.groups_topics[i].topics) {
+                        // đưa những tất cả topic vào mảng
+                        //console.log(data.groups_topics[i].topics[j])
+                        topics[data.groups_topics[i].topics[j].id]= data.groups_topics[i].topics[j];
+                    }
+                }
+                for (var i in data.groups_topics) {
+                    for (var j in data.tags) {
+                        if (data.groups_topics[i].id== data.tags[j].groupId) {
+                            if (data.groups_topics[i].topics==null) {
+                                data.groups_topics[i].topics= [];
+                            }
+                            console.log(data.groups_topics[i].id);
+                            data.groups_topics[i].topics.push(topics[data.tags[j].topicId]);
+                            data.groups_topics[i].topics[data.groups_topics[i].topics.length-1].isBelong= false;
+                        }
+                    }
+                }
+                console.log(data)
                 localStorage['ionic_data'] = JSON.stringify(data);
             }
         };
@@ -379,21 +392,29 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 for (var i in groups_topics) {
                     for (var j in groups_topics[i].topics) {
                         // đưa những tất cả topic vào mảng
-                        topics.push(groups_topics[i].topics[j]);
+                        //console.log(groups_topics[i].topics[j].isBelong);
+                        if (groups_topics[i].topics[j].isBelong== null) {
+                            topics.push(groups_topics[i].topics[j]);
+                        }
+                        else {
+                            console.log(groups_topics[i].name +'. ' +groups_topics[i].topics[j].title +'. ' +groups_topics[i].topics[j].isBelong);
+                        }
                         var regexString= ('\\+' +groups_topics[i].id +'\\+');
                         var regex= new RegExp (regexString);
-                        if (groupsIdOfUser.match(regex)!= null) {
+                        //console.log(groups_topics[i].topics[j]);
+                        var regexString2= ('\\+' +groups_topics[i].topics[j].id +'\\+');
+                        var regex2= new RegExp (regexString2);
+                        if (groupsIdOfUser.match(regex)!= null && topicsIdOfUser.match(regex2)==null) {
                             topicsIdOfUser+= (groups_topics[i].topics[j].id +'+');
                         }
                         // đưa những topic được bookmark vào mảng
-                        regexString= ('\\+' +groups_topics[i].topics[j].id +'\\+');
-                        //console.log (bookmarkTopicsIdOfUser +", " +regexString);
-                        regex= new RegExp (regexString);
-                        if (bookmarkTopicsIdOfUser.match(regex)!= null) {
+                        if (bookmarkTopicsIdOfUser.match(regex2)!= null) {
                             bookmarkTopics.push(groups_topics[i].topics[j]);
                         }
                     }
                 }
+
+                //console.log(topicsIdOfUser);
                 // đưa ra danh sách của mảng đã xếp theo thứ tự recent
                 temp= StorageData.getData().topicchats;
                 var recentTopicId= '+';
@@ -410,7 +431,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                     }
                 }
                 recentTopicId= recentTopicId.match(/\+[0-9]*/g).map(function(data){return data.replace('+', '')});
-                //console.log(recentTopicId);
+                console.log(topics);
                 for (var i in recentTopicId) {
                     for (var j in topics) {
                         if (recentTopicId[i]== topics[j].id) {
