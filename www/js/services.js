@@ -23,7 +23,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                     for (var j in data.groups_topics[i].topics) {
                         // đưa những tất cả topic vào mảng
                         //console.log(data.groups_topics[i].topics[j])
-                        topics[data.groups_topics[i].topics[j].id]= data.groups_topics[i].topics[j];
+                        topics[data.groups_topics[i].topics[j].id]= JSON.parse(JSON.stringify(data.groups_topics[i].topics[j]));
                     }
                 }
                 for (var i in data.groups_topics) {
@@ -32,13 +32,13 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                             if (data.groups_topics[i].topics==null) {
                                 data.groups_topics[i].topics= [];
                             }
-                            console.log(data.groups_topics[i].id);
+                            //console.log(data.groups_topics[i].id);
                             data.groups_topics[i].topics.push(topics[data.tags[j].topicId]);
                             data.groups_topics[i].topics[data.groups_topics[i].topics.length-1].isBelong= false;
                         }
                     }
                 }
-                console.log(data)
+                //console.log(data)
                 localStorage['ionic_data'] = JSON.stringify(data);
             }
         };
@@ -208,7 +208,26 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
             }
         }
         return {
+            getGroupsForTag: function (topicId) {
+                var returnGroups= [];
+                var check= true;
+                var groups= StorageData.getData().groups_topics;
+                for (var i in groups) {
+                    check= true;
+                    for (var j in groups[i].topics) {
+                        if (groups[i].topics[j].id== topicId) {
+                            check= false;
+                            break;
+                        }
+                    }
+                    if (check) {
+                        returnGroups.push(groups[i]);
+                    }
+                }
+                return returnGroups;
+            },
             setTag: function (arg) {
+                console.log(arg);
                 var data= StorageData.getData();
                 var pos;
                 if (data.tags== null) {
@@ -219,9 +238,11 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 }
                 list= arg.groupList.split('+');
                 for (var i in list) {
+                    console.log(list[i]);
                     data.tags.push({id:++pos, groupId:list[i], topicId: arg.topic});
                 }
                 StorageData.saveData(data);
+                StorageData.rewriteData();
             },
             setGroup: function (id, name) {
                 var data= StorageData.getData();
@@ -332,6 +353,15 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
             }
         };
         return {
+            getGroupOfTopic: function (topicId) {
+                var groups= StorageData.getData().groups_topics;
+                for (var i in groups) {
+                    for (var j in groups[i].topics) {
+                        if (groups[i].topics[j].id== topicId && groups[i].topics[j].isBelong== null)
+                            return groups[i].id;
+                    }
+                }
+            },
             addBookmark: function (userId, topicId) {
                 var data= StorageData.getData();
                 var pos= (data.bookmark.length>0 ?data.bookmark.length :0);
@@ -396,9 +426,6 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                         if (groups_topics[i].topics[j].isBelong== null) {
                             topics.push(groups_topics[i].topics[j]);
                         }
-                        else {
-                            console.log(groups_topics[i].name +'. ' +groups_topics[i].topics[j].title +'. ' +groups_topics[i].topics[j].isBelong);
-                        }
                         var regexString= ('\\+' +groups_topics[i].id +'\\+');
                         var regex= new RegExp (regexString);
                         //console.log(groups_topics[i].topics[j]);
@@ -431,7 +458,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                     }
                 }
                 recentTopicId= recentTopicId.match(/\+[0-9]*/g).map(function(data){return data.replace('+', '')});
-                console.log(topics);
+                //console.log(topics);
                 for (var i in recentTopicId) {
                     for (var j in topics) {
                         if (recentTopicId[i]== topics[j].id) {

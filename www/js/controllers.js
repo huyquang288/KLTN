@@ -48,7 +48,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         });
 
         Socket.on('created new topic', function (data) {
-            if (Group.userIsBelong(data.groupId, $scope.userId) == 'true') {
+            if (Group.userIsBelong(data.groupId, $rootScope.userId) == 'true') {
                 Topic.newTopic(data);
                 $rootScope.$broadcast("reload topics");
                 var body= Group.getGroupById(data.groupId).name +' was created \'' +data.title +'\' topic';
@@ -60,7 +60,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             var list= data.groupList.split('+');
             var groupsName= '';
             for (var i in list) {
-                if (Group.userIsBelong(list[i], $scope.userId) == 'true') {
+                if (Group.userIsBelong(list[i], $rootScope.userId) == 'true') {
                     if (groupsName=='') {
                         groupsName= ('Your group(s): \'' +Group.getGroupById(list[i]).name);
                     } else {
@@ -70,8 +70,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             }
             if (groupsName!= '') {
                 Group.setTag(data);
-                //$rootScope.$broadcast("reload topics");
-                //$rootScope.$broadcast("reload groups");
+                $rootScope.$broadcast("reload recent");
+                $rootScope.$broadcast("reload topics");
                 var body=  groupsName +'\' was taged in \'' +Topic.getTopicById(data.topic).title +'\' topic';
                 $rootScope.pushNotification('New Tag', body, '/topic/' +data.topic);
             }
@@ -264,7 +264,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             $scope.tagGroupModal = modal;
         });
         $scope.openTagGroup = function () {
-            $scope.groups = Group.getAllGroups();
+            //console.log($stateParams.topicId)
+            $scope.groups = Group.getGroupsForTag($stateParams.topicId);
             $scope.tagGroupModal.show();
         };
         $scope.closeTagGroup = function () {
@@ -422,7 +423,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
     })
 
-    .controller('TopicCtrl', function ($rootScope, $scope, $stateParams, $ionicPopup, Socket, Topic, Chat) {
+    .controller('TopicCtrl', function ($rootScope, $scope, $stateParams, $ionicPopup, Socket, Topic, Chat, Group) {
         $scope.face= ($rootScope.user) ?$rootScope.user.face :'img/icon/male.jpg';
         $scope.userId= $rootScope.userId;
         var topics= Topic.getTopics();
@@ -431,7 +432,13 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         for (var i=0; i< topics.length; i++) {
             if ($stateParams.topicId== topics[i].id) {
                 $scope.topic= topics[i];
-                $scope.topic.settingURL = "#/topic-setting/" + $stateParams.topicId;
+                groupId= Topic.getGroupOfTopic($stateParams.topicId);
+                if (Group.userIsBelong(groupId, $rootScope.userId)== 'true') {
+                    $scope.topic.settingURL = "#/topic-setting/" + $stateParams.topicId;    
+                }
+                else {
+                    $scope.topic.settingURL = '';
+                }
                 $scope.chatList= Chat.getChatList($stateParams.topicId);
                 Socket.emit('user join to topic', $stateParams.topicId, $scope.userId);
                 break;
@@ -515,10 +522,10 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             $scope.group= Group.getGroupById($stateParams.groupId);
             $scope.members= User.getMembers($stateParams.groupId);
         }
-        $rootScope.$on("reload groups", function (event, args){
+        $rootScope.$on("reload groups", function (event, args) {
             getGroups();
         });
-        $rootScope.$on("reload users", function (event, args){
+        $rootScope.$on("reload users", function (event, args) {
             if ($stateParams.groupId) {
                 $scope.members= User.getMembers($stateParams.groupId);
             }

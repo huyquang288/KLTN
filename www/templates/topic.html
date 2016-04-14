@@ -6,10 +6,13 @@
     </ion-nav-buttons>
 
     <ion-nav-title>
-        <a ng-href="{{topic.settingURL}}">
+        <a ng-if="topic.settingURL!=''" ng-href="{{topic.settingURL}}">
             {{topic.title}} 
             <i class="icon ion-ios-arrow-forward"></i>
         </a>
+        <span ng-if="topic.settingURL==''">
+            {{topic.title}} 
+        </span>
     </ion-nav-title>
 
     <ion-nav-buttons side="right">
