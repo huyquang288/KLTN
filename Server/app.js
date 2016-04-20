@@ -221,6 +221,30 @@ app.post('/newTag', function(req, res){
 		
 });
 
+app.post('/newFriendRequest', function(req, res){
+	var groupList= req.body.groupList.toString().split("+");
+	var groupString= "";
+	var end= ", "
+	for (var i in groupList) {
+		if (i== (groupList.length-1)) {
+			end= ";";
+		}
+		groupString+= "(" +req.body.group +", " +groupList[i] +")" +end;
+	}
+	var sql= "INSERT INTO group_group (firstGroupId, secondGroupId) VALUES " +groupString;
+	mysqlConnection.query(sql, function (err, rows) {
+	// error handling
+		if (err){
+			console.log('Internal error tag column: ', err);
+			res.send("Mysql query execution error!");
+		}
+		else {
+			res.send('Done');
+		}
+	});
+		
+});
+
 app.post('/newTopic', function(req, res){
 	mysqlConnection.query("INSERT INTO topics SET ?", req.body, function (err, rows) {
     // error handling
@@ -262,6 +286,10 @@ io.on('connection', function (socket) {
 	
 	socket.on('new tag', function (data) {
 		socket.broadcast.emit('created new tag', data);
+	});
+	
+	socket.on('new group friend request', function (data) {
+		socket.broadcast.emit('created new friend request', data);
 	});
 	
 	socket.on('bookmark', function (data) {

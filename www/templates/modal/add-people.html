@@ -1,25 +1,29 @@
 <ion-modal-view class="modal-page">
     <ion-header-bar class="bar-stable">
-        <button class="button button-clear button-positive" ng-click="closeAddPeople();">Cancel</button>
+        <button class="button button-clear button-icon icon button-positive ion-ios-arrow-down"  
+                ng-click="closeAddPeople();">
+        </button>
         <h1 class="title">Add More People</h1>
-        <button class="button button-clear button-positive" ng-click="closeAddPeople();">Done</button>
+        <button class="button button-clear button-icon icon button-positive ion-ios-checkmark-outline" 
+                ng-click="closeAddPeople();">
+        </button>
     </ion-header-bar>
 
     <ion-content>
         <ion-list>
-            <ion-item class="item-checkbox item-checkbox-right item-avatar" ng-repeat="friend in friends">
+            <ion-item class="item-checkbox item-checkbox-right item-avatar" ng-repeat="user in users">
                 <label class="checkbox">
                     <input type="checkbox">
                 </label>
-                <img ng-src="{{friend.face}}">
-                 <span class="badge avatar-badge avatar-badge-s"
+                <img ng-src="{{user.face}}">
+                <!-- <span class="badge avatar-badge avatar-badge-s"
                        ng-class="{'badge-positive':friend.friendType=='Messenger', 'badge-stable':friend.friendType=='facebook'}">
                     <i class="icon ion-ios-bolt" ng-if="friend.friendType=='Messenger'"></i>
                     <i class="icon ion-social-facebook light" ng-if="friend.friendType=='facebook'"></i>
-                </span>
+                </span> -->
 
                 <h2>
-                    <small>{{friend.name}}</small>
+                    <small>{{user.firstName}} {{user.lastName}}</small>
                 </h2>
             </ion-item>
         </ion-list>

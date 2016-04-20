@@ -67,6 +67,11 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 return $http.post(DOMAIN+"newTag", data).then(function (response) {
                     return response.data;
                 });
+            }, 
+            newFriendRequest: function (data) {
+                return $http.post(DOMAIN+"newFriendRequest", data).then(function (response) {
+                    return response.data;
+                });
             }
         }
     })
@@ -109,6 +114,25 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
             return string;
         };
         return {
+            getUserForAddPeople: function(groupId) {
+                var users= StorageData.getData().users;
+                var gro_use= StorageData.getData().group_user;
+                var temp= '+';
+                var returnUsers= [];
+                for (var i in gro_use) {
+                    if (gro_use[i].groupId== groupId) {
+                        temp+= (gro_use[i].userId +'+');
+                    }
+                }
+                for (var i in users) {
+                    var regexString= '\\+' +users[i].id +'\\+';
+                    var regex= new RegExp(regexString, 'g');
+                    if (temp.match(regex)==null) {
+                        returnUsers.push(users[i]);
+                    }
+                }
+                return returnUsers;
+            },
             getUserNamesInGroup: function (id) {
                 var list= getUserIdList(id);
                 var users= StorageData.getData().users;
@@ -208,6 +232,45 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
             }
         }
         return {
+            setGrGr: function (arg) {
+                var data= StorageData.getData();
+                var pos;
+                if (data.group_group== null) {
+                    pos= 0;
+                    data.group_group= [];
+                } else {
+                    pos= data.group_group.length;
+                }
+                list= arg.groupList.split('+');
+                for (var i in list) {
+                    data.group_group.push({id:++pos, secondGroupId:list[i], firstGroupId: arg.group});
+                }
+                console.log(data);
+                StorageData.saveData(data);
+            },
+            getGroupsForSendRequest: function (groupId) {
+                var returnGroups= [];
+                var groups= StorageData.getData().groups_topics;
+                var gr_gr= StorageData.getData().group_group;
+                var temp= '+';
+                for (var i in gr_gr) {
+                    if (gr_gr[i].firstGroupId== groupId) {
+                        temp+= (gr_gr[i].secondGroupId +'+');
+                    }
+                    else if (gr_gr[i].secondGroupId== groupId) {
+                        temp+= (gr_gr[i].firstGroupId +'+');
+                    }
+                }
+                //console.log(temp +', ' +groupId);
+                for (var i in groups) {
+                    var regexString= '\\+' +groups[i].id +'\\+';
+                    var regex= new RegExp(regexString, 'g');
+                    if (temp.match(regex)== null && groups[i].id!= groupId) {
+                        returnGroups.push(groups[i]);
+                    }
+                }
+                return returnGroups;
+            },
             getGroupsForTag: function (topicId) {
                 var returnGroups= [];
                 var check= true;
@@ -227,7 +290,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 return returnGroups;
             },
             setTag: function (arg) {
-                console.log(arg);
+                //console.log(arg);
                 var data= StorageData.getData();
                 var pos;
                 if (data.tags== null) {
@@ -238,7 +301,6 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 }
                 list= arg.groupList.split('+');
                 for (var i in list) {
-                    console.log(list[i]);
                     data.tags.push({id:++pos, groupId:list[i], topicId: arg.topic});
                 }
                 StorageData.saveData(data);

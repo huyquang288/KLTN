@@ -143,6 +143,12 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                 }
             })
 
+            .state('group-setting', {
+                url: '/group-setting/:groupId',
+                templateUrl: 'templates/group-setting.html',
+                controller: 'GroupSettingCtrl'
+            })
+
             .state('tab.people', {
                 url: '/people',
                 views: {

@@ -50,10 +50,10 @@
                                 <p>{{(group.description) ?group.description :'No description'}}</p>
                                 
                             </a>
-                            <button class="badge avatar-badge avatar-badge-s7" 
-                                    ng-class="badge-positive" ng-click="more()">
-                                    <i class="ion-android-more-vertical"></i>
-                            </button>
+                            <a class="badge avatar-badge avatar-badge-s7" ng-class="badge-positive"
+                               ng-href="#/group-setting/{{group.id}}">
+                                <i class="ion-android-more-vertical"></i>
+                            </a>
                         </div>
 
                         <a nav-direction="forward" class="item item-divider text-center" 
@@ -76,10 +76,10 @@
                                 </h3>
                                 <p>{{(groupsOfUser[$index+1].description) ?groupsOfUser[$index+1].description :'No description'}}</p>
                             </a>
-                            <button class="badge avatar-badge avatar-badge-s7" 
-                                    ng-class="badge-positive" ng-click="more()">
-                                    <i class="ion-android-more-vertical"></i>
-                            </button>
+                            <a class="badge avatar-badge avatar-badge-s7" ng-class="badge-positive"
+                               ng-href="#/group-setting/{{groupsOfUser[$index+1].id}}">
+                                <i class="ion-android-more-vertical"></i>
+                            </a>
                         </div>
 
                         <a nav-direction="forward" class="item item-divider text-center" 

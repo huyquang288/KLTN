@@ -18,8 +18,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 Notification.requestPermission();
             else {
                 var notification = new Notification(notiTitle, {
-                    icon: 'http://www.fotech.org/forum/uploads/profile/photo-41239.jpg?_r=0',
-                    body: notiBody,
+                    icon: 'https://s3.amazonaws.com/ionic-marketplace/ionic-starter-messenger/icon.png',
+                    body: notiBody
                 });
                 notification.onclick = function () {
                     //$state.go('topic/');
@@ -75,6 +75,11 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 var body=  groupsName +'\' was taged in \'' +Topic.getTopicById(data.topic).title +'\' topic';
                 $rootScope.pushNotification('New Tag', body, '/topic/' +data.topic);
             }
+        });
+        
+        Socket.on('created new friend request', function (data) {
+            Group.setGrGr(data);
+            $rootScope.$broadcast("reload groups");
         });
 
         // nhận mess từ server gửi xuống, kiểm tra xem tin nhắn đó có thuộc nhóm mà người dùng có trong đó hay không.
@@ -158,7 +163,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         }
 
         // for tag-group
-        $scope.tagGroup = function (groupName) {
+        $scope.tagGroup = function () {
             var groupList = "";
             for (var i in $scope.groups) {
                 if ($scope.groups[i].checked) {
@@ -186,9 +191,6 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 ConnectServer.newTag(data).then(function (re) {
                     // lưu thông tin về phòng mới được tạo vào máy.
                     Group.setTag(data);
-                    // gửi thông báo reload dữ liệu
-                    //$rootScope.$broadcast("reload groups");
-                    //$rootScope.$broadcast("reload topics");
                     // push
                     Socket.emit('new tag', data);
                     $scope.closeTagGroup()
@@ -196,6 +198,44 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             }
         }
 
+        // for send-friend-group
+        $scope.sendRequest = function () {
+            var groupList = "";
+            for (var i in $scope.groups) {
+                if ($scope.groups[i].checked) {
+                    if (!groupList) {
+                        groupList = $scope.groups[i].id;
+                    }
+                    else {
+                        groupList += ("+" + $scope.groups[i].id);
+                    }
+                }
+            }
+            if (groupList.toString().split("+").length > 2) {
+                var alertPopup = $ionicPopup.alert({
+                    title: 'Please Add Less Groups',
+                    template: 'Please add less than 3 groups for once.',
+                    okType: 'button-clear'
+                });
+                return;
+            }
+            else {
+                for (var i = 0; i < $scope.groups.length; i++) {
+                    $scope.groups[i].checked = '';
+                }
+                var data= {'group': $stateParams.groupId, 'groupList': groupList.toString()};
+                ConnectServer.newFriendRequest(data).then(function (re) {
+                    // lưu thông tin về phòng mới được tạo vào máy.
+                    Group.setGrGr(data);
+                    $rootScope.$broadcast("reload groups");
+                    // push
+                    Socket.emit('new group friend request', data);
+                    $scope.closeSendRequest();
+                });
+            }
+        }
+
+        // for create-topic
         $scope.createNewTopic = function (topicName) {
             if (!topicName) {
                 var alertPopup = $ionicPopup.alert({
@@ -312,10 +352,25 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         });
         $scope.openAddPeople = function () {
             $scope.addPeopleModal.show();
-
+            $scope.users= User.getUserForAddPeople($stateParams.groupId);
         };
         $scope.closeAddPeople = function () {
             $scope.addPeopleModal.hide();
+        };
+
+        // send-request modal
+        $ionicModal.fromTemplateUrl('templates/modal/send-request-group.html', {
+            scope: $scope,
+            animation: 'slide-in-up'
+        }).then(function (modal) {
+            $scope.sendRequestModal = modal;
+        });
+        $scope.openSendRequest = function () {
+            $scope.sendRequestModal.show();
+            $scope.groups= Group.getGroupsForSendRequest($stateParams.groupId);
+        };
+        $scope.closeSendRequest = function () {
+            $scope.sendRequestModal.hide();
         };
 
         $ionicModal.fromTemplateUrl('templates/modal/search.html', {
@@ -535,14 +590,6 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             $scope.suggestGroups= Group.getSuggestGroups();
         }
 
-        $scope.userNames= function (id) {
-            return User.getUserNamesInGroup(id);
-        }
-
-        $scope.more= function (id) {
-            console.log('more');
-        }
-
         $scope.lastActive= function (id) {
             return User.getLastTimeActive(id);
         }
@@ -661,6 +708,10 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         $scope.closeChangeEmail = function () {
             $scope.changeEmailmodal.hide();
         };
+    })
+
+    .controller('GroupSettingCtrl', function ($scope, $stateParams, $ionicPopup, Group) {
+        $scope.group= Group.getGroupById($stateParams.groupId);
     })
 
     .controller('TopicSettingCtrl', function ($scope, $ionicActionSheet, $stateParams, $ionicPopup, Topic) {
