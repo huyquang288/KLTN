@@ -66,7 +66,7 @@
                           class="item-remove-animate item-avatar" 
                           nav-direction="forward" href="#/topic/{{topic.id}}"
                           type="item-text-wrap">
-                    <img ng-src="{{(topic.thumbnail) ?topic.thumbnail :'img/icon/topic.jpg'}}">
+                    <img ng-src="img/icon/topic/{{topic.id%10}}.jpg">
 
                     <span ng-if="topic.type==0"
                           class="badge avatar-badge avatar-badge-s" ng-class="badge-positive">
@@ -89,7 +89,6 @@
             </span>
         </ion-list>
 
-        <!--show when there is no room and you are admin of this group-->
         <div ng-if="group.topics.length==null">
             <div class="text-center" style="padding: 50px">
                 <h2 class="grey">
@@ -100,40 +99,9 @@
             </div>
         </div>
 
-        <!-- nếu thuộc về nhóm đó thì có thể new topic -->
-        <!-- <div ng-if="group.belong=='true'" class="row">
-            <div class="col text-center">
-                <div class="list card">
-                    <div class="item" style="padding: 5px 15px 0px 15px">
-                        <h2 class="positive">
-                            <small>New Private Topic</small>
-                        </h2>
-                        <div style="height: 15px"></div>
-
-                        <div class="fileUpload" >
-                            <i class="icon ion-camera"></i>
-                            <input class="upload" type="file" accept="image/*" capture="camera">
-                        </div>
-
-                        <div style="height: 30px"></div>
-                        
-                        <p class="stable">private</p>
-                        <div>
-                            <input type="text" ng-model="$root.newPrivateTopicName" 
-                                   placeholder="Name new topic"
-                                   style="height: 40px; text-align:center; width: 100%">
-                        </div>
-                        <a class="button button-clear button-positive" 
-                           ng-click="createNewTopic('Private', $root.newPrivateTopicName, '', group.id); $root.newPrivateTopicName=''">
-                            OK
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div> -->
-
-        <div style="height: 40px"></div>
-        <h4><b>Friend's groups of {{group.name}}</b></h4>
+        <!--suggest groups-->
+        <div style="height: 15px"></div>
+        <h4 style="text-align:center"><b>Friend's groups of {{group.name}}</b></h4>
         <div ng-repeat="group in friendGroups" ng-if="$index%2==0" class="row">
             <div class="col col-50 {{($index==friendGroups.length-1) ?'col-offset-25' :''}}">
                 <div class="col-100 list card">

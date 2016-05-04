@@ -32,14 +32,14 @@
 
                 <!-- đoạn chat không phải của chủ tài khoản -->
                 <div class="itemtopic item-avatar-s chat-friend" ng-if="chat.userId!=userId">
-                    <img ng-src="{{(chat.userAvata) ?chat.userAvata :'img/icon/male.jpg'}}">
+                    <img ng-src="img/icon/user/{{chat.userId%10}}.jpg">
                     <p class="chat-text stable-bg"> {{chat.chatText}}</p>
                 </div>
 
                 <!-- đoạn chat của chủ tài khoản -->
                 <div ng-if="chat.userId==userId"
                      class="itemtopic item-avatar-right-s chat-me text-right">
-                    <img ng-src="{{face}}">
+                    <img ng-src="img/icon/user/{{userId%10}}.jpg">
                     <p class="chat-text positive-bg text-left"> {{chat.chatText}}</p>
                 </div>
             </div>

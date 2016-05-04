@@ -38,11 +38,12 @@
 
         <ion-list ng-if="members.length>0">
             <span ng-repeat="member in members">
-                <ion-item ng-if="member.id!= userId"
+                <ion-item 
                           class="item-remove-animate item-avatar" 
-                          nav-direction="forward" href="#/topic/{{member.id+19940828}}"
+                          nav-direction="forward" 
+                          href="{{getChatToUserLink(member.id, userId)}}"
                           type="item-text-wrap">
-                    <img ng-src="{{(chat.userAvata) ?chat.userAvata :'img/icon/male.jpg'}}">
+                    <img ng-src="img/icon/user/{{member.id%10}}.jpg">
 
                     <!-- <span class="badge avatar-badge avatar-badge-s"
                           ng-class="{'badge-positive':room.roomType=='ms_friend', 'badge-stable':room.rooms.roomType=='fb_friend'}"

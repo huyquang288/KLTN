@@ -593,6 +593,16 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         $scope.lastActive= function (id) {
             return User.getLastTimeActive(id);
         }
+
+        $scope.getChatToUserLink= function (id, userId) {
+            console.log(id.toString() +", " +userId);
+            if (id.toString()!= userId) {
+                var link= id+ 19940828;
+                var link= "#/topic/" +link;
+                return link;
+            }
+            return '';
+        }
         
     })
 

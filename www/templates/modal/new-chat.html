@@ -13,7 +13,7 @@
         <ion-list>
             <ion-item class="item-avatar" type="item-text-wrap" ng-repeat="user in users"
                       ng-if="user.id!=userId" href="#/topic/{{user.id+19940828}}">
-                <img ng-src="{{user.face}}">
+                <img ng-src="img/icon/user/{{user.id%10}}.jpg">
 
                 <!-- <span class="badge avatar-badge avatar-badge-s"
                       ng-class="{'badge-positive':user.userType=='Messenger', 'badge-stable':user.userType=='facebook'}">

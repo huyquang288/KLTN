@@ -27,6 +27,12 @@
                 class="button button-clear button-icon button-positive icon ion-ios-arrow-back"
                 ng-click="historyBack()">
         </button>
+        
+    </ion-nav-buttons>
+    <ion-nav-buttons side="right">
+        <button class="button button-clear button-icon icon button-positive ion-ios-checkmark-outline" 
+                ng-click="">
+        </button>
     </ion-nav-buttons>
 
     <!-- <ion-nav-buttons side="right">
@@ -42,18 +48,28 @@
 
                 <!-- anh dai dien, click vao de thay doi anh dai dien -->
                 <div class="fileUpload">
-                    <img ng-src="{{(topic.thumbnail) ?topic.thumbnail :'img/icon/topic.jpg'}}">
+                    <img ng-src="img/icon/topic/{{topic.id%10}}.jpg">
                     <input class="upload" type="file" accept="image/*" capture="camera">
                 </div>
 
                 <!-- name of topic -->
                 <h2>
-                    <button class="button button-clear button-positive" ng-click="showEdit()">
+                    <button class="button-clear button-positive" ng-click="showEdit()">
                         <small style="color:black">{{topic.title}}</small>
                     </button>
                 </h2>
-                
             </ion-item>
+
+            <label class="item item-input item-select">
+                <!-- <i class="icon ion-ios-eye-outline positive"></i> -->
+                <div class="input-label">
+                    Change Privacy
+                </div>
+                <select name="category-group" id="categoryGroup" ng-model="itemSelected"
+                        ng-change="onCategoryChange(itemSelected)" 
+                        ng-options="category.name for category in categories">
+                </select>
+            </label>
 
             <!-- noti tab -->
             <ion-item class="item-icon-left" ng-click="setNotification();">
@@ -62,12 +78,22 @@
                 <span class="item-note">On</span>
             </ion-item>
 
-            <div style="height: 35px"></div>
+            <div style="height: 15px"></div>
 
+            <ion-item ng-if="room.roomType != 'group'"
+                    class="item-icon-left" ng-click="">
+                <i class="icon ion-ios-people-outline positive"></i>
+                Taged Groups
+            </ion-item>
             <ion-item ng-if="room.roomType != 'group'"
                     class="item-icon-left" ng-click="openTagGroup();">
                 <i class="icon ion-ios-plus-empty positive"></i>
                 Tag Group
+            </ion-item>
+
+            <div style="height: 15px"></div>
+            <ion-item class="assertive" ng-click="showConfirmDelete();" style="text-align:center">
+                Delete Topic
             </ion-item>
 
 

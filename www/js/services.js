@@ -1,5 +1,5 @@
-//var DOMAIN="http://192.168.0.103:8028/";
-var DOMAIN="http://localhost:8028/";
+var DOMAIN="http://192.168.0.103:8028/";
+//var DOMAIN="http://localhost:8028/";
 //var DOMAIN="http://:8028/";
 
 // Users
@@ -612,7 +612,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 if (messTime.getDate()!= now.getDate() ||
                     messTime.getMonth()!= now.getMonth() ||
                     messTime.getFullYear()!= now.getFullYear()) {
-                    returnTime+= "  " +messTime.getDate() +"/" +(messTime.getMonth()+1);
+                    returnTime= messTime.getDate() +"/" +(messTime.getMonth()+1);
                 }
                 return returnTime;
             },

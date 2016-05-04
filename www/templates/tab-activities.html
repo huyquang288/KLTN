@@ -19,7 +19,7 @@
                 <ion-item class="item-remove-animate item-avatar" 
                           nav-direction="forward" href="#/topic/{{topic.id}}"
                           type="item-text-wrap">
-                    <img ng-src="{{(topic.thumbnail) ?topic.thumbnail :'img/icon/topic.jpg'}}">
+                    <img ng-src="img/icon/topic/{{topic.id%10}}.jpg">
 
                     <span ng-if="topic.type==0"
                           class="badge avatar-badge avatar-badge-s" ng-class="badge-positive">
@@ -49,7 +49,7 @@
                 <ion-item class="item-remove-animate item-avatar" 
                           nav-direction="forward" href="#/topic/{{topic.id}}"
                           type="item-text-wrap">
-                    <img ng-src="{{(topic.thumbnail) ?topic.thumbnail :'img/icon/topic.jpg'}}">
+                    <img ng-src="img/icon/topic/{{topic.id%10}}.jpg">
 
                     <span ng-if="topic.type==0"
                           class="badge avatar-badge avatar-badge-s" ng-class="badge-positive">

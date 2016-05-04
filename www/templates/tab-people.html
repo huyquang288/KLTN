@@ -12,7 +12,7 @@
                 <ion-item class="item-avatar" type="item-text-wrap" href="#/topic/{{user.id}}" 
                           nav-direction="forward">
 
-                    <img ng-src="{{(user.face) ?user.face :((user.gender==0) ?'img/icon/male.jpg' :'img/icon/female.jpg')}}">
+                    <img ng-src="img/icon/user/{{user.id%10}}.jpg">
                     <h3>
                         <small>{{user.firstName}} {{user.lastName}}</small>
                     </h3>
