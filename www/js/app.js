@@ -100,6 +100,11 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                 templateUrl: 'templates/topic.html',
                 controller: 'TopicCtrl'
             })
+            .state('user', {
+                url: '/user/:userId',
+                templateUrl: 'templates/user.html',
+                controller: 'UserCtrl'
+            })
             .state('topic-user', {
                 url: '/topic/:topicId/:userId',
                 templateUrl: 'templates/topic.html',

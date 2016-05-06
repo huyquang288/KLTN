@@ -1,4 +1,4 @@
-<ion-view style='color:white' view-title="Topics">
+<ion-view style='color:white' view-title="Activites">
     <ion-nav-buttons side="right">
         <button class="button button-clear button-icon button-positive icon ion-ios-compose-outline"
                 ng-click="openNewChat()"></button>
@@ -30,7 +30,6 @@
                         <small>{{topic.title}}</small>
                     </h3>
                     <p>{{getLastMessageText(topic.id)}}</p>
-
                     <span class="item-note">
                         {{getLastMessageTime(topic.id)}}
                     </span>
@@ -60,7 +59,6 @@
                         <small>{{topic.title}}</small>
                     </h3>
                     <p>{{getLastMessageText(topic.id)}}</p>
-
                     <span class="item-note">
                         {{getLastMessageTime(topic.id)}}
                     </span>

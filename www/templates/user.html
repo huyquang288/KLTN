@@ -1,0 +1,42 @@
+<ion-view style='color:black'>
+    <ion-nav-buttons side="primary">
+        <button nav-direction="back" 
+                class="button button-clear button-icon button-positive icon ion-ios-arrow-back"
+                ng-click="historyBack()">
+        </button>
+    </ion-nav-buttons>
+
+    <ion-nav-title>
+        <span>
+            {{user.firstName}} {{user.lastName}}
+        </span>
+    </ion-nav-title>
+
+    <ion-content style='background-color: #EDEEF1'>
+        <ion-list>
+            <div style="height: 10px"></div>
+            <ion-item class="item-avatar item-avatar-center item-avatar-xl text-center">
+                <img ng-src="img/icon/user/{{user.id%10}}.jpg">
+            </ion-item>
+
+            <div style="height: 10px"></div>
+            <h3>Groups of {{user.firstName}} {{user.lastName}}</h3>
+            <div style="height: 5px"></div>
+
+            <span ng-repeat="gr in groups track by $index">
+                <ion-item class="item-remove-animate item-avatar" 
+                          nav-direction="forward" href="#/topics/{{gr.id}}/false"
+                          type="item-text-wrap">
+                    <h3>
+                        <small>{{gr.name}}</small>
+                    </h3>
+                    <p>
+                        {{userNames(gr.id)}}
+                    </p>
+
+                </ion-item>
+            </span>
+        </ion-list>
+    </ion-content>
+
+</ion-view>

@@ -9,14 +9,13 @@
     <ion-content style='background-color: #EDEEF1'>
         <ion-list>
             <span ng-repeat="user in users">
-                <ion-item class="item-avatar" type="item-text-wrap" href="#/topic/{{user.id}}" 
+                <ion-item class="item-avatar" type="item-text-wrap" href="#/user/{{user.id}}" 
                           nav-direction="forward">
 
                     <img ng-src="img/icon/user/{{user.id%10}}.jpg">
                     <h3>
                         <small>{{user.firstName}} {{user.lastName}}</small>
                     </h3>
-
                     <p><i>Last activity: {{(lastActive(user.id)) ?lastActive(user.id) :'None'}}</i></p>
 
                 </ion-item>

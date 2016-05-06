@@ -3,17 +3,17 @@
         <button class="button button-clear button-icon button-positive icon ion-ios-arrow-down" 
                 ng-click="closeNewChat()">
         </button>
-        <h1 class="title">New Message</h1>
+        <h1 class="title">Topics</h1>
         <button class="button button-clear button-positive" ng-click="closeNewChat(); openNewGroup()">
             <img style='height:32px; width:32px' ng-src="img/icon/new_group-256.png">
         </button>
     </ion-header-bar>
-
+    <!-- {{topics.length}} -->
     <ion-content style='background-color: #EDEEF1'>
         <ion-list>
-            <ion-item class="item-avatar" type="item-text-wrap" ng-repeat="user in users"
-                      ng-if="user.id!=userId" href="#/topic/{{user.id+19940828}}">
-                <img ng-src="img/icon/user/{{user.id%10}}.jpg">
+            <ion-item class="item-avatar" type="item-text-wrap" ng-repeat="topic in topics track by $index"
+                      ng-if="user.id!=userId" href="#/topic/{{topic.id}}">
+                <img ng-src="img/icon/topic/{{topic.id%10}}.jpg">
 
                 <!-- <span class="badge avatar-badge avatar-badge-s"
                       ng-class="{'badge-positive':user.userType=='Messenger', 'badge-stable':user.userType=='facebook'}">
@@ -22,7 +22,7 @@
                 </span> -->
 
                 <h3>
-                    <small>{{user.firstName}} {{user.lastName}}</small>
+                    <small>{{topic.title}}</small>
                 </h3>
             </ion-item>
         </ion-list>

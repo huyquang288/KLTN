@@ -30,20 +30,39 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             
         // nhận thông báo từ server về việc 1 group mới được tạo.
         Socket.on('added to new group', function (data){
-            regexString= $rootScope.userId +"|\\+" +$rootScope.userId;
-            var regex= new RegExp (regexString, "g")
-            if (data.userList.match(regex)!= null) {
-                //lưu nhóm mới này vào trong danh sách tất cả các nhóm.
-                Group.setGroup(data.id, data.name);
-                User.setGroupUser(data.userList, data.id);
-                // gửi thông báo reload dữ liệu
-                $rootScope.$broadcast("reload groups");
-                $rootScope.$broadcast("reload users");
-                
-                var temp= data.userList.split('+')
-                var user= User.getUserInfo(temp[temp.length-1]);
-                temp= user.firstName +' ' +user.lastName +' added you to \'' +data.name +'\' group.';
-                $rootScope.pushNotification('New Group', temp, '/rooms/'+data.id)
+            var temp= data.userList.split('+');
+            for (var i in temp) {
+                if ($rootScope.userId == temp[i]) {
+                    //lưu nhóm mới này vào trong danh sách tất cả các nhóm.
+                    Group.setGroup(data.id, data.name);
+                    User.setGroupUser(data.userList, data.id);
+                    // gửi thông báo reload dữ liệu
+                    $rootScope.$broadcast("reload groups");
+                    // $rootScope.$broadcast("reload users");
+                    
+                    var user= User.getUserInfo(temp[temp.length-1]);
+                    temp= user.firstName +' ' +user.lastName +' added you to \'' +data.name +'\' group.';
+                    $rootScope.pushNotification('New Group', temp, '/topics/'+data.id)
+                    break;
+                }
+            }
+        });
+
+        Socket.on('users added to group', function (data){
+            var temp =data.userList.split('+');
+            for (var i in temp) {
+                if ($rootScope.userId == temp[i]) {
+                    //lưu nhóm mới này vào trong danh sách tất cả các nhóm.
+                    Group.addUsers(data);
+                    // User.setGroupUser(data.userList, data.id);
+                    // gửi thông báo reload dữ liệu
+                    $rootScope.$broadcast("reload groups");
+                    // $rootScope.$broadcast("reload users");
+                    var gr= Group.getGroupById(data.group)
+                    temp= 'You added to \'' +gr.name +'\' group.';
+                    $rootScope.pushNotification('Added to Group', temp, '/topics/'+data.group)
+                    break;
+                }
             }
         });
 
@@ -272,8 +291,9 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             $scope.newChatmodal = modal;
         });
         $scope.openNewChat = function () {
-            $scope.users = User.getUsers();
-            $scope.userId= $rootScope.userId;
+            // $scope.users = User.getUsers();
+            $scope.topics= Topic.getTopics();
+            // $scope.userId= $rootScope.userId;
             $scope.newChatmodal.show();
         };
         $scope.closeNewChat = function () {
@@ -313,7 +333,23 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         };
         $scope.userNames= function (id) {
             return User.getUserNamesInGroup(id);
-        }
+        };
+
+        // tag-group modal
+        $ionicModal.fromTemplateUrl('templates/modal/taged-group.html', {
+            scope: $scope,
+            animation: 'slide-in-up'
+        }).then(function (modal) {
+            $scope.tagedGroupModal = modal;
+        });
+        $scope.openTagedGroup = function () {
+            //console.log($stateParams.topicId)
+            $scope.groups = Group.getGroupsTaged($stateParams.topicId);
+            $scope.tagedGroupModal.show();
+        };
+        $scope.closeTagedGroup = function () {
+            $scope.tagedGroupModal.hide();
+        };
 
         // new-topic modal
         $scope.categories = [       
@@ -357,6 +393,42 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         $scope.closeAddPeople = function () {
             $scope.addPeopleModal.hide();
         };
+        $scope.addPeople = function () {
+            var userList = "";
+            for (var i in $scope.users) {
+                if ($scope.users[i].checked) {
+                    // console.log('dm');
+                    if (!userList) {
+                        userList = $scope.users[i].id;
+                    }
+                    else {
+                        userList += ("+" + $scope.users[i].id);
+                    }
+                }
+            }
+            if (userList.toString().split("+").length < 1) {
+                var alertPopup = $ionicPopup.alert({
+                    title: 'Please Add More Users',
+                    template: 'Please add more than 1 user for once.',
+                    okType: 'button-clear'
+                });
+                return;
+            }
+            else {
+                for (var i = 0; i < $scope.users.length; i++) {
+                    $scope.users[i].checked = '';
+                }
+                var data= {'group': $stateParams.groupId, 'userList': userList.toString()};
+                ConnectServer.addUsersToGroup(data).then(function (re) {
+                    // lưu thông tin vào máy.
+                    Group.addUsers(data);
+                    // $rootScope.$broadcast("reload groups");
+                    // push
+                    Socket.emit('add users', data);
+                    $scope.closeAddPeople();
+                });
+            }
+        }
 
         // send-request modal
         $ionicModal.fromTemplateUrl('templates/modal/send-request-group.html', {
@@ -380,6 +452,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             $scope.searchModal = modal;
         });
         $scope.openSearch = function () {
+            $scope.topics= Topic.getTopics();
             $scope.searchModal.show();
         };
         $scope.closeSearch = function () {
@@ -396,8 +469,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             $scope.groupSearchModal = modal;
         });
         $scope.openGroupSearch = function () {
+            $scope.groups= Group.getAllGroups();
             $scope.groupSearchModal.show();
-
         };
         $scope.closeGroupSearch = function () {
             $scope.groupSearchModal.hide();
@@ -595,7 +668,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         }
 
         $scope.getChatToUserLink= function (id, userId) {
-            console.log(id.toString() +", " +userId);
+            // console.log(id.toString() +", " +userId);
             if (id.toString()!= userId) {
                 var link= id+ 19940828;
                 var link= "#/topic/" +link;
@@ -658,7 +731,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         }
     })
 
-    .controller('AccountCtrl', function ($rootScope, $scope, $ionicActionSheet, $ionicModal, $location, Auth, User) {
+    .controller('AccountCtrl', function ($rootScope, $scope, $ionicActionSheet, $ionicModal, $location, $ionicPopup, Auth, User) {
         $scope.user= User.getUserInfo($rootScope.userId);
         $scope.showNotification = function () {
             $ionicActionSheet.show({
@@ -701,8 +774,23 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         };
 
         $scope.logout = function () {
-            Auth.logout();
-            $location.path('/login');
+            var confirmPopup = $ionicPopup.confirm({
+                title: 'Log Out?',
+                // template: 'This conversation will be archived, and you won\'t get any new message.',
+                cancelText: 'Cancel',
+                cancelType: 'button-clear',
+                okText: 'Logout',
+                okType: 'button-clear'
+            });
+            confirmPopup.then(function (res) {
+                if (res) {
+                    // console.log('Leave');
+                    Auth.logout();
+                    $location.path('/login');
+                } else {
+                    // console.log('Stay');
+                }
+            });
         }
 
         // change email modal
@@ -720,8 +808,31 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         };
     })
 
-    .controller('GroupSettingCtrl', function ($scope, $stateParams, $ionicPopup, Group) {
+    .controller('GroupSettingCtrl', function ($rootScope, $scope, $stateParams, $ionicPopup, Group, ConnectServer) {
         $scope.group= Group.getGroupById($stateParams.groupId);
+        // A confirm
+        $scope.showConfirmLeave = function () {
+            var confirmPopup = $ionicPopup.confirm({
+                title: 'Leave Group?',
+                template: 'This conversation will be archived, and you won\'t get any new message.',
+                cancelText: 'Cancel',
+                cancelType: 'button-clear',
+                okText: 'Leave',
+                okType: 'button-clear'
+            });
+            confirmPopup.then(function (res) {
+                if (res) {
+                    var data= {userId: $rootScope.userId, groupId: $stateParams.groupId};
+                    ConnectServer.leaveGroup(data).then (function (res) {
+                        Group.removeUsers(data);
+                        $rootScope.$broadcast("reload groups");
+                        window.history.back();
+                    });
+                } else {
+                    // console.log('Stay');
+                }
+            });
+        };
     })
 
     .controller('TopicSettingCtrl', function ($scope, $ionicActionSheet, $stateParams, $ionicPopup, Topic) {
@@ -748,28 +859,18 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             });
         };
 
-        // A confirm
-        $scope.showConfirmLeave = function () {
-            var confirmPopup = $ionicPopup.confirm({
-                title: 'Leave Group?',
-                template: 'This conversation will be archived, and you won\'t get any new message.',
-                cancelText: 'Cancel',
-                cancelType: 'button-clear',
-                okText: 'Leave',
-                okType: 'button-clear'
-            });
-            confirmPopup.then(function (res) {
-                if (res) {
-                    console.log('Leave');
-                } else {
-                    console.log('Stay');
-                }
-            });
-        };
+    })
+
+    .controller('UserCtrl', function ($scope, $stateParams, User, Group) {
+        $scope.user = User.getUserInfo($stateParams.userId);
+        $scope.groups= Group.getGroupsOfFriend($stateParams.userId);
+        $scope.userNames= function (id) {
+            return User.getUserNamesInGroup(id);
+        }
     })
 
     .controller('UserSettingCtrl', function ($scope, $stateParams, $ionicPopup, User) {
-        $scope.user = User.get($stateParams.userId);
+        $scope.user = User.getUserInfo($stateParams.userId);
 
         // A confirm
         $scope.showConfirmRemove = function () {

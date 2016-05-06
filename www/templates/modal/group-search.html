@@ -22,44 +22,19 @@
 
     <ion-content ng-show="search">
         <ion-list>
-            <!-- <ion-item class="item-avatar" ng-repeat="friend in friends | filter:search"
-                      type="item-text-wrap" href="#/room/{{friend.room.id}}">
-                <img ng-src="{{friend.face}}">
-                <span class="badge avatar-badge avatar-badge-s"
-                      ng-class="{'badge-positive':friend.friendType=='Messenger', 'badge-stable':friend.friendType=='facebook'}">
-                     <i class="icon ion-ios-bolt" ng-if="friend.friendType=='Messenger'"></i>
-                     <i class="icon ion-social-facebook light" ng-if="friend.friendType=='facebook'"></i>
-                 </span>
-
-                <h3>
-                    <small>{{friend.name}}</small>
-                </h3>
-            </ion-item> -->
 
             <ion-item class="item-divider">Group</ion-item>
             
-            <span ng-repeat="room in activities | filter:search">
+            <span ng-repeat="group in groups | filter:search">
                 <ion-item class="item-remove-animate item-avatar" nav-direction="forward" href="#/room/{{room.id}}" type="item-text-wrap">
-                    <img ng-src="{{room.thumbnail}}">
-
-                    <span class="badge avatar-badge avatar-badge-s"
-                          ng-class="{'badge-positive':room.roomType=='ms_friend', 'badge-stable':room.roomType=='fb_friend'}"
-                          ng-if="room.roomType!='group'">
-                        <i class="icon ion-ios-bolt" ng-if="room.roomType=='ms_friend'"></i>
-                        <i class="icon ion-social-facebook light" ng-if="room.roomType=='fb_friend'"></i>
-                    </span>
 
                     <h3>
-                        <small>{{room.title}}</small>
+                        <small>{{group.name}}</small>
                     </h3>
 
-                    <p>{{room.latest_chat}}</p>
-
-                    <span class="item-note">{{room.activeTime}}</span>
-
-                    <ion-option-button class="button-assertive" ng-click="remove(room)">
+                    <!-- <ion-option-button class="button-assertive" ng-click="remove(room)">
                         Delete
-                    </ion-option-button>
+                    </ion-option-button> -->
 
                 </ion-item>
             </span>

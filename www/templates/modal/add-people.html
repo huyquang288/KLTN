@@ -5,7 +5,7 @@
         </button>
         <h1 class="title">Add More People</h1>
         <button class="button button-clear button-icon icon button-positive ion-ios-checkmark-outline" 
-                ng-click="closeAddPeople();">
+                ng-click="addPeople();">
         </button>
     </ion-header-bar>
 
@@ -13,15 +13,10 @@
         <ion-list>
             <ion-item class="item-checkbox item-checkbox-right item-avatar" ng-repeat="user in users">
                 <label class="checkbox">
-                    <input type="checkbox">
+                    <!-- <input type="checkbox"> -->
+                    <input type="checkbox" ng-model="user.checked" ng-checked="user.checked">
                 </label>
                 <img ng-src="img/icon/user/{{user.id%10}}.jpg">
-                <!-- <span class="badge avatar-badge avatar-badge-s"
-                       ng-class="{'badge-positive':friend.friendType=='Messenger', 'badge-stable':friend.friendType=='facebook'}">
-                    <i class="icon ion-ios-bolt" ng-if="friend.friendType=='Messenger'"></i>
-                    <i class="icon ion-social-facebook light" ng-if="friend.friendType=='facebook'"></i>
-                </span> -->
-
                 <h2>
                     <small>{{user.firstName}} {{user.lastName}}</small>
                 </h2>

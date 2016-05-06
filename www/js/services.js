@@ -1,5 +1,5 @@
-var DOMAIN="http://192.168.0.103:8028/";
-//var DOMAIN="http://localhost:8028/";
+//varDOMAIN="http://192.168.0.103:8028/";
+var DOMAIN="http://localhost:8028/";
 //var DOMAIN="http://:8028/";
 
 // Users
@@ -70,6 +70,16 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
             }, 
             newFriendRequest: function (data) {
                 return $http.post(DOMAIN+"newFriendRequest", data).then(function (response) {
+                    return response.data;
+                });
+            }, 
+            addUsersToGroup: function (data) {
+                return $http.post(DOMAIN+"addUsersToGroup", data).then(function (response) {
+                    return response.data;
+                });
+            }, 
+            leaveGroup: function (data) {
+                return $http.post(DOMAIN+"leaveGroup", data).then(function (response) {
                     return response.data;
                 });
             }
@@ -289,6 +299,25 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 }
                 return returnGroups;
             },
+            getGroupsTaged: function (topicId) {
+                var returnGroups= [];
+                var groups= StorageData.getData().groups_topics;
+                var tags= StorageData.getData().tags;
+                var temp= "+";
+                for (var i in tags) {
+                    if (tags[i].topicId== topicId) {
+                        temp+= (tags[i].groupId +"+");
+                    }
+                }
+                for (var i in groups) {
+                    var regexString= "\\+" +groups[i].id +"\\+";
+                    var regex= new RegExp (regexString, "g");
+                    if (temp.match(regex)!= null) {
+                        returnGroups.push(groups[i]);
+                    }
+                }
+                return returnGroups;
+            },
             setTag: function (arg) {
                 //console.log(arg);
                 var data= StorageData.getData();
@@ -346,10 +375,18 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 }
             },
             getGroupsOfUser: function (userId) {
-                if (groupsIdOfUser.length<3) {
-                    getGroupsIdOfUser(userId);
-                }
+                getGroupsIdOfUser(userId);
                 return returnGroups(groupsIdOfUser);
+            },
+            getGroupsOfFriend: function (userId) {
+                var id= '+';
+                var group_user= StorageData.getData().group_user;
+                for (var i in group_user) {
+                    if (userId== group_user[i].userId) {
+                        id+= (group_user[i].groupId +'+');
+                    }
+                }
+                return returnGroups(id);
             },
             getSuggestGroups: function () {
                 var group_group= StorageData.getData().group_group;
@@ -394,6 +431,28 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
             },
             getAllGroups: function () {
                 return StorageData.getData().groups_topics;
+            },
+            addUsers: function (dataIn) {
+                var data= StorageData.getData();
+                var userList= dataIn.userList.split('+');
+                for (var i in userList) {
+                    var temp= {groupId: dataIn.group, userId: userList[i]};
+                    data.group_user.push(temp);
+                }
+                // console.log (data.group_user);
+                StorageData.saveData(data);
+            },
+            removeUsers: function (dataIn) {
+                var data= StorageData.getData();
+                // var userList= dataIn.userList.split('+');
+                for (var i in data.group_user) {
+                    if (data.group_user[i].userId== dataIn.userId && 
+                        data.group_user[i].groupId== dataIn.groupId) {
+                        data.group_user.splice(i, 1);
+                    }
+                }
+                // console.log (data.group_user);
+                StorageData.saveData(data);
             }
         }
     }])
@@ -406,6 +465,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
         var recentTopics= [];
         var topics= [];
         function setTopics () {
+            topics= [];
             var groups_topics= StorageData.getData().groups_topics;
             for (var i in groups_topics) {
                 for (var j in groups_topics[i].topics) {

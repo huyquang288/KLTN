@@ -221,6 +221,21 @@ app.post('/newTag', function(req, res){
 		
 });
 
+app.post('/leaveGroup', function(req, res){
+	var sql= "DELETE FROM group_user WHERE groupId= " +req.body.groupId +" AND userId= " +req.body.userId;
+	mysqlConnection.query(sql, function (err, rows) {
+	// error handling
+		if (err){
+			console.log('Internal error group_user column: ', err);
+			res.send("Mysql query execution error!");
+		}
+		else {
+			res.send('Done');
+		}
+	});
+		
+});
+
 app.post('/newFriendRequest', function(req, res){
 	var groupList= req.body.groupList.toString().split("+");
 	var groupString= "";
@@ -242,7 +257,31 @@ app.post('/newFriendRequest', function(req, res){
 			res.send('Done');
 		}
 	});
-		
+});
+
+app.post('/addUsersToGroup', function(req, res){
+	console.log(req.body);
+	var userList= req.body.userList.toString().split("+");
+	var userString= "";
+	var end= ", "
+	for (var i in userList) {
+		if (i== (userList.length-1)) {
+			end= ";";
+		}
+		userString+= "(" +req.body.group +", " +userList[i] +")" +end;
+	}
+	var sql= "INSERT INTO group_user (groupId, userId) VALUES " +userString;
+	console.log(sql);
+	mysqlConnection.query(sql, function (err, rows) {
+	// error handling
+		if (err){
+			console.log('Internal error group_user column: ', err);
+			res.send("Mysql query execution error!");
+		}
+		else {
+			res.send('Done');
+		}
+	});
 });
 
 app.post('/newTopic', function(req, res){
@@ -264,7 +303,6 @@ app.post('/newTopic', function(req, res){
 app.use(express.static(__dirname + '/'));
 // Chattopic
 io.on('connection', function (socket) {
-  
 	// when the client emits 'add user', this listens and executes
 	socket.on('user join to topic', function (topicId, userId) {
 		socket.join(topicId);
@@ -290,6 +328,10 @@ io.on('connection', function (socket) {
 	
 	socket.on('new group friend request', function (data) {
 		socket.broadcast.emit('created new friend request', data);
+	});
+	
+	socket.on('add users', function (data) {
+		socket.broadcast.emit('users added to group', data);
 	});
 	
 	socket.on('bookmark', function (data) {
@@ -325,7 +367,6 @@ io.on('connection', function (socket) {
 
 	// when the client emits 'typing', we broadcast it to others
 	socket.on('typing', function (data) {
-		//console.log(data);
 		socket.broadcast.to(data.topicId).emit('typing', data.userName);
 	});
 
