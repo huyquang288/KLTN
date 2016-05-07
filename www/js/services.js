@@ -86,6 +86,56 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
         }
     })
 
+    .factory('Noti', function () {
+        function validate (dataIn) {
+            var temp= localStorage['ionic_noti'];
+            var data;
+            if (temp== null) {
+                data= [];
+            } else {
+                data= JSON.parse(localStorage['ionic_noti']);
+            }
+            for (var i in data) {
+                if (data[i].groupId== dataIn.groupId && data[i].topicId== dataIn.topicId) {
+                    data.splice(i, 1);
+                    break;
+                }
+            }
+            return data;
+        };
+        return {
+            checkNoti: function (dataIn) {
+                var temp= localStorage['ionic_noti'];
+                if (temp== null) {
+                    return 'On';
+                } else {
+                    var data= JSON.parse(temp);
+                    for (var i in data) {
+                        if (data[i].groupId== dataIn.groupId && data[i].topicId== dataIn.topicId) {
+                            if (data[i].until== 'off') {
+                                return 'Off';
+                            } else if ((new Date()).getTime() < data[i].until) {
+                                return 'Off';
+                            } else {
+                                data.splice(i, 1);
+                                return 'On';
+                            }
+                        }
+                    }
+                    return 'On';
+                }
+            },
+            onNoti: function (dataIn) {
+                localStorage['ionic_noti'] = JSON.stringify(validate(dataIn));
+            },
+            offNoti: function (dataIn) {
+                var data= validate(dataIn);  
+                data.push(dataIn);
+                localStorage['ionic_noti'] = JSON.stringify(data);
+            }
+        };
+    })
+
     .factory('Login', function ($http) {
         return {
             sendData: function (ema, pas) {  

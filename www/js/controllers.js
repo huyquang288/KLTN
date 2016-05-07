@@ -1,7 +1,7 @@
 angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btford.socket-io', 'angular-md5'])
 
     // MainCtrl được gọi đầu tiên khi ng dùng TRUY CẬP VÀO TRANG LOGIN
-    .controller('MainCtrl', function ($scope, $stateParams, StorageData, Socket, ConnectServer, User, Chat, Topic, Group, $ionicModal, $location, $rootScope, $ionicPopup, $state) {
+    .controller('MainCtrl', function ($scope, $stateParams, StorageData, Socket, ConnectServer, User, Chat, Topic, Group, $ionicModal, Noti, $location, $rootScope, $ionicPopup, $state) {
         //console.log('main ctrl');
         $scope.userId= $rootScope.userId;
         $scope.historyBack = function () {
@@ -67,17 +67,21 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         });
 
         Socket.on('created new topic', function (data) {
+            var temp= {groupId: data.groupId, topicId: -1};
             if (Group.userIsBelong(data.groupId, $rootScope.userId) == 'true') {
                 Topic.newTopic(data);
                 $rootScope.$broadcast("reload topics");
-                var body= Group.getGroupById(data.groupId).name +' was created \'' +data.title +'\' topic';
-                $rootScope.pushNotification('New Topic', body, '/topic/' +data.id);
+                if (Noti.checkNoti(temp) == 'On') {
+                    var body= Group.getGroupById(data.groupId).name +' was created \'' +data.title +'\' topic';
+                    $rootScope.pushNotification('New Topic', body, '/topic/' +data.id);
+                }
             }
         });
 
         Socket.on('created new tag', function (data) {
             var list= data.groupList.split('+');
             var groupsName= '';
+            var check= false;
             for (var i in list) {
                 if (Group.userIsBelong(list[i], $rootScope.userId) == 'true') {
                     if (groupsName=='') {
@@ -85,14 +89,20 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                     } else {
                         groupsName+= (', ' +Group.getGroupById(list[i]).name);
                     }
+                    var temp= {groupId: data.groupId, topicId: -1};
+                    if (Noti.checkNoti(temp) == 'On') {
+                        check= true;
+                    }
                 }
             }
             if (groupsName!= '') {
                 Group.setTag(data);
                 $rootScope.$broadcast("reload recent");
                 $rootScope.$broadcast("reload topics");
-                var body=  groupsName +'\' was taged in \'' +Topic.getTopicById(data.topic).title +'\' topic';
-                $rootScope.pushNotification('New Tag', body, '/topic/' +data.topic);
+                if (check== true) {
+                    var body=  groupsName +'\' was taged in \'' +Topic.getTopicById(data.topic).title +'\' topic';
+                    $rootScope.pushNotification('New Tag', body, '/topic/' +data.topic);
+                }
             }
         });
         
@@ -112,9 +122,14 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 }
             }
             else {
+                temp= {groupId: -1, topicId: data.toTopicId};
+                console.log(Noti.checkNoti(temp));
                 if (Topic.isRelation(data.toTopicId)) {
                     $rootScope.$broadcast("have a new message");
-                    $rootScope.pushNotification(Topic.getTopicById(data.toTopicId).title, User.getUserInfo(data.userId).firstName +': ' +data.chatText, 'topic/'+data.toTopicId);    
+
+                    if (Noti.checkNoti(temp) == 'On') {
+                        $rootScope.pushNotification(Topic.getTopicById(data.toTopicId).title, User.getUserInfo(data.userId).firstName +': ' +data.chatText, 'topic/'+data.toTopicId);
+                    }
                 }
             }
         });
@@ -808,8 +823,63 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         };
     })
 
-    .controller('GroupSettingCtrl', function ($rootScope, $scope, $stateParams, $ionicPopup, Group, ConnectServer) {
+    .controller('GroupSettingCtrl', function ($rootScope, $ionicActionSheet, $scope, $stateParams, $ionicPopup, Group, ConnectServer, Noti) {
         $scope.group= Group.getGroupById($stateParams.groupId);
+        $scope.setNotification = function () {
+            $ionicActionSheet.show({
+                buttons: [
+                    { text: 'Turn on' },
+                    { text: 'Turn off for 15min' },
+                    { text: 'Turn off for 1h' },
+                    { text: 'Turn off for 24h' },
+                    { text: 'Until I turn it back on' }
+                ],
+                titleText: 'Mute notification for this conversation',
+                cancelText: 'Cancel',
+                cancel: function () {
+                    // add cancel code..
+                },
+                buttonClicked: function (index) {
+                    switch (index) {
+                        case 0: {
+                            $scope.notiStatus= 'On';
+                            var data= {groupId: $stateParams.groupId, topicId: -1};
+                            Noti.onNoti(data);
+                            break;
+                        };
+                        case 1: {
+                            $scope.notiStatus= 'Off';
+                            var data= {groupId: $stateParams.groupId, topicId: -1, 
+                                        until: (new Date()).getTime()+60000*15};
+                            Noti.offNoti(data);
+                            break;
+                        };
+                        case 2: {
+                            $scope.notiStatus= 'Off';
+                            var data= {groupId: $stateParams.groupId, topicId: -1, 
+                                        until: (new Date()).getTime()+60000*60};
+                            Noti.offNoti(data);
+                            break;
+                        };
+                        case 3: {
+                            $scope.notiStatus= 'Off';
+                            var data= {groupId: $stateParams.groupId, topicId: -1, 
+                                        until: (new Date()).getTime()+60000*60*24};
+                            Noti.offNoti(data);
+                            break;
+                        };
+                        case 4: {
+                            $scope.notiStatus= 'Off';
+                            var data= {groupId: $stateParams.groupId, topicId: -1, 
+                                        until: 'off'};
+                            Noti.offNoti(data);
+                            break;
+                        };
+                    }
+                    return true;
+                }
+            });
+        };
         // A confirm
         $scope.showConfirmLeave = function () {
             var confirmPopup = $ionicPopup.confirm({
@@ -835,16 +905,17 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         };
     })
 
-    .controller('TopicSettingCtrl', function ($scope, $ionicActionSheet, $stateParams, $ionicPopup, Topic) {
+    .controller('TopicSettingCtrl', function ($scope, $ionicActionSheet, $stateParams, $ionicPopup, Topic, Noti) {
         $scope.topic = Topic.getTopicById($stateParams.topicId);
+        $scope.notiStatus= Noti.checkNoti ({groupId:-1, topicId: $stateParams.topicId});
 
         $scope.setNotification = function () {
 
             $ionicActionSheet.show({
                 buttons: [
+                    { text: 'Turn on' },
                     { text: 'Turn off for 15min' },
                     { text: 'Turn off for 1h' },
-                    { text: 'Turn off for 8h' },
                     { text: 'Turn off for 24h' },
                     { text: 'Until I turn it back on' }
                 ],
@@ -853,7 +924,43 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 cancel: function () {
                     // add cancel code..
                 },
-                buttonClicked: function () {
+                buttonClicked: function (index) {
+                    switch (index) {
+                        case 0: {
+                            $scope.notiStatus= 'On';
+                            var data= {groupId: -1, topicId: $stateParams.topicId};
+                            Noti.onNoti(data);
+                            break;
+                        };
+                        case 1: {
+                            $scope.notiStatus= 'Off';
+                            var data= {groupId: -1, topicId: $stateParams.topicId, 
+                                        until: (new Date()).getTime()+60000*15};
+                            Noti.offNoti(data);
+                            break;
+                        };
+                        case 2: {
+                            $scope.notiStatus= 'Off';
+                            var data= {groupId: -1, topicId: $stateParams.topicId, 
+                                        until: (new Date()).getTime()+60000*60};
+                            Noti.offNoti(data);
+                            break;
+                        };
+                        case 3: {
+                            $scope.notiStatus= 'Off';
+                            var data= {groupId: -1, topicId: $stateParams.topicId, 
+                                        until: (new Date()).getTime()+60000*60*24};
+                            Noti.offNoti(data);
+                            break;
+                        };
+                        case 4: {
+                            $scope.notiStatus= 'Off';
+                            var data= {groupId: -1, topicId: $stateParams.topicId, 
+                                        until: 'off'};
+                            Noti.offNoti(data);
+                            break;
+                        };
+                    }
                     return true;
                 }
             });
