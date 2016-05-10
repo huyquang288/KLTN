@@ -35,6 +35,7 @@ app.use(function (req, res, next) {
 });
 
 app.post('/login', function (req, res){
+	//console.log("login");
 	var data= req.body;  
 	var sql= "select userId from account_user where accountId in (select id from accounts where email='" +data.email +"')";
 	var nestingOptions = [

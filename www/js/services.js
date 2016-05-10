@@ -1,5 +1,5 @@
-//varDOMAIN="http://192.168.0.103:8028/";
-var DOMAIN="http://localhost:8028/";
+var DOMAIN="http://192.168.0.105:8028/";
+//var DOMAIN="http://localhost:8028/";
 //var DOMAIN="http://:8028/";
 
 // Users
