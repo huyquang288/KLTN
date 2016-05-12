@@ -215,7 +215,8 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             })
             .state('forgot-password', {
                 url: '/forgot-password',
-                templateUrl: 'templates/forgot-password.html'
+                templateUrl: 'templates/forgot-password.html',
+                controller: 'LoginCtrl'
             });
 
         // if none of the above states are matched, use this as the fallback

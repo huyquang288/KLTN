@@ -1,7 +1,7 @@
 angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btford.socket-io', 'angular-md5'])
 
     // MainCtrl được gọi đầu tiên khi ng dùng TRUY CẬP VÀO TRANG LOGIN
-    .controller('MainCtrl', function ($scope, $stateParams, StorageData, Socket, ConnectServer, User, Chat, Topic, Group, $ionicModal, Noti, $location, $rootScope, $ionicPopup, $state) {
+    .controller('MainCtrl', function ($scope, $stateParams, StorageData, Socket, ConnectServer, User, Chat, Topic, Group, $ionicModal, Noti, $location, $rootScope, $ionicPopup, $state, $ionicScrollDelegate) {
         //console.log('main ctrl');
         $scope.userId= $rootScope.userId;
         $scope.historyBack = function () {
@@ -566,7 +566,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
     })
 
-    .controller('TopicCtrl', function ($rootScope, $scope, $stateParams, $ionicPopup, Socket, Topic, Chat, Group) {
+    .controller('TopicCtrl', function ($rootScope, $scope, $stateParams, $ionicPopup, Socket, Topic, Chat, Group, $ionicScrollDelegate) {
         $scope.face= ($rootScope.user) ?$rootScope.user.face :'img/icon/male.jpg';
         $scope.userId= $rootScope.userId;
         var topics= Topic.getTopics();
@@ -587,6 +587,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 break;
             }
         }
+        $ionicScrollDelegate.scrollBottom();
 
         $scope.isBookmark= function (id) {
             return Topic.isBookmark(id);
@@ -620,10 +621,12 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             Chat.add(chat);
             $rootScope.$broadcast("reload recent");
             $scope.chatList= Chat.getChatList($stateParams.topicId);
+            $ionicScrollDelegate.scrollBottom();
         };
 
         $rootScope.$on("have a new message", function (event, args) {
             $scope.chatList= Chat.getChatList($stateParams.topicId);
+            $ionicScrollDelegate.scrollBottom();
         });
 
         // IS TYPING
@@ -655,6 +658,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         });
         Socket.on('typing', function (data) {
             $scope.typingList.push(data +' is typing...');
+            $ionicScrollDelegate.scrollBottom();
         });
     })
 
@@ -1011,6 +1015,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
    
     .controller('LoginCtrl', function ($rootScope, $scope, $location, StorageData, Login, md5, Auth) {
         $scope.loginData={};
+        $scope.DOMAIN= DOMAIN;
         $scope.login= function() {
             var ema= $scope.loginData.email;
             var pas= md5.createHash($scope.loginData.password);
@@ -1029,6 +1034,11 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 }
             });
         };
+        // $scope.setDOMAIN = function () {
+        //     DOMAIN= $scope.newDOMAIN;
+        //     console.log(DOMAIN);
+        //     $location.path("/login");
+        // };
     });
 
 // đoạn code này để hiển thị thông báo xem người dùng có chấp nhận nhận thông báo của hệ thống ko
