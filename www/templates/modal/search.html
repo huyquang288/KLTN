@@ -13,7 +13,7 @@
     <ion-header-bar class="bar-stable item-input-inset">
         <label class="item-input-wrapper">
             <i class="icon ion-ios-search placeholder-icon"></i>
-            <input type="search" placeholder="Find Topic" ng-model="search">
+            <input type="search" placeholder="Tìm kiếm" ng-model="search">
         </label>
         <button class="button button-clear button-icon button-positive icon ion-ios-arrow-down"
                 ng-click="closeSearch(); search = null;">
@@ -22,7 +22,7 @@
 
     <ion-content ng-show="search">
         <ion-list>
-            <ion-item class="item-divider">Topic</ion-item>
+            <ion-item class="item-divider">Chủ đề</ion-item>
             <ion-item class="item-avatar" ng-repeat="topic in topics | filter:search"
                       type="item-text-wrap" href="#/topic/{{topic.id}}">
                 <img ng-src="img/icon/topic/{{topic.id%10}}.jpg">

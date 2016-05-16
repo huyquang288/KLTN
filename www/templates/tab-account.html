@@ -1,4 +1,4 @@
-<ion-view view-title="Setting">
+<ion-view view-title="Cài đặt">
     <!-- <ion-nav-buttons side="right">
         <button style="color:#fff" class="icon button-clear button-icon button-positive ion-edit" 
                 ng-click="showEdit()">
@@ -19,57 +19,41 @@
             </ion-item>
             <div style="height: 30px"></div>
             <ion-item class="item-icon-right" ng-click="showNotification();">
-                <h3><small>Notifications</small></h3>
-                <p>On</p>
+                <h3><small>Thông báo</small></h3>
+                <p>{{notiStatus}}</p>
                 <i class="icon ion-ios-arrow-right"></i>
             </ion-item>
             <ion-toggle ng-model="setting_preview">
-                <h3><small>Notification Previews</small></h3>
-                <p ng-if="!setting_preview">Show name only</p>
-                <p ng-if="setting_preview">Show name and massage</p>
+                <h3><small>Xem trước tin nhắn</small></h3>
+                <p ng-if="!setting_preview">Chỉ hiện tên người gửi</p>
+                <p ng-if="setting_preview">Hiện tên người gửi và nội dung tin nhắn</p>
             </ion-toggle>
             
-            <!-- <div style="height: 20px"></div>
-            <ion-toggle ng-model="setting_sound">
-                <h3><small>In-App Sound</small></h3>
-                <p ng-if="!setting_sound">Off</p>
-                <p ng-if="setting_sound">On</p>
-            </ion-toggle>
-            <ion-toggle ng-model="setting_vibration">
-                <h3><small>In-App Vibrate</small></h3>
-                <p ng-if="!setting_vibration">Off</p>
-                <p ng-if="setting_vibration">On</p>
-            </ion-toggle> -->
 
             <div style="height: 20px"></div>
             <ion-item class="item-icon-right" href="#">
-                <h3><small>Help</small></h3>
+                <h3><small>Giúp đỡ</small></h3>
                 <i class="icon ion-ios-arrow-right"></i>
             </ion-item>
 
             <ion-item class="item-icon-right" href="#">
-                <h3><small>Third Party Notice</small></h3>
+                <h3><small>Điều khoản</small></h3>
                 <i class="icon ion-ios-arrow-right"></i>
             </ion-item>
 
             <ion-item class="item-icon-right" href="#">
-                <h3><small>Privacy Policy</small></h3>
-                <i class="icon ion-ios-arrow-right"></i>
-            </ion-item>
-
-            <ion-item class="item-icon-right" href="#">
-                <h3><small>Terms of Service</small></h3>
+                <h3><small>Chính sách riêng tư</small></h3>
                 <i class="icon ion-ios-arrow-right"></i>
             </ion-item>
 
             <ion-item class="item-icon-right" ng-click="show();">
-                <h3><small>Report a Problem</small></h3>
+                <h3><small>Báo lỗi</small></h3>
                 <i class="icon ion-ios-arrow-right"></i>
             </ion-item>
 
             <div style="height: 30px"></div>
             <ion-item class="assertive" ng-click="logout();" style="text-align:center">
-                Log out
+                Đăng xuất
             </ion-item>
             <div style="height: 20px"></div>
         </ion-list>

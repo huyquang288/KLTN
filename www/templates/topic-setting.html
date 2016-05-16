@@ -35,12 +35,6 @@
         </button>
     </ion-nav-buttons>
 
-    <!-- <ion-nav-buttons side="right">
-        <button style="color:#fff" class="icon button-clear button-icon button-positive ion-edit" 
-                ng-click="showEdit()">
-        </button>
-    </ion-nav-buttons> -->
-
     <ion-content style="background-color: #f4f4f4">
         <ion-list>
             <ion-item class="item-avatar item-avatar-center item-avatar-xl text-center"
@@ -63,7 +57,7 @@
             <label class="item item-input item-select">
                 <!-- <i class="icon ion-ios-eye-outline positive"></i> -->
                 <div class="input-label">
-                    Change Privacy
+                    Thay đổi quyền truy cập
                 </div>
                 <select name="category-group" id="categoryGroup" ng-model="itemSelected"
                         ng-change="onCategoryChange(itemSelected)" 
@@ -74,7 +68,7 @@
             <!-- noti tab -->
             <ion-item class="item-icon-left" ng-click="setNotification();">
                 <i class="icon ion-ios-bell-outline positive"></i>
-                Notification
+                Thông báo
                 <span class="item-note">{{notiStatus}}</span>
             </ion-item>
 
@@ -83,45 +77,18 @@
             <ion-item ng-if="room.roomType != 'group'"
                     class="item-icon-left" ng-click="openTagedGroup();">
                 <i class="icon ion-ios-people-outline positive"></i>
-                Taged Groups
+                Nhóm đã được chia sẻ
             </ion-item>
             <ion-item ng-if="room.roomType != 'group'"
                     class="item-icon-left" ng-click="openTagGroup();">
                 <i class="icon ion-ios-plus-empty positive"></i>
-                Tag Group
+                Chia sẻ
             </ion-item>
 
             <div style="height: 15px"></div>
             <ion-item class="assertive" ng-click="showConfirmDelete();" style="text-align:center">
-                Delete Topic
+                Xoá chủ đề
             </ion-item>
-
-
-
-            <!-- if tab == group -->
-            <!-- <ion-item class="item-icon-left" ng-click="openAddPeople();" >
-                <i class="icon ion-ios-plus-empty positive"></i>
-                Add People
-            </ion-item> 
-
-
-            <ion-item href="#/user-setting/{{user.id}}" class="item-avatar item-icon-right"
-                      ng-repeat="user in room.user" type="item-text-wrap" ng-if="room.roomType == 'group'">
-                <img ng-src="{{user.face}}">
-                <span class="badge avatar-badge avatar-badge-s"
-                      ng-class="{'badge-positive':user.friendType=='Messenger', 'badge-stable':user.friendType=='facebook'}">
-                    <i class="icon ion-ios-bolt" ng-if="user.friendType=='Messenger'"></i>
-                    <i class="icon ion-social-facebook light" ng-if="user.friendType=='facebook'"></i>
-                </span>
-                <h3>
-                    <small>{{user.name}}</small>
-                </h3>
-                <i class="icon ion-ios-information-outline positive"></i>
-            </ion-item>
-
-            <ion-item class="assertive" ng-click="showConfirmLeave();" ng-if="room.roomType == 'group'">
-                Leave Group
-            </ion-item> -->
 
         </ion-list>
     </ion-content>

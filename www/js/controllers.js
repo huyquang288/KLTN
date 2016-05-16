@@ -10,6 +10,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
         // hiển thị thông báo
         $rootScope.pushNotification= function (notiTitle, notiBody, locationLink) {
+            var temp= {groupId: -1, topicId: -1};
+            if (Noti.checkNoti(temp) == 'Off') return;
             if (!Notification) {
                 alert('Desktop notifications not available in your browser. Try Chromium.'); 
                 return;
@@ -41,8 +43,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                     // $rootScope.$broadcast("reload users");
                     
                     var user= User.getUserInfo(temp[temp.length-1]);
-                    temp= user.firstName +' ' +user.lastName +' added you to \'' +data.name +'\' group.';
-                    $rootScope.pushNotification('New Group', temp, '/topics/'+data.id)
+                    temp= user.firstName +' ' +user.lastName +' đã thêm bạn vào nhóm mới \'' +data.name +'\'.';
+                    $rootScope.pushNotification('Nhóm mới', temp, '/topics/'+data.id)
                     break;
                 }
             }
@@ -59,8 +61,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                     $rootScope.$broadcast("reload groups");
                     // $rootScope.$broadcast("reload users");
                     var gr= Group.getGroupById(data.group)
-                    temp= 'You added to \'' +gr.name +'\' group.';
-                    $rootScope.pushNotification('Added to Group', temp, '/topics/'+data.group)
+                    temp= 'Bạn đã được thêm vào nhóm \'' +gr.name +'\'.';
+                    $rootScope.pushNotification('Thêm vào nhóm', temp, '/topics/'+data.group)
                     break;
                 }
             }
@@ -72,8 +74,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 Topic.newTopic(data);
                 $rootScope.$broadcast("reload topics");
                 if (Noti.checkNoti(temp) == 'On') {
-                    var body= Group.getGroupById(data.groupId).name +' was created \'' +data.title +'\' topic';
-                    $rootScope.pushNotification('New Topic', body, '/topic/' +data.id);
+                    var body= Group.getGroupById(data.groupId).name +' đã tạo chủ đề \'' +data.title +'\'.';
+                    $rootScope.pushNotification('Chủ đề mới', body, '/topic/' +data.id);
                 }
             }
         });
@@ -85,7 +87,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             for (var i in list) {
                 if (Group.userIsBelong(list[i], $rootScope.userId) == 'true') {
                     if (groupsName=='') {
-                        groupsName= ('Your group(s): \'' +Group.getGroupById(list[i]).name);
+                        groupsName= ('Nhóm của bạn: \'' +Group.getGroupById(list[i]).name);
                     } else {
                         groupsName+= (', ' +Group.getGroupById(list[i]).name);
                     }
@@ -100,8 +102,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 $rootScope.$broadcast("reload recent");
                 $rootScope.$broadcast("reload topics");
                 if (check== true) {
-                    var body=  groupsName +'\' was taged in \'' +Topic.getTopicById(data.topic).title +'\' topic';
-                    $rootScope.pushNotification('New Tag', body, '/topic/' +data.topic);
+                    var body=  groupsName +'\' được chia sẻ với chủ đề \'' +Topic.getTopicById(data.topic).title +'\'.';
+                    $rootScope.pushNotification('Chia sẻ mới', body, '/topic/' +data.topic);
                 }
             }
         });
@@ -123,7 +125,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             }
             else {
                 temp= {groupId: -1, topicId: data.toTopicId};
-                console.log(Noti.checkNoti(temp));
+                // console.log(Noti.checkNoti(temp));
                 if (Topic.isRelation(data.toTopicId)) {
                     $rootScope.$broadcast("have a new message");
 
@@ -134,14 +136,6 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             }
         });
         
-        // IMPORTANT
-        // for tab-account and sign-up-success
-
-
-
-
-
-
         // for new-group
         $scope.createNewGroup = function (groupName) {
             var groupUserList = "";
@@ -158,16 +152,16 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             if (groupUserList.split("+").length < 2 || !groupName) {
                 if (groupUserList.split("+").length < 2) {
                     var alertPopup = $ionicPopup.alert({
-                        title: 'Please Add More People',
-                        template: 'Groups need at least three people.',
+                        title: 'Vui lòng thêm người dùng',
+                        template: 'Một nhóm cần có tối thiểu 3 người dùng.',
                         okType: 'button-clear'
                     });
                     return;
                 }
                 if (!groupName) {
                     var alertPopup = $ionicPopup.alert({
-                        title: 'Name This Group',
-                        template: 'To create the group, please name it first. (Only you can change the name later.)',
+                        title: 'Tên nhóm',
+                        template: 'Để tạo nhóm, vui lòng nhập tên cho nhóm. (Tên nhóm có thể thay đổi.)',
                         okType: 'button-clear'
                     });
                     return;
@@ -211,8 +205,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             }
             if (groupList.toString().split("+").length > 2) {
                 var alertPopup = $ionicPopup.alert({
-                    title: 'Please Add Less Groups',
-                    template: 'Please add less than 3 groups for once.',
+                    title: 'Vui lòng lựa chọn ít nhóm hơn',
+                    template: 'Chỉ có thể thêm tối đa 2 nhóm.',
                     okType: 'button-clear'
                 });
                 return;
@@ -247,8 +241,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             }
             if (groupList.toString().split("+").length > 2) {
                 var alertPopup = $ionicPopup.alert({
-                    title: 'Please Add Less Groups',
-                    template: 'Please add less than 3 groups for once.',
+                    title: 'Vui lòng lựa chọn ít nhóm hơn',
+                    template: 'Chỉ có thể thêm tối đa 2 nhóm.',
                     okType: 'button-clear'
                 });
                 return;
@@ -273,8 +267,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         $scope.createNewTopic = function (topicName) {
             if (!topicName) {
                 var alertPopup = $ionicPopup.alert({
-                    title: 'Name this topic',
-                    template: 'To create the topic, please name it first. (Only you can change the name later.)',
+                    title: 'Tên chủ đề',
+                    template: 'Để tạo chủ đề, vui lòng nhập tên cho chủ đề. (Tên chủ đề có thể thay đổi.)',
                     okType: 'button-clear'
                 });
             }
@@ -368,8 +362,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
         // new-topic modal
         $scope.categories = [       
-            { id: 0, name: "Private"},
-            { id: 1, name: "Public"}
+            { id: 0, name: "Riêng tư"},
+            { id: 1, name: "Công khai"}
         ];
         $scope.itemSelected = $scope.categories[1];
         $ionicModal.fromTemplateUrl('templates/modal/new-topic.html', {
@@ -658,7 +652,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         });
         Socket.on('typing', function (data) {
             $scope.typingList.push(data +' is typing...');
-            $ionicScrollDelegate.scrollBottom();
+            // $ionicScrollDelegate.scrollBottom();
         });
     })
 
@@ -750,23 +744,61 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         }
     })
 
-    .controller('AccountCtrl', function ($rootScope, $scope, $ionicActionSheet, $ionicModal, $location, $ionicPopup, Auth, User) {
+    .controller('AccountCtrl', function ($rootScope, $scope, $ionicActionSheet, $ionicModal, $location, $ionicPopup, Auth, User, Noti) {
         $scope.user= User.getUserInfo($rootScope.userId);
+        $scope.notiStatus= (Noti.checkNoti({groupId: -1, topicId: -1}) == 'On')
+                            ?'Bật' :'Tắt';
         $scope.showNotification = function () {
             $ionicActionSheet.show({
                 buttons: [
-                    { text: 'Turn off for 15min' },
-                    { text: 'Turn off for 1h' },
-                    { text: 'Turn off for 8h' },
-                    { text: 'Turn off for 24h' },
-                    { text: 'Until I turn it back on' }
+                    { text: 'Bật' },
+                    { text: 'Tắt trong 15 phút' },
+                    { text: 'Tắt trong 1 giờ' },
+                    { text: 'Tắt trong 24 giờ' },
+                    { text: 'Tắt cho đến khi mở lại' }
                 ],
-                titleText: 'Notifications',
-                cancelText: 'Cancel',
+                titleText: 'Thông báo',
+                cancelText: 'Huỷ',
                 cancel: function () {
                     // add cancel code..
                 },
                 buttonClicked: function (index) {
+                    switch (index) {
+                        case 0: {
+                            $scope.notiStatus= 'Bật';
+                            var data= {groupId: -1, topicId: -1};
+                            Noti.onNoti(data);
+                            break;
+                        };
+                        case 1: {
+                            $scope.notiStatus= 'Tắt';
+                            var data= {groupId: -1, topicId: -1, 
+                                        until: (new Date()).getTime()+60000*15};
+                            Noti.offNoti(data);
+                            break;
+                        };
+                        case 2: {
+                            $scope.notiStatus= 'Tắt';
+                            var data= {groupId: -1, topicId: -1, 
+                                        until: (new Date()).getTime()+60000*60};
+                            Noti.offNoti(data);
+                            break;
+                        };
+                        case 3: {
+                            $scope.notiStatus= 'Tắt';
+                            var data= {groupId: -1, topicId: -1, 
+                                        until: (new Date()).getTime()+60000*60*24};
+                            Noti.offNoti(data);
+                            break;
+                        };
+                        case 4: {
+                            $scope.notiStatus= 'Tắt';
+                            var data= {groupId: -1, topicId: -1, 
+                                        until: 'off'};
+                            Noti.offNoti(data);
+                            break;
+                        };
+                    }
                     return true;
                 }
             });
@@ -777,9 +809,9 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         $scope.showEdit = function () {
             var hideSheet = $ionicActionSheet.show({
                 buttons: [
-                    { text: 'Change your name' }
+                    { text: 'Đổi tên hiển thị' }
                 ],
-                cancelText: 'Cancel',
+                cancelText: 'Huỷ',
                 cancel: function () {
                     // add cancel code..
                 },
@@ -794,11 +826,11 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
         $scope.logout = function () {
             var confirmPopup = $ionicPopup.confirm({
-                title: 'Log Out?',
+                title: 'Đăng xuất?',
                 // template: 'This conversation will be archived, and you won\'t get any new message.',
-                cancelText: 'Cancel',
+                cancelText: 'Huỷ',
                 cancelType: 'button-clear',
-                okText: 'Logout',
+                okText: 'Đăng xuất',
                 okType: 'button-clear'
             });
             confirmPopup.then(function (res) {
@@ -829,51 +861,54 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
     .controller('GroupSettingCtrl', function ($rootScope, $ionicActionSheet, $scope, $stateParams, $ionicPopup, Group, ConnectServer, Noti) {
         $scope.group= Group.getGroupById($stateParams.groupId);
+        $scope.notiStatus= (Noti.checkNoti({groupId: $stateParams.groupId, topicId: -1}) == 'On')
+                            ?'Bật' :'Tắt';
+
         $scope.setNotification = function () {
             $ionicActionSheet.show({
                 buttons: [
-                    { text: 'Turn on' },
-                    { text: 'Turn off for 15min' },
-                    { text: 'Turn off for 1h' },
-                    { text: 'Turn off for 24h' },
-                    { text: 'Until I turn it back on' }
+                    { text: 'Bật' },
+                    { text: 'Tắt trong 15 phút' },
+                    { text: 'Tắt trong 1 giờ' },
+                    { text: 'Tắt trong 24 giờ' },
+                    { text: 'Tắt cho đến khi mở lại' }
                 ],
-                titleText: 'Mute notification for this conversation',
-                cancelText: 'Cancel',
+                titleText: 'Tắt thông báo cho nhóm này',
+                cancelText: 'Huỷ',
                 cancel: function () {
                     // add cancel code..
                 },
                 buttonClicked: function (index) {
                     switch (index) {
                         case 0: {
-                            $scope.notiStatus= 'On';
+                            $scope.notiStatus= 'Bật';
                             var data= {groupId: $stateParams.groupId, topicId: -1};
                             Noti.onNoti(data);
                             break;
                         };
                         case 1: {
-                            $scope.notiStatus= 'Off';
+                            $scope.notiStatus= 'Tắt';
                             var data= {groupId: $stateParams.groupId, topicId: -1, 
                                         until: (new Date()).getTime()+60000*15};
                             Noti.offNoti(data);
                             break;
                         };
                         case 2: {
-                            $scope.notiStatus= 'Off';
+                            $scope.notiStatus= 'Tắt';
                             var data= {groupId: $stateParams.groupId, topicId: -1, 
                                         until: (new Date()).getTime()+60000*60};
                             Noti.offNoti(data);
                             break;
                         };
                         case 3: {
-                            $scope.notiStatus= 'Off';
+                            $scope.notiStatus= 'Tắt';
                             var data= {groupId: $stateParams.groupId, topicId: -1, 
                                         until: (new Date()).getTime()+60000*60*24};
                             Noti.offNoti(data);
                             break;
                         };
                         case 4: {
-                            $scope.notiStatus= 'Off';
+                            $scope.notiStatus= 'Tắt';
                             var data= {groupId: $stateParams.groupId, topicId: -1, 
                                         until: 'off'};
                             Noti.offNoti(data);
@@ -887,11 +922,11 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         // A confirm
         $scope.showConfirmLeave = function () {
             var confirmPopup = $ionicPopup.confirm({
-                title: 'Leave Group?',
-                template: 'This conversation will be archived, and you won\'t get any new message.',
-                cancelText: 'Cancel',
+                title: 'Rời khỏi nhóm?',
+                template: 'Bạn sẽ không còn nhận được những tin nhắn mới từ những chủ đề thuộc nhóm này nữa.',
+                cancelText: 'Huỷ',
                 cancelType: 'button-clear',
-                okText: 'Leave',
+                okText: 'Rời khỏi nhóm',
                 okType: 'button-clear'
             });
             confirmPopup.then(function (res) {
@@ -911,54 +946,55 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
 
     .controller('TopicSettingCtrl', function ($scope, $ionicActionSheet, $stateParams, $ionicPopup, Topic, Noti) {
         $scope.topic = Topic.getTopicById($stateParams.topicId);
-        $scope.notiStatus= Noti.checkNoti ({groupId:-1, topicId: $stateParams.topicId});
+        $scope.notiStatus= (Noti.checkNoti({groupId:-1, topicId: $stateParams.topicId}) == 'On')
+                            ?'Bật' :'Tắt';
 
         $scope.setNotification = function () {
 
             $ionicActionSheet.show({
                 buttons: [
-                    { text: 'Turn on' },
-                    { text: 'Turn off for 15min' },
-                    { text: 'Turn off for 1h' },
-                    { text: 'Turn off for 24h' },
-                    { text: 'Until I turn it back on' }
+                    { text: 'Bật' },
+                    { text: 'Tắt trong 15 phút' },
+                    { text: 'Tắt trong 1 giờ' },
+                    { text: 'Tắt trong 24 giờ' },
+                    { text: 'Tắt cho đến khi mở lại' }
                 ],
-                titleText: 'Mute notification for this conversation',
-                cancelText: 'Cancel',
+                titleText: 'Tắt thông báo cho chủ đề này',
+                cancelText: 'Huỷ',
                 cancel: function () {
                     // add cancel code..
                 },
                 buttonClicked: function (index) {
                     switch (index) {
                         case 0: {
-                            $scope.notiStatus= 'On';
+                            $scope.notiStatus= 'Bật';
                             var data= {groupId: -1, topicId: $stateParams.topicId};
                             Noti.onNoti(data);
                             break;
                         };
                         case 1: {
-                            $scope.notiStatus= 'Off';
+                            $scope.notiStatus= 'Tắt';
                             var data= {groupId: -1, topicId: $stateParams.topicId, 
                                         until: (new Date()).getTime()+60000*15};
                             Noti.offNoti(data);
                             break;
                         };
                         case 2: {
-                            $scope.notiStatus= 'Off';
+                            $scope.notiStatus= 'Tắt';
                             var data= {groupId: -1, topicId: $stateParams.topicId, 
                                         until: (new Date()).getTime()+60000*60};
                             Noti.offNoti(data);
                             break;
                         };
                         case 3: {
-                            $scope.notiStatus= 'Off';
+                            $scope.notiStatus= 'Tắt';
                             var data= {groupId: -1, topicId: $stateParams.topicId, 
                                         until: (new Date()).getTime()+60000*60*24};
                             Noti.offNoti(data);
                             break;
                         };
                         case 4: {
-                            $scope.notiStatus= 'Off';
+                            $scope.notiStatus= 'Tắt';
                             var data= {groupId: -1, topicId: $stateParams.topicId, 
                                         until: 'off'};
                             Noti.offNoti(data);

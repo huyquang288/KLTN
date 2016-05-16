@@ -21,7 +21,7 @@
 </style>
 
 <!-- name of tab -->
-<ion-view view-title="Group Setting">
+<ion-view view-title="Cài đặt nhóm">
     <ion-nav-buttons side="left">
         <button nav-direction="back" 
                 class="button button-clear button-icon button-positive icon ion-ios-arrow-back"
@@ -40,7 +40,7 @@
                 <h3>
                     <button class="button button-clear button-positive" style="color:black"
                             ng-click="showEdit()">
-                        {{(group.description) ?group.description :'No description'}}
+                        {{(group.description) ?group.description :'Không có mô tả'}}
                     </button>
                 </h3>
             </ion-item>
@@ -48,8 +48,8 @@
             <!-- noti tab -->
             <ion-item class="item-icon-left" ng-click="setNotification();">
                 <i class="icon ion-ios-bell-outline positive"></i>
-                Notification
-                <span class="item-note">On</span>
+                Thông báo tin nhắn
+                <span class="item-note">{{notiStatus}}</span>
             </ion-item>
 
             <div style="height: 35px"></div>
@@ -57,18 +57,18 @@
             <!-- if tab == group -->
             <ion-item class="item-icon-left" ng-click="openAddPeople();" >
                 <i class="icon ion-ios-plus-empty positive"></i>
-                Add People
+                Thêm người dùng
             </ion-item> 
 
             <div style="height: 10px"></div>
             <ion-item class="item-icon-left" ng-click="openSendRequest();" >
                 <i class="icon ion-ios-plus-empty positive"></i>
-                Make Friend With Other Groups
+                Kết bạn với nhóm khác
             </ion-item>
 
             <div style="height: 30px"></div>
             <ion-item class="assertive" ng-click="showConfirmLeave();" style="text-align:center">
-                Leave Group
+                Rời nhóm
             </ion-item>
 
         </ion-list>

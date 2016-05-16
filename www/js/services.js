@@ -1,6 +1,6 @@
 //var DOMAIN="http://192.168.42.232:8028/";
-var DOMAIN="http://192.168.0.105:8028/";
-//var DOMAIN="http://localhost:8028/";
+//var DOMAIN="http://192.168.0.105:8028/";
+var DOMAIN="http://localhost:8028/";
 //var DOMAIN="http://:8028/";
 
 // Users
@@ -87,7 +87,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
         }
     })
 
-    .factory('Noti', function () {
+    .factory('Noti', function (Topic) {
         function validate (dataIn) {
             var temp= localStorage['ionic_noti'];
             var data;
@@ -111,15 +111,35 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                     return 'On';
                 } else {
                     var data= JSON.parse(temp);
-                    for (var i in data) {
-                        if (data[i].groupId== dataIn.groupId && data[i].topicId== dataIn.topicId) {
-                            if (data[i].until== 'off') {
+                    if (dataIn.groupId == -1 && dataIn.topicId == -1) {
+                        for (var i in data) {
+                            if (data[i].topicId == -1 && data[i].groupId == -1) {
+                                if (data[i].until== 'off') {
+                                    return 'Off';
+                                } else if ((new Date()).getTime() < data[i].until) {
+                                    return 'Off';
+                                } else {
+                                    data.splice(i, 1);
+                                    return 'On';
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        for (var i in data) {
+                            if (dataIn.groupId == -1 && 
+                                Topic.getGroupOfTopic(dataIn.topicId) == data[i].groupId) {
                                 return 'Off';
-                            } else if ((new Date()).getTime() < data[i].until) {
-                                return 'Off';
-                            } else {
-                                data.splice(i, 1);
-                                return 'On';
+                            }
+                            else if (data[i].groupId== dataIn.groupId && data[i].topicId== dataIn.topicId) {
+                                if (data[i].until== 'off') {
+                                    return 'Off';
+                                } else if ((new Date()).getTime() < data[i].until) {
+                                    return 'Off';
+                                } else {
+                                    data.splice(i, 1);
+                                    return 'On';
+                                }
                             }
                         }
                     }
@@ -685,7 +705,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 lastMess= null;
                 var chats= StorageData.getData().topicchats;
                 if (chats== null) {
-                    return "No recent chat.";
+                    return "Không có tin nhắn gần đây.";
                 }
                 for (var i=(chats.length-1); i>=0; i--) {
                     if (chats[i].toTopicId== topicId) {
@@ -696,7 +716,7 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 }
                 // trong trường hợp không tìm được tin nhắn (room vừa mới tạo chưa có nội dung chat) trả về giá trị rỗng
                 if (lastMess== null) {
-                    return "No recent chat.";
+                    return "Không có tin nhắn gần đây.";
                 }
                 var users= StorageData.getData().users;
                 for (var i in users) {

@@ -54,7 +54,7 @@
 
     <ion-nav-title>
         <a>
-            {{(group.belong=='true' ?'' :'Public ')}}Topics in {{group.name}}
+            {{(group.belong=='true' ?'Chủ đề trong' :'Chủ đề công khai trong')}} {{group.name}}
         </a>
     </ion-nav-title>
 
@@ -82,7 +82,7 @@
                     <span class="item-note">{{getLastMessageTime(topic.id)}}</span>
 
                     <ion-option-button class="button-assertive" ng-click="">
-                        Unfollow
+                        Bỏ theo dõi
                     </ion-option-button>
 
                 </ion-item>
@@ -92,16 +92,16 @@
         <div ng-if="group.topics.length==null">
             <div class="text-center" style="padding: 50px">
                 <h2 class="grey">
-                    Topic
+                    Chủ đề
                 </h2>
                 <div style="height: 10px"></div>
-                <h4 class="grey">All {{group.name}}'s topics will be here.</h4>
+                <h4 class="grey">Tất cả chủ đề trong {{group.name}} được hiển thị tại đây.</h4>
             </div>
         </div>
 
         <!--suggest groups-->
         <div style="height: 15px"></div>
-        <h4 style="text-align:center"><b>Friend's groups of {{group.name}}</b></h4>
+        <h4 style="text-align:center"><b>Nhóm bạn của {{group.name}}</b></h4>
         <div ng-repeat="group in friendGroups" ng-if="$index%2==0" class="row">
             <div class="col col-50 {{($index==friendGroups.length-1) ?'col-offset-25' :''}}">
                 <div class="col-100 list card">
@@ -113,7 +113,7 @@
                         <h3>
                             <small>{{group.name}}</small>
                         </h3>
-                        <p>{{(group.description) ?group.description :'No description'}}</p>
+                        <p>{{(group.description) ?group.description :'Không có mô tả'}}</p>
                     </a>
 
                     <a nav-direction="forward" class="item item-divider text-center" href="#/group-members/{{group.id}}">
@@ -133,7 +133,7 @@
                         <h3>
                             <small>{{friendGroups[$index+1].name}}</small>
                         </h3>
-                        <p>{{(friendGroups[$index+1].description) ?friendGroups[$index+1].description :'No description'}}</p>
+                        <p>{{(friendGroups[$index+1].description) ?friendGroups[$index+1].description :'Không có mô tả'}}</p>
                     </a>
 
                     <a nav-direction="forward" class="item item-divider text-center" href="#/group-members/{{friendGroups[$index+1].id}}">

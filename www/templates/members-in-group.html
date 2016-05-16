@@ -30,7 +30,7 @@
 
     <ion-nav-title>
         <a>
-            Members in {{group.name}}
+            Người dùng trong {{group.name}}
         </a>
     </ion-nav-title>
 
@@ -45,31 +45,11 @@
                           type="item-text-wrap">
                     <img ng-src="img/icon/user/{{member.id%10}}.jpg">
 
-                    <!-- <span class="badge avatar-badge avatar-badge-s"
-                          ng-class="{'badge-positive':room.roomType=='ms_friend', 'badge-stable':room.rooms.roomType=='fb_friend'}"
-                          ng-if="room.rooms.roomType!='group'">
-                        <i class="icon ion-ios-bolt" ng-if="room.rooms.roomType=='ms_friend'"></i>
-                        <i class="icon ion-social-facebook light" 
-                           ng-if="room.rooms.roomType=='fb_friend'">
-                        </i>
-                    </span> -->
-
                     <h3>
                         <small>{{member.firstName}} {{member.lastName}}</small>
                     </h3>
 
-                    <p><i>Last activity: {{(lastActive(member.id)) ?lastActive(member.id) :'None'}}</i></p>
-
-                    <!-- <span class="item-note">{{room.rooms.activeTime}}</span> -->
-
-                    <!-- đoạn này sau này sẽ phát triển thành chức năng ban người dùng trong nhóm dành cho admin -->
-                    <!-- <ion-option-button class="button-dark" ng-click="">
-                        Leave group
-                    </ion-option-button>
-
-                    <ion-option-button class="button-assertive" ng-click="remove(room)">
-                        Delete
-                    </ion-option-button> -->
+                    <p><i>Hoạt động gần nhất: {{(lastActive(member.id)) ?lastActive(member.id) :'Không'}}</i></p>
 
                 </ion-item>
             </span>

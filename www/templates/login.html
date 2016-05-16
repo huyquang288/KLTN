@@ -4,7 +4,7 @@
 
         <img src="img/logo.svg" style="width: 65px; height: auto">
 
-        <h2>Welcome to IonicMessenger</h2>
+        <h2>Chào mừng đến với<br>Ionic Messenger</h2>
 
         <div style="height: 25px"></div>
 
@@ -14,23 +14,20 @@
                     <input type="text" placeholder="Email" ng-model="loginData.email" ng-required="true">
                 </ion-item>
                 <ion-item class="item-input border-bottom">
-                    <input type="password" placeholder="Password" ng-model="loginData.password">
+                    <input type="password" placeholder="Mật khẩu" ng-model="loginData.password">
                 </ion-item>
             </ion-list>
             <div class="padding">
-                <!-- <a class="button button-clear button-large" href="#/tab/activities">
-                    Continue
-                </a> -->
                 <button class="button button-medium" ng-disable="loginForm.$invalid"
                         ng-click="login()">
-                    Login
+                    Đăng nhập
                 </button>
             </div>
         </form>
     </ion-content>
 
     <ion-footer-bar>
-        <a class="button button-clear" href="#/sign-up">Sign Up</a>
-        <a class="button button-clear" href="#/forgot-password">Forgot Password</a>
+        <a class="button button-clear" href="#/sign-up">Đăng kí</a>
+        <a class="button button-clear" href="#/forgot-password">Quên mật khẩu</a>
     </ion-footer-bar>
 </ion-view>

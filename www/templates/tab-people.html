@@ -1,4 +1,4 @@
-<ion-view view-title="People" id="tab-people">
+<ion-view view-title="Người dùng" id="tab-people">
 
     <ion-nav-buttons side="left">
         <button class="button button-clear button-icon button-positive icon ion-ios-search"
@@ -16,7 +16,7 @@
                     <h3>
                         <small>{{user.firstName}} {{user.lastName}}</small>
                     </h3>
-                    <p><i>Last activity: {{(lastActive(user.id)) ?lastActive(user.id) :'None'}}</i></p>
+                    <p><i>Hoạt động gần nhất: {{(lastActive(user.id)) ?lastActive(user.id) :'Không'}}</i></p>
 
                 </ion-item>
             </span>

@@ -3,14 +3,14 @@
         <button class="button button-clear button-icon icon button-positive ion-ios-arrow-down" 
                 ng-click="closeTagedGroup()">
         </button>
-        <h1 class="title">Taged Group</h1>
+        <h1 class="title">Nhóm đã được chia sẻ</h1>
         <!-- <button class="button button-clear button-icon icon button-positive ion-ios-checkmark-outline" 
                 ng-click="tagGroup()">
         </button> -->
     </ion-header-bar>
     <ion-content style='background-color: #EDEEF1'>
         <div ng-if="groups.length==0" class="text-center" style="padding: 45px">
-            <h3>No taged group</h3>
+            <h3>Chủ đề chưa được chia sẻ.</h3>
         </div>
         <ion-list>
             <span ng-repeat="gr in groups track by $index">
@@ -20,7 +20,7 @@
                 <h3>
                     <small>{{gr.name}}</small>
                 </h3>
-                <p>Members: {{userNames(gr.id)}}</p>
+                <p>Thành viên: {{userNames(gr.id)}}</p>
 
                 </ion-item>
             </span>

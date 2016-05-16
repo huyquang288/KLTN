@@ -13,7 +13,7 @@
     <ion-header-bar class="bar-stable item-input-inset">
         <label class="item-input-wrapper">
             <i class="icon ion-ios-search placeholder-icon"></i>
-            <input type="search" placeholder="Find Group" ng-model="search">
+            <input type="search" placeholder="Tìm kiếm" ng-model="search">
         </label>
         <button class="button button-clear button-icon button-positive icon ion-ios-arrow-down"
                 ng-click="closeGroupSearch(); search = null;">
@@ -23,7 +23,7 @@
     <ion-content ng-show="search">
         <ion-list>
 
-            <ion-item class="item-divider">Group</ion-item>
+            <ion-item class="item-divider">Nhóm</ion-item>
             
             <span ng-repeat="group in groups | filter:search">
                 <ion-item class="item-remove-animate item-avatar" nav-direction="forward" href="#/room/{{room.id}}" type="item-text-wrap">
@@ -31,10 +31,6 @@
                     <h3>
                         <small>{{group.name}}</small>
                     </h3>
-
-                    <!-- <ion-option-button class="button-assertive" ng-click="remove(room)">
-                        Delete
-                    </ion-option-button> -->
 
                 </ion-item>
             </span>

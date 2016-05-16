@@ -4,7 +4,7 @@
         <button class="button button-clear button-icon icon button-positive ion-ios-arrow-down" 
                 ng-click="closeNewTopic()">
         </button>
-        <h1 class="title">New Topic</h1>
+        <h1 class="title">Tạo chủ đề mới</h1>
         <button class="button button-clear button-icon icon button-positive ion-ios-checkmark-outline" 
                 ng-click="createNewTopic($root.newTopicName); $root.newTopicName=''">
         </button>
@@ -23,14 +23,14 @@
         <div style="height: 30px"></div>
 
         <div style="margin-left:10%; width:80%">
-            <input type="text" ng-model="$root.newTopicName" placeholder="Name this topic"
+            <input type="text" ng-model="$root.newTopicName" placeholder="Tên chủ đề"
                    style="height: 57px; text-align:center; width: 100%">
         </div>
         <div style="height: 20px"></div>
 
         <label class="item item-input item-select">
             <div class="input-label">
-                Privacy
+                Quyền truy cập
             </div>
             <select name="category-group" id="categoryGroup" ng-model="itemSelected"
                     ng-change="onCategoryChange(itemSelected)" 

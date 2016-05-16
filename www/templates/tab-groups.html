@@ -20,7 +20,7 @@
     /*}*/
 </style>
 
-<ion-view view-title="Groups" id="tab-groups">
+<ion-view view-title="Nhóm" id="tab-groups">
     <ion-nav-buttons side="right">
         <button class="button button-clear button-positive" ng-click="openNewGroup()">
             <img style='height:32px; width:32px' ng-src="img/icon/new_group-256.png">
@@ -43,11 +43,10 @@
                             <a nav-direction="forward"
                                
                                href="#/topics/{{group.id}}/true">
-                                <!-- <img ng-src="{{room.rooms.thumbnail}}"> -->
                                 <h3>
                                     <small>{{group.name}}</small>
                                 </h3>
-                                <p>{{(group.description) ?group.description :'No description'}}</p>
+                                <p>{{(group.description) ?group.description :'Không có mô tả'}}</p>
                                 
                             </a>
                             <a class="badge avatar-badge avatar-badge-s7" ng-class="badge-positive"
@@ -70,11 +69,10 @@
                         <div class="item item-avatar item-avatar-center item-avatar-l text-center">
                             <a nav-direction="forward"
                                href="#/topics/{{groupsOfUser[$index+1].id}}/true">
-                                <!-- <img ng-src="{{room.rooms.thumbnail}}"> -->
                                 <h3>
                                     <small>{{groupsOfUser[$index+1].name}}</small>
                                 </h3>
-                                <p>{{(groupsOfUser[$index+1].description) ?groupsOfUser[$index+1].description :'No description'}}</p>
+                                <p>{{(groupsOfUser[$index+1].description) ?groupsOfUser[$index+1].description :'Không có mô tả'}}</p>
                             </a>
                             <a class="badge avatar-badge avatar-badge-s7" ng-class="badge-positive"
                                ng-href="#/group-setting/{{groupsOfUser[$index+1].id}}">
@@ -94,18 +92,17 @@
         </div>
     
         <div style="height: 10px"></div>
-        <h4 style="text-align:center"><b>Sugguest groups</b></h4>
+        <h4 style="text-align:center"><b>Gợi ý</b></h4>
         <div ng-repeat="group in suggestGroups" ng-if="$index%2==0" class="row">
             <div class="col col-50 {{($index==suggestGroups.length-1) ?'col-offset-25' :''}}">
                 <div class="col-100 list card">
                     <a nav-direction="forward"
                        class="item item-avatar item-avatar-center item-avatar-l text-center"
                        href="#/topics/{{group.id}}/false">
-                        <!-- <img ng-src="{{room.rooms.thumbnail}}"> -->
                         <h3>
                             <small>{{group.name}}</small>
                         </h3>
-                        <p>{{(group.description) ?group.description :'No description'}}</p>
+                        <p>{{(group.description) ?group.description :'Không có mô tả'}}</p>
                     </a>
 
                     <a nav-direction="forward" class="item item-divider text-center" 
@@ -121,12 +118,11 @@
                     <a nav-direction="forward"
                        class="item item-avatar item-avatar-center item-avatar-l text-center"
                        href="#/topics/{{suggestGroups[$index+1].id}}/false">
-                        <!-- <img ng-src="{{room.rooms.thumbnail}}"> -->
 
                         <h3>
                             <small>{{suggestGroups[$index+1].name}}</small>
                         </h3>
-                        <p>{{(suggestGroups[$index+1].description) ?suggestGroups[$index+1].description :'No description'}}</p>
+                        <p>{{(suggestGroups[$index+1].description) ?suggestGroups[$index+1].description :'Không có mô tả'}}</p>
                     </a>
 
                     <a nav-direction="forward" class="item item-divider text-center" 
@@ -139,71 +135,5 @@
             </div>
         </div>
 
-        <!--show when there is no group-->
-        <!--<div class="row">-->
-            <!--<div class="col text-center">-->
-                <!--<div class="list card">-->
-                    <!--<div class="item" style="padding: 30px 15px">-->
-                        <!--<a class="plus-circle" ng-click="openNewGroup()">-->
-                            <!--<i class="icon ion-ios-plus-empty stable"></i>-->
-                        <!--</a>-->
-
-                        <!--<div style="height: 10px"></div>-->
-                        <!--<h2 class="positive">-->
-                            <!--<small>New Group</small>-->
-                        <!--</h2>-->
-                        <!--<p class="stable">for family?</p>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
-            <!--<div class="col text-center">-->
-                <!--<div class="list card">-->
-                    <!--<div class="item" style="padding: 30px 15px">-->
-                        <!--<a class="plus-circle" ng-click="openNewGroup()">-->
-                            <!--<i class="icon ion-ios-plus-empty stable"></i>-->
-                        <!--</a>-->
-
-                        <!--<div style="height: 10px"></div>-->
-                        <!--<h2 class="positive">-->
-                            <!--<small>New Group</small>-->
-                        <!--</h2>-->
-                        <!--<p class="stable">for dinner plans?</p>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
-        <!--</div>-->
-
-        <!--<div class="row">-->
-            <!--<div class="col text-center">-->
-                <!--<div class="list card">-->
-                    <!--<div class="item" style="padding: 30px 15px">-->
-                        <!--<a class="plus-circle" ng-click="openNewGroup()">-->
-                            <!--<i class="icon ion-ios-plus-empty stable"></i>-->
-                        <!--</a>-->
-
-                        <!--<div style="height: 10px"></div>-->
-                        <!--<h2 class="positive">-->
-                            <!--<small>New Group</small>-->
-                        <!--</h2>-->
-                        <!--<p class="stable">for photos?</p>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
-            <!--<div class="col text-center">-->
-                <!--<div class="list card">-->
-                    <!--<div class="item" style="padding: 30px 15px">-->
-                        <!--<a class="plus-circle" ng-click="openNewGroup()">-->
-                            <!--<i class="icon ion-ios-plus-empty stable"></i>-->
-                        <!--</a>-->
-
-                        <!--<div style="height: 10px"></div>-->
-                        <!--<h2 class="positive">-->
-                            <!--<small>New Group</small>-->
-                        <!--</h2>-->
-                        <!--<p class="stable">for team?</p>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
-        <!--</div>-->
     </ion-content>
 </ion-view>

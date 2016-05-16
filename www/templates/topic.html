@@ -52,15 +52,16 @@
 
         <div ng-if="chatList.length==0" class="empty-des text-center">
             <div style="height: 100px"></div>
-            <h3>Start a conversation</h3>
-            <h4>{{topic.title}} is on Messenger and will get your messages instantly.</h4>
+            <h3>Bắt đầu cuộc trò chuyện</h3>
+            <h4>Hãy bắt đầu cùng nhau chia sẻ những câu chuyện thú vị!</h4>
         </div>
     </ion-content>
 
     <ion-footer-bar class="bar-light chat-bar">
         <form class="row" name="theform">
-            <input class="col col-75" type="text" ng-model="chatText" placeholder="Type a message" ng-minlength="1" ng-required="true" ng-change="inputChange()">
-            <button class="col button" ng-click="sendChat(chatText); chatText = null" ng-disabled="theform.$invalid">Send</button>
+            <input class="col col-75" type="text" ng-model="chatText" placeholder="Nhập tin nhắn" 
+                   ng-minlength="1" ng-required="true" ng-change="inputChange()">
+            <button class="col button" ng-click="sendChat(chatText); chatText = null" ng-disabled="theform.$invalid">Gửi</button>
         </form>
     </ion-footer-bar>
 

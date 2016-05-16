@@ -3,7 +3,7 @@
         <button class="button button-clear button-icon button-positive icon ion-ios-arrow-down" 
                 ng-click="closeNewChat()">
         </button>
-        <h1 class="title">Topics</h1>
+        <h1 class="title">Chủ đề</h1>
         <button class="button button-clear button-positive" ng-click="closeNewChat(); openNewGroup()">
             <img style='height:32px; width:32px' ng-src="img/icon/new_group-256.png">
         </button>
@@ -14,12 +14,6 @@
             <ion-item class="item-avatar" type="item-text-wrap" ng-repeat="topic in topics track by $index"
                       ng-if="user.id!=userId" href="#/topic/{{topic.id}}">
                 <img ng-src="img/icon/topic/{{topic.id%10}}.jpg">
-
-                <!-- <span class="badge avatar-badge avatar-badge-s"
-                      ng-class="{'badge-positive':user.userType=='Messenger', 'badge-stable':user.userType=='facebook'}">
-                    <i class="icon ion-ios-bolt" ng-if="user.userType=='Messenger'"></i>
-                    <i class="icon ion-social-facebook light" ng-if="user.userType=='facebook'"></i>
-                </span> -->
 
                 <h3>
                     <small>{{topic.title}}</small>
