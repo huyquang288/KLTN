@@ -80,6 +80,13 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             }
         });
 
+        Socket.on('topic change privacy', function (data) {
+            Topic.changePrivacy(data);
+            $rootScope.$broadcast("reload groups");
+            $rootScope.$broadcast("reload recent");
+            $rootScope.$broadcast("reload topics");
+        });
+
         Socket.on('created new tag', function (data) {
             var list= data.groupList.split('+');
             var groupsName= '';
@@ -380,6 +387,7 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
             $scope.newTopicModal.hide();
         };
         $scope.onCategoryChange = function (item) {
+            // console.log("change2");
             if (item.id==0) {
                 $scope.isDisp= true;
             }
@@ -589,8 +597,8 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         $scope.pin= function (id) {
             var state= (Topic.isBookmark(id)==true ?'Unbookmark' :'Bookmark');
             var confirmPopup = $ionicPopup.confirm({
-                title: (state +' this topic'),
-                template: 'Are you sure?'
+                title: ((state=='Bookmark' ?'Đánh dấu' :'Bỏ đánh dấu') +' chủ đề này')
+                // template: 'Are you sure?'
             });
             confirmPopup.then(function(res) {
                 if(res) {
@@ -944,11 +952,11 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
         };
     })
 
-    .controller('TopicSettingCtrl', function ($scope, $ionicActionSheet, $stateParams, $ionicPopup, Topic, Noti) {
+    .controller('TopicSettingCtrl', function ($rootScope, $scope, $ionicActionSheet, $stateParams, $ionicPopup, Topic, Noti, Socket) {
         $scope.topic = Topic.getTopicById($stateParams.topicId);
         $scope.notiStatus= (Noti.checkNoti({groupId:-1, topicId: $stateParams.topicId}) == 'On')
                             ?'Bật' :'Tắt';
-
+        $scope.isDisp= 1;
         $scope.setNotification = function () {
 
             $ionicActionSheet.show({
@@ -1005,6 +1013,40 @@ angular.module('starter.controllers', ['ngSanitize', 'ionic', 'ngSanitize', 'btf
                 }
             });
         };
+
+        $scope.onCategoryChange = function (item) {
+            console.log("change1");
+            if (item.id==0) {
+                $scope.isDisp= 0;
+            }
+            else {
+                $scope.isDisp= 1;
+            }
+        };
+
+        $scope.saveSetting = function () {
+            var confirmPopup = $ionicPopup.confirm({
+                title: 'Lưu cài đặt',
+                template: 'Bạn có muốn lưu lại cài đặt cho chủ đề này?',
+                cancelText: 'Huỷ',
+                cancelType: 'button-clear',
+                okText: 'Lưu',
+                okType: 'button-clear'
+            });
+            confirmPopup.then(function (res) {
+                if (res) {
+                    var data= {topicId: $stateParams.topicId, type: $scope.isDisp};
+                    Topic.changePrivacy(data);
+                    Socket.emit('change privacy', data);
+                    $rootScope.$broadcast("reload groups");
+                    $rootScope.$broadcast("reload recent");
+                    $rootScope.$broadcast("reload topics");
+                    window.history.back();
+                } else {
+                    // console.log('Keep');
+                }
+            });
+        }
 
     })
 

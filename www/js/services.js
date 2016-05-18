@@ -1,6 +1,6 @@
-//var DOMAIN="http://192.168.42.232:8028/";
-//var DOMAIN="http://192.168.0.105:8028/";
-var DOMAIN="http://localhost:8028/";
+var DOMAIN="http://192.168.100.22:8028/";
+//var DOMAIN="http://192.168.0.104:8028/";
+//var DOMAIN="http://localhost:8028/";
 //var DOMAIN="http://:8028/";
 
 // Users
@@ -528,7 +528,6 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
         }
     }])
 
-    // Topics
     .factory('Topic', ['User', 'Chat', 'StorageData', function (User, Chat, StorageData) {
         var topicsIdOfUser= '+';
         var bookmarkTopicsIdOfUser= '+';
@@ -546,6 +545,19 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
             }
         };
         return {
+            changePrivacy: function (dataIn) {
+                var data = StorageData.getData();
+                for (var i in data.groups_topics) {
+                    for (var j in data.groups_topics[i].topics) {
+                        if (data.groups_topics[i].topics[j].id == dataIn.topicId) {
+                            data.groups_topics[i].topics[j].type = dataIn.type;
+                            StorageData.saveData(data);
+                            console.log(data);
+                            return;
+                        }
+                    }
+                }
+            },
             getGroupOfTopic: function (topicId) {
                 var groups= StorageData.getData().groups_topics;
                 for (var i in groups) {
@@ -682,7 +694,9 @@ angular.module('starter.services', ['ionic', 'ngSanitize','btford.socket-io'])
                 var data= StorageData.getData();
                 for (var i in data.groups_topics) {
                     if (data.groups_topics[i].id== topic.groupId) {
-                        var pos= (data.groups_topics[i].topics.length>0) ?data.groups_topics[i].topics.length :0;
+                        if (data.groups_topics[i].topics == null) {
+                            data.groups_topics[i].topics = [];
+                        }
                         data.groups_topics[i].topics.push(topic);
                         StorageData.saveData(data);
                         return;

@@ -21,7 +21,7 @@
 </style>
 
 <!-- name of tab -->
-<ion-view view-title="Topic Setting">
+<ion-view view-title="Cài đặt chủ đề">
     <ion-nav-buttons side="left">
         <button nav-direction="back" 
                 class="button button-clear button-icon button-positive icon ion-ios-arrow-back"
@@ -31,7 +31,7 @@
     </ion-nav-buttons>
     <ion-nav-buttons side="right">
         <button class="button button-clear button-icon icon button-positive ion-ios-checkmark-outline" 
-                ng-click="">
+                ng-click="saveSetting()">
         </button>
     </ion-nav-buttons>
 
@@ -75,7 +75,7 @@
             <div style="height: 15px"></div>
 
             <ion-item ng-if="room.roomType != 'group'"
-                    class="item-icon-left" ng-click="openTagedGroup();">
+                      class="item-icon-left" ng-click="openTagedGroup();">
                 <i class="icon ion-ios-people-outline positive"></i>
                 Nhóm đã được chia sẻ
             </ion-item>

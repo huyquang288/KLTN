@@ -335,6 +335,18 @@ io.on('connection', function (socket) {
 		socket.broadcast.emit('users added to group', data);
 	});
 	
+	socket.on('change privacy', function (data) {
+		// write to db
+		mysqlConnection.query("UPDATE topics SET type=" +data.type +" WHERE id=" +data.topicId, function(err, rows){
+			if (err) {
+				console.log('Internal error: ', err);
+			}
+			else {
+				socket.broadcast.emit('topic change privacy', data);
+			}
+		})
+	});
+	
 	socket.on('bookmark', function (data) {
 		var sql;
 		if (data.state== 'Bookmark') {
